@@ -1,7 +1,7 @@
 {
-  "createTime": 1740768405307,
-  "updateTime": 1741385823173,
-  "name": "InterviewAgenticWorkflow",
+  "createTime": 1742250829558,
+  "updateTime": 1742330348004,
+  "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
   "tasks": [
@@ -34,7 +34,11 @@
         "follow_up": "\"\"",
         "start_time": "${get_start_time_ref.output.result}",
         "is_initial_step_done": false,
-        "is_final_step_done": false
+        "is_final_step_done": false,
+        "is_first_q_done": "\"\"",
+        "is_second_q_done": "\"\"",
+        "is_third_q_done": "\"\"",
+        "sub_workflow_id": "\"\""
       },
       "type": "SET_VARIABLE",
       "decisionCases": {},
@@ -198,15 +202,14 @@
       "permissive": false
     },
     {
-      "name": "concatenate_initial_step_msg",
-      "taskReferenceName": "concatenate_initial_step_msg_ref",
+      "name": "email_message",
+      "taskReferenceName": "email_message_ref",
       "inputParameters": {
-        "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Thank you \" + $.name + \"! We will conduct this interview in \" + $.language + \". We will begin with the coding question.\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();\n",
+        "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Thank you \" + $.name + \"! We will conduct this interview in \" + $.language + \". Can you please provide us with your email address?\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();\n",
         "evaluatorType": "graaljs",
         "name": "${workflow.variables.name}",
         "language": "${workflow.variables.language}",
-        "messages": "${workflow.variables.messages}",
-        "initialResponse": "${initial_response_ref.output.result.response}"
+        "messages": "${workflow.variables.messages}"
       },
       "type": "INLINE",
       "decisionCases": {},
@@ -222,8 +225,156 @@
       "permissive": false
     },
     {
-      "name": "set_variable_9",
-      "taskReferenceName": "set_variable_ref_9",
+      "name": "set_variable_13",
+      "taskReferenceName": "set_variable_ref_13",
+      "inputParameters": {
+        "messages": "${email_message_ref.output.result.messages}"
+      },
+      "type": "SET_VARIABLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "do_while_2",
+      "taskReferenceName": "do_while_ref_2",
+      "inputParameters": {
+        "is_email_valid": "${workflow.variables.is_email_valid}"
+      },
+      "type": "DO_WHILE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopCondition": "(function () {\n  return !$.is_email_valid;\n})();",
+      "loopOver": [
+        {
+          "name": "email_response",
+          "taskReferenceName": "email_response_ref",
+          "inputParameters": {},
+          "type": "WAIT",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "email_evaluator",
+          "taskReferenceName": "email_evaluator_ref",
+          "inputParameters": {
+            "llmProvider": "openai-orkes-karl",
+            "model": "gpt-4o-mini",
+            "promptName": "email_evaluator",
+            "promptVariables": {
+              "response": "${email_response_ref.output.result.response}"
+            }
+          },
+          "type": "LLM_TEXT_COMPLETE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "concatenate_email_msg",
+          "taskReferenceName": "concatenate_email_msg_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"user\",\n        message: $.email_response,\n        timestamp: new Date().toISOString()\n      },\n      ...(!$.is_email_valid ? [{\n        role: \"assistant\",\n        message: \"Your email address is missing or invalid. Please provide a valid email address to proceed.\",\n        timestamp: new Date().toISOString()\n      }] : [])\n    ]\n  };\n})();",
+            "evaluatorType": "graaljs",
+            "messages": "${workflow.variables.messages}",
+            "email_response": "${email_response_ref.output.result.response}",
+            "is_email_valid": "${email_evaluator_ref.output.result.is_email_valid}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "set_variable_12",
+          "taskReferenceName": "set_variable_ref_12",
+          "inputParameters": {
+            "is_email_valid": "${email_evaluator_ref.output.result.is_email_valid}",
+            "email": "${email_evaluator_ref.output.result.email}",
+            "messages": "${concatenate_email_msg_ref.output.result.messages}"
+          },
+          "type": "SET_VARIABLE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "concatenate_initial_step_msg",
+      "taskReferenceName": "concatenate_initial_step_msg_ref",
+      "inputParameters": {
+        "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Thank you \" + $.name + \"! We will begin with the coding question.\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();\n",
+        "evaluatorType": "graaljs",
+        "name": "${workflow.variables.name}",
+        "messages": "${workflow.variables.messages}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "set_variable_14",
+      "taskReferenceName": "set_variable_ref_14",
       "inputParameters": {
         "messages": "${concatenate_initial_step_msg_ref.output.result.messages}"
       },
@@ -241,78 +392,11 @@
       "permissive": false
     },
     {
-      "name": "question_generator",
-      "taskReferenceName": "question_generator_ref",
+      "name": "interview_loop",
+      "taskReferenceName": "interview_loop_ref",
       "inputParameters": {
-        "llmProvider": "openai-orkes-karl",
-        "model": "gpt-4o-mini",
-        "promptName": "interview_question_generator",
-        "promptVariables": {
-          "name": "${workflow.variables.name}",
-          "language": "${workflow.variables.language}"
-        }
-      },
-      "type": "LLM_TEXT_COMPLETE",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopOver": [],
-      "onStateChange": {},
-      "permissive": false
-    },
-    {
-      "name": "concatenate_question",
-      "taskReferenceName": "concatenate_question_ref",
-      "inputParameters": {
-        "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: $.question,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
-        "evaluatorType": "graaljs",
-        "messages": "${workflow.variables.messages}",
-        "question": "${question_generator_ref.output.result}"
-      },
-      "type": "INLINE",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopOver": [],
-      "onStateChange": {},
-      "permissive": false
-    },
-    {
-      "name": "set_variable_1",
-      "taskReferenceName": "set_variable_ref_1",
-      "inputParameters": {
-        "messages": "${concatenate_question_ref.output.result.messages}"
-      },
-      "type": "SET_VARIABLE",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopOver": [],
-      "onStateChange": {},
-      "permissive": false
-    },
-    {
-      "name": "do_while",
-      "taskReferenceName": "do_while_ref",
-      "inputParameters": {
-        "response": "${interviewee_response_ref.output.result.response}",
-        "interview_status": "${workflow.variables.interview_status}",
-        "start_time": "${get_start_time_ref.output.result}"
+        "number": 3,
+        "start_time": "${workflow.variables.start_time}"
       },
       "type": "DO_WHILE",
       "decisionCases": {},
@@ -323,157 +407,34 @@
       "optional": false,
       "defaultExclusiveJoinTask": [],
       "asyncComplete": false,
-      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n  return $.interview_status != \"DONE\" && minElapsed <= 45;\n})();",
+      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n\n  return (\n    $.interview_loop_ref['iteration'] <= $.number && minElapsed <= 45\n  );\n})();\n",
       "loopOver": [
-        {
-          "name": "interviewee_response",
-          "taskReferenceName": "interviewee_response_ref",
-          "inputParameters": {
-            "messages": "${workflow.variables.messages}",
-            "original_question": "${question_generator_ref.output}"
-          },
-          "type": "WAIT",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "concatenate_interviewee_msg",
-          "taskReferenceName": "concatenate_interviewee_msg_ref",
-          "inputParameters": {
-            "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"user\",\n        message: $.intervieweeResponse,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
-            "evaluatorType": "graaljs",
-            "messages": "${workflow.variables.messages}",
-            "intervieweeResponse": "${interviewee_response_ref.output.result.response}"
-          },
-          "type": "INLINE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "set_variable_2",
-          "taskReferenceName": "set_variable_ref_2",
-          "inputParameters": {
-            "messages": "${concatenate_interviewee_msg_ref.output.result.messages}"
-          },
-          "type": "SET_VARIABLE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "evaluator_response",
-          "taskReferenceName": "evaluator_response_ref",
-          "inputParameters": {
-            "llmProvider": "openai-orkes-karl",
-            "model": "gpt-4o-mini",
-            "instructions": "interview_response_evaluator",
-            "promptVariables": {
-              "question": "${question_generator_ref.output.result}",
-              "response": "${interviewee_response_ref.output.result.response}",
-              "name": "${workflow.variables.name}",
-              "language": "${workflow.variables.language}",
-              "follow_up": "${workflow.variables.follow_up}"
-            },
-            "messages": "${workflow.variables.messages}"
-          },
-          "type": "LLM_CHAT_COMPLETE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "clean_evaluation_response",
-          "taskReferenceName": "clean_evaluation_response_ref",
-          "inputParameters": {
-            "expression": "(function () {\n  function cleanString(str) {\n    return str.replace(/(\\*\\*|\\*|__|_)/g, '').trim().toUpperCase();\n  }\n  \n  return cleanString($.evaluator_response);\n})();",
-            "evaluatorType": "graaljs",
-            "evaluator_response": "${evaluator_response_ref.output.result}"
-          },
-          "type": "INLINE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "set_variable_3",
-          "taskReferenceName": "set_variable_ref_3",
-          "inputParameters": {
-            "interview_status": "${evaluator_response_ref.output.result}"
-          },
-          "type": "SET_VARIABLE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
         {
           "name": "switch",
           "taskReferenceName": "switch_ref",
           "inputParameters": {
-            "switchCaseValue": "${workflow.variables.interview_status}"
+            "iteration": "${interview_loop_ref.output.iteration}"
           },
           "type": "SWITCH",
           "decisionCases": {
-            "DONE": [
+            "1": [
               {
-                "name": "concatenate_done_msg",
-                "taskReferenceName": "concatenate_done_msg_ref",
+                "name": "sub_1st_question_workflow",
+                "taskReferenceName": "sub_1st_question_workflow_ref",
                 "inputParameters": {
-                  "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Congratulations, you have solved the problem successfully. The interview is now complete, thank you for your time \" + $.name + \". We will be in contact shortly.\",\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
-                  "evaluatorType": "graaljs",
-                  "messages": "${workflow.variables.messages}",
-                  "name": "${workflow.variables.name}"
+                  "startWorkflow": {
+                    "name": "Core Interview Loop",
+                    "input": {
+                      "name": "${workflow.variables.name}",
+                      "language": "${workflow.variables.language}",
+                      "messages": "${workflow.variables.messages}",
+                      "start_time": "${workflow.variables.start_time}",
+                      "question_template": "interview_question_generator"
+                    },
+                    "version": 1
+                  }
                 },
-                "type": "INLINE",
+                "type": "START_WORKFLOW",
                 "decisionCases": {},
                 "defaultCase": [],
                 "forkTasks": [],
@@ -487,10 +448,10 @@
                 "permissive": false
               },
               {
-                "name": "set_variable_6",
-                "taskReferenceName": "set_variable_ref_6",
+                "name": "set_q1_workflow_id",
+                "taskReferenceName": "set_q1_workflow_id_ref",
                 "inputParameters": {
-                  "messages": "${concatenate_done_msg_ref.output.result.messages}"
+                  "sub_workflow_id": "${sub_1st_question_workflow_ref.output.workflowId}"
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -506,24 +467,24 @@
                 "permissive": false
               }
             ],
-            "HINT": [
+            "2": [
               {
-                "name": "interview_hint_generator",
-                "taskReferenceName": "interview_hint_generator_ref",
+                "name": "sub_2nd_question_workflow",
+                "taskReferenceName": "sub_2nd_question_workflow_ref",
                 "inputParameters": {
-                  "llmProvider": "openai-orkes-karl",
-                  "model": "gpt-4o-mini",
-                  "instructions": "interview_hint_generator",
-                  "promptVariables": {
-                    "question": "${question_generator_ref.output.result}",
-                    "response": "${interviewee_response_ref.output.result.response}",
-                    "name": "${workflow.variables.name}",
-                    "language": "${workflow.variables.language}",
-                    "follow_up": "${workflow.variables.follow_up}"
-                  },
-                  "messages": "${workflow.variables.messages}"
+                  "startWorkflow": {
+                    "name": "Core Interview Loop",
+                    "input": {
+                      "name": "${workflow.variables.name}",
+                      "language": "${workflow.variables.language}",
+                      "messages": "${workflow.variables.messages}",
+                      "start_time": "${workflow.variables.start_time}",
+                      "question_template": "interview_question2_generator"
+                    },
+                    "version": 1
+                  }
                 },
-                "type": "LLM_CHAT_COMPLETE",
+                "type": "START_WORKFLOW",
                 "decisionCases": {},
                 "defaultCase": [],
                 "forkTasks": [],
@@ -537,33 +498,10 @@
                 "permissive": false
               },
               {
-                "name": "concatenate_hint_msg",
-                "taskReferenceName": "concatenate_hint_msg_ref",
+                "name": "set_q2_workflow_id",
+                "taskReferenceName": "set_q2_workflow_id_ref",
                 "inputParameters": {
-                  "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: $.hint,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
-                  "evaluatorType": "graaljs",
-                  "messages": "${workflow.variables.messages}",
-                  "hint": "${interview_hint_generator_ref.output.result}"
-                },
-                "type": "INLINE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              },
-              {
-                "name": "set_variable_5",
-                "taskReferenceName": "set_variable_ref_5",
-                "inputParameters": {
-                  "follow_up": "${interview_hint_generator_ref.output.result}",
-                  "messages": "${concatenate_hint_msg_ref.output.result.messages}"
+                  "sub_workflow_id": "${sub_2nd_question_workflow_ref.output.workflowId}"
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -579,24 +517,24 @@
                 "permissive": false
               }
             ],
-            "SIMPLIFY": [
+            "3": [
               {
-                "name": "interview_simplification_generator",
-                "taskReferenceName": "interview_simplification_generator_ref",
+                "name": "sub_3rd_question_workflow",
+                "taskReferenceName": "sub_3rd_question_workflow_ref",
                 "inputParameters": {
-                  "llmProvider": "openai-orkes-karl",
-                  "model": "gpt-4o-mini",
-                  "instructions": "interview_simplification_generator",
-                  "promptVariables": {
-                    "question": "${question_generator_ref.output.result}",
-                    "response": "${interviewee_response_ref.output.result.response}",
-                    "name": "${workflow.variables.name}",
-                    "language": "${workflow.variables.language}",
-                    "follow_up": "${workflow.variables.follow_up}"
-                  },
-                  "messages": "${workflow.variables.messages}"
+                  "startWorkflow": {
+                    "name": "Core Interview Loop",
+                    "input": {
+                      "name": "${workflow.variables.name}",
+                      "language": "${workflow.variables.language}",
+                      "messages": "${workflow.variables.messages}",
+                      "start_time": "${workflow.variables.start_time}",
+                      "question_template": "interview_question3_generator"
+                    },
+                    "version": 1
+                  }
                 },
-                "type": "LLM_CHAT_COMPLETE",
+                "type": "START_WORKFLOW",
                 "decisionCases": {},
                 "defaultCase": [],
                 "forkTasks": [],
@@ -610,33 +548,10 @@
                 "permissive": false
               },
               {
-                "name": "concatenate_simplification_msg",
-                "taskReferenceName": "concatenate_simplification_msg_ref",
+                "name": "set_q3_workflow_id",
+                "taskReferenceName": "set_q3_workflow_id_ref",
                 "inputParameters": {
-                  "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: $.simplification,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
-                  "evaluatorType": "graaljs",
-                  "messages": "${workflow.variables.messages}",
-                  "simplification": "${interview_simplification_generator_ref.output.result}"
-                },
-                "type": "INLINE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              },
-              {
-                "name": "set_variable_4",
-                "taskReferenceName": "set_variable_ref_4",
-                "inputParameters": {
-                  "follow_up": "${interview_simplification_generator_ref.output.result}",
-                  "messages": "${concatenate_simplification_msg_ref.output.result.messages}"
+                  "sub_workflow_id": "${sub_3rd_question_workflow_ref.output.workflowId}"
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -653,49 +568,7 @@
               }
             ]
           },
-          "defaultCase": [
-            {
-              "name": "concatenate_error_msg",
-              "taskReferenceName": "concatenate_error_msg_ref",
-              "inputParameters": {
-                "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Something has gone wrong. The interview status produced: \" + $.interview_status + \" is invalid. The interview will now terminate.\",\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
-                "evaluatorType": "graaljs",
-                "interview_status": "${evaluator_response_ref.output.result}",
-                "messages": "${workflow.variables.messages}"
-              },
-              "type": "INLINE",
-              "decisionCases": {},
-              "defaultCase": [],
-              "forkTasks": [],
-              "startDelay": 0,
-              "joinOn": [],
-              "optional": false,
-              "defaultExclusiveJoinTask": [],
-              "asyncComplete": false,
-              "loopOver": [],
-              "onStateChange": {},
-              "permissive": false
-            },
-            {
-              "name": "set_variable_7",
-              "taskReferenceName": "set_variable_ref_7",
-              "inputParameters": {
-                "messages": "${concatenate_error_msg_ref.output.result.messages}"
-              },
-              "type": "SET_VARIABLE",
-              "decisionCases": {},
-              "defaultCase": [],
-              "forkTasks": [],
-              "startDelay": 0,
-              "joinOn": [],
-              "optional": false,
-              "defaultExclusiveJoinTask": [],
-              "asyncComplete": false,
-              "loopOver": [],
-              "onStateChange": {},
-              "permissive": false
-            }
-          ],
+          "defaultCase": [],
           "forkTasks": [],
           "startDelay": 0,
           "joinOn": [],
@@ -704,12 +577,65 @@
           "asyncComplete": false,
           "loopOver": [],
           "evaluatorType": "value-param",
-          "expression": "switchCaseValue",
+          "expression": "iteration",
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "wait_till_question_done",
+          "taskReferenceName": "wait_till_question_done_ref",
+          "inputParameters": {},
+          "type": "WAIT",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "set_messages_question",
+          "taskReferenceName": "set_messages_question_ref",
+          "inputParameters": {
+            "messages": "${wait_till_question_done_ref.output.result.response}"
+          },
+          "type": "SET_VARIABLE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
           "onStateChange": {},
           "permissive": false
         }
       ],
       "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "STOP",
+      "taskReferenceName": "STOP_ref",
+      "inputParameters": {},
+      "type": "WAIT",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
       "onStateChange": {},
       "permissive": false
     },
@@ -721,7 +647,49 @@
       },
       "type": "SWITCH",
       "decisionCases": {
-        "DONE": []
+        "DONE": [
+          {
+            "name": "concatenate_interview_done_msg",
+            "taskReferenceName": "concatenate_interview_done_msg_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Congratulations \" + $.name + \", you have solved the problem successfully. The interview is now complete, thank you for your time. We will be in contact shortly.\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();",
+              "evaluatorType": "graaljs",
+              "messages": "${workflow.variables.messages}",
+              "name": "${workflow.variables.name}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "set_variable_1",
+            "taskReferenceName": "set_variable_ref_1",
+            "inputParameters": {
+              "messages": "${concatenate_interview_done_msg_ref.output.result.messages}"
+            },
+            "type": "SET_VARIABLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
       },
       "defaultCase": [
         {
@@ -873,7 +841,7 @@
                   {
                     "to": [
                       {
-                        "email": "karl.goeltner@orkes.io"
+                        "email": "${email_evaluator_ref.output.result.email}"
                       }
                     ]
                   }
@@ -937,10 +905,21 @@
     {
       "name": "set_variable_11",
       "taskReferenceName": "set_variable_ref_11",
-      "type": "SET_VARIABLE",
       "inputParameters": {
         "is_final_step_done": true
-      }
+      },
+      "type": "SET_VARIABLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
     }
   ],
   "inputParameters": [],

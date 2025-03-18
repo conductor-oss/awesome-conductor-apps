@@ -3,14 +3,20 @@ import axios from 'axios';
 import { Message } from 'react-chat-ui';
 import { marked } from 'marked';
 
-const API_BASE_URL = 'https://awesome-conductor-apps.onrender.com';
+const API_BASE_URL = 'http://localhost:5000' //'https://awesome-conductor-apps.onrender.com';
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState('');
   const [loading, setLoading] = useState(false);
+
   const [isInterviewDone, setIsInterviewDone] = useState(false);
+  const [isFirstQDone, setIsFirstQDone] = useState(false);
+  const [isSecondQDone, setIsSecondQDone] = useState(false);
+  const [isThirdQDone, setIsThirdQDone] = useState(false);
+
   const [isInitialStepDone, setIsInitialStepDone] = useState(false);
+  const [isEmailValid, setIsEmailValid] = useState(false);
   const [isInterviewTerminating, setIsInterviewTerminating] = useState(false);
 
   const chatBoxRef = useRef(null);
@@ -67,9 +73,23 @@ export default function Home() {
     if (textareaRef.current) textareaRef.current.style.height = '40px';
 
     try {
-      if (isInitialStepDone) {
+      // 3rd Q Loop
+      if (isInitialStepDone && isEmailValid && isFirstQDone && isSecondQDone && !isThirdQDone) {
         await handleCoreInterviewLoop();
-        await checkInterviewStatus();
+        await checkInterviewStatus(3);
+      // 2nd Q Loop
+      } else if (isInitialStepDone && isEmailValid && isFirstQDone && !isSecondQDone && !isThirdQDone) {
+        await handleCoreInterviewLoop();
+        await checkInterviewStatus(2);
+      // 1st Q Loop
+      } else if (isInitialStepDone && isEmailValid && !isFirstQDone && !isSecondQDone && !isThirdQDone) {
+        console.log("ENTERED 1ST Q LOOP")
+        await handleCoreInterviewLoop();
+        await checkInterviewStatus(1);
+      // Process Email Step
+      } else if (isInitialStepDone && !isEmailValid) {
+        await processEmailStep();
+      // Process Initial Name & Language Step
       } else {
         await processInitialStep();
       }
@@ -80,11 +100,6 @@ export default function Home() {
     }
   };
 
-  const handleCoreInterviewLoop = async () => {
-    const response = await axios.post(`${API_BASE_URL}/send_user_input`, { userInput });
-    addMessage(response.data.message || "Sorry, I didn't understand that.", 'Bot');
-  };
-
   const processInitialStep = async () => {
     try {
       const response = await axios.post(`${API_BASE_URL}/send_name_language`, { userInput });
@@ -92,7 +107,7 @@ export default function Home() {
       setIsInitialStepDone(initialLoopStatus.data.message);
 
       if (initialLoopStatus.data.message) {
-        await getInterviewQuestion();
+        addMessage(response.data.message, 'Bot');
       } else {
         addMessage(response.data.message || "Sorry, I didn't understand that.", 'Bot');
       }
@@ -101,7 +116,28 @@ export default function Home() {
     }
   };
 
-  const getInterviewQuestion = async () => {
+  const processEmailStep = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/send_email_address`, { userInput });
+      const emailLoopStatus = await axios.get(`${API_BASE_URL}/get_is_email_valid`);
+      setIsEmailValid(emailLoopStatus.data.message);
+
+      if (emailLoopStatus.data.message) {
+        await getInterviewQuestion(true);
+      } else {
+        addMessage(response.data.message || "Sorry, I didn't understand that.", 'Bot');
+      }
+    } catch (error) {
+      handleError("The interview has terminated unexpectedly. There was an error processing the initial step.");
+    }
+  };
+
+  const getInterviewQuestion = async (getTwo) => {
+    // Start new subworkflow routine
+    const sub_workflow_id = await axios.get(`${API_BASE_URL}/get_sub_workflow_id`);
+    console.log(`Starting sub_workflow id: ${sub_workflow_id.data.message}`);
+
+    // Get question for user
     const startQuestionMsg = await axios.get(`${API_BASE_URL}/get_question`);
     const botMessages = startQuestionMsg.data.message.map(msg => {
       const messageHtml = marked(msg);
@@ -111,18 +147,48 @@ export default function Home() {
         senderName: 'Bot'
       };
     });
-    setMessages(prevMessages => [...prevMessages, ...botMessages]);
+    //setMessages(prevMessages => [...prevMessages, ...botMessages]);
+    // Select only the required number of messages
+    const filteredBotMessages = getTwo ? botMessages : botMessages.slice(-1);
+
+    // Update messages state
+    setMessages(prevMessages => [...prevMessages, ...filteredBotMessages]);
   };
 
-  const checkInterviewStatus = async () => {
-    const interviewStatus = await axios.get(`${API_BASE_URL}/get_interview_status`);
-    if (interviewStatus.data.message === 'DONE') {
-      setIsInterviewTerminating(true);
-      const isFinalStepDone = await axios.get(`${API_BASE_URL}/get_is_final_step_done`);
-      if (isFinalStepDone.data.message) {
-        await axios.post(`${API_BASE_URL}/stop_workers`);
-        setIsInterviewDone(true);
+  const handleCoreInterviewLoop = async () => {
+    const response = await axios.post(`${API_BASE_URL}/send_user_input`, { userInput });
+    addMessage(response.data.message || "Sorry, I didn't understand that.", 'Bot');
+  };
+
+  const checkInterviewStatus = async (q_id) => {
+    const isQuestionDone = await axios.get(`${API_BASE_URL}/get_question_status`);
+    console.log(`LETS GET QUESTION STATUS: ${isQuestionDone.data.message}`)
+    if (isQuestionDone.data.message === 'DONE') {
+      // setIsInterviewTerminating(true);
+
+      // switch case for questions 1/2/3
+      if (q_id == 1) {
+        await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref" });
+        setIsFirstQDone(true);
+        console.log("DONE UPDATING Q1 MESSAGES")
+        await getInterviewQuestion(false); // somehow send trigger to only get one
+      } else if (q_id == 2) {
+        await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref" });
+        setIsSecondQDone(true);
+        console.log("DONE UPDATING Q2 MESSAGES")
+        await getInterviewQuestion(false);
+      } else if (q_id == 3) {
+        await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref" });
+        setIsThirdQDone(true);
+        console.log("DONE UPDATING Q3 MESSAGES")
       }
+
+      // TODO: REFACTOR THIS OUT LATER
+      // const isFinalStepDone = await axios.get(`${API_BASE_URL}/get_is_final_step_done`);
+      // if (isFinalStepDone.data.message) {
+      //   await axios.post(`${API_BASE_URL}/stop_workers`);
+      //   setIsInterviewDone(true);
+      // }
     }
   };
 
