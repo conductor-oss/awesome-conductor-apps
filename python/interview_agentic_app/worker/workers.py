@@ -38,7 +38,7 @@ def get_credentials():
                     token.write(creds.to_json())
     return creds
 
-def upload_text_to_drive_as_doc(text, filename, creds):
+def upload_text_to_drive_as_doc(text, filename, creds, email):
     try:
         service = build("drive", "v3", credentials=creds)
         file_metadata = {
@@ -61,6 +61,19 @@ def upload_text_to_drive_as_doc(text, filename, creds):
             fields="id"
         ).execute()
         print(f"File shared with karl.goeltner@orkes.io")
+
+         # Share the file with interviewee
+        permission = {
+            "type": "user",
+            "role": "reader",  # Can be 'reader', 'commenter', or 'writer'
+            "emailAddress": email
+        }
+        service.permissions().create(
+            fileId=file.get('id'),
+            body=permission,
+            fields="id"
+        ).execute()
+        print(f"File shared with interviewee at {email}")
 
         return file.get('id')
     except Exception as error:
@@ -205,7 +218,7 @@ def apply_google_docs_formatting(doc_id, formatted_text, creds):
 
 
 @worker_task(task_definition_name='storeInterviewTranscript')
-def storeInterviewTranscript(messages: str, name: str):
+def storeInterviewTranscript(messages: str, name: str, email: str):
     formatted_text = []
 
     # Iterate over the input data and prepare it for formatting
@@ -227,7 +240,7 @@ def storeInterviewTranscript(messages: str, name: str):
     current_date = datetime.today().strftime('%m/%d/%Y')
     transcript_title = f'Interview Transcript for {name}: {current_date}'
     creds = get_credentials()
-    doc_id = upload_text_to_drive_as_doc("", transcript_title, creds)
+    doc_id = upload_text_to_drive_as_doc("", transcript_title, creds, email)
 
     if doc_id:
         # Now apply formatting to the document

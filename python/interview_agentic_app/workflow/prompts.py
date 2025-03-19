@@ -5,7 +5,59 @@ from conductor.client.configuration.configuration import Configuration
 from conductor.client.orkes_clients import OrkesClients
 import os
 
-name_question_evaluator = """
+email_evaluator = """
+Given the following user input, extract the user's email. Make sure the email follows the standard format.
+
+Here's a regex pattern you can use to validate the email: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+Then, output a JSON object in the format:
+{"email": "xyz@gmail.com", "is_email_valid": true}
+
+If the email is missing or invalid, return:
+{"email": null, "is_email_valid": false}
+
+**Important:** Do not wrap the output in a ```json ... ``` block. The output should be a plain JSON object.
+
+✅ Valid Input:
+Input: "coolio@orkes.io."
+Output: {"email": "coolio@orkes.io", "is_email_valid": true}
+
+Input: "My email is alex@gmail.com."
+Output: {"email": "alex@gmail.com", "is_email_valid": true}
+
+Input: "Contact me at donavan.smith@yahoo.com"
+Output: {"email": "donavan.smith@yahoo.com", "is_email_valid": true}
+
+Input: "jane_doe123@outlook.com is my email."
+Output: {"email": "jane_doe123@outlook.com", "is_email_valid": true}
+
+Input: "You can reach me at gloria.peng@company.org."
+Output: {"email": "gloria.peng@company.org", "is_email_valid": true}
+
+Input: "James: james123@protonmail.com"
+Output: {"email": "james123@protonmail.com", "is_email_valid": true}
+
+❌ Invalid Input (No Email or Invalid Email Provided):
+Input: "I enjoy coding."
+Output: {"email": null, "is_email_valid": false}
+
+Input: "My name is George, and my email is user@com."
+Output: {"email": null, "is_email_valid": false}
+
+Input: "You can message me on Discord."
+Output: {"email": null, "is_email_valid": false}
+
+Input: "I'm Bob, and I want to code in Java."
+Output: {"email": null, "is_email_valid": false}
+
+Input: "Amy loves name@domain..com."
+Output: {"email": null, "is_email_valid": false}
+
+---
+
+Now, process this input: "${response}"
+"""
+
+name_lang_evaluator = """
 Given the following user input, extract the user's name and preferred programming language or frontend framework. The recognized languages and frameworks include:  
 
 Programming Languages:
@@ -65,7 +117,19 @@ Now, process this input: "${response}"
 """
 
 interview_question_generator = """
-Given an interviewee's name ${name} and a programming language / framework ${language}, generate a technical software engineering question relevant to that language. The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Your response:
+Given an interviewee's name ${name} and a programming language / framework ${language}, generate a leetcode-style technical software engineering question relevant to that language. The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**First Question:**". Your response:
+"""
+
+interview_question2_generator = """
+Given an interviewee's name ${name} and a programming language / framework ${language}, generate a SECOND new & unique leetcode-style technical software engineering question relevant to that language. DO NOT repeat any similar question asked previously in this chat context.
+
+The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**Second Question:**". Your response:
+"""
+
+interview_question3_generator = """
+Given an interviewee's name ${name} and a programming language / framework ${language}, generate a THIRD & FINAL new & unique leetcode-style technical software engineering question relevant to that language. DO NOT repeat any similar question asked previously in this chat context.
+
+The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**Final Question:**". Your response:
 """
 
 interview_response_evaluator = """
@@ -195,11 +259,23 @@ def configure_integrations(api_config: Configuration):
 
     prompt_client.save_prompt('name_question_evaluator',
                               description="Evaluate an interviewee's response to providing their own name & programming language. Output three values: is_initial_step_done, name, language in JSON format.",
-                              prompt_template=name_question_evaluator)
+                              prompt_template=name_lang_evaluator)
+    
+    prompt_client.save_prompt('email_evaluator',
+                              description="Evaluate an interviewee's response to providing their email address. Output two values: is_email_valid, email in JSON format.",
+                              prompt_template=email_evaluator)
 
     prompt_client.save_prompt('interview_question_generator',
                               description='Generate a technical question for the interviewee.',
                               prompt_template=interview_question_generator)
+    
+    prompt_client.save_prompt('interview_question2_generator',
+                              description='Generate a second technical question for the interviewee.',
+                              prompt_template=interview_question2_generator)
+    
+    prompt_client.save_prompt('interview_question3_generator',
+                              description='Generate a third technical question for the interviewee.',
+                              prompt_template=interview_question3_generator)
 
     prompt_client.save_prompt('interview_response_evaluator',
                               description="Evaluate an interviewee's response to a technical question by outputting either SIMPLIFY, HINT, or DONE.",
@@ -224,7 +300,10 @@ def configure_integrations(api_config: Configuration):
                                        models=models, config=openai_config)
 
     ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai-orkes-karl', ai_models=models)

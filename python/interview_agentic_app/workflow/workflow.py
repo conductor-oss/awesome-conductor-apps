@@ -27,8 +27,8 @@ def start_workers(api_config):
     return task_handler
 
 
-def add_agentic_workflow(metadata_client: MetadataClient):
-    with open('../resources/workflow.json', 'r') as file:
+def add_agentic_workflow(path: str, metadata_client: MetadataClient):
+    with open(path, 'r') as file:
         data = json.load(file)
     return metadata_client.register_workflow_def(workflow_def=data, overwrite=True)
 
@@ -63,9 +63,10 @@ def start_workflow():
     # Configure integrations using the function from prompts.py (one-time setup)
     configure_integrations(api_config=api_config)
 
-    add_agentic_workflow(metadata_client=metadata_client)
+    add_agentic_workflow(path='../resources/interviewAgenticWorkflow.json', metadata_client=metadata_client)
+    add_agentic_workflow(path='../resources/coreInterviewLoop.json', metadata_client=metadata_client)
 
-    request = StartWorkflowRequest(name='InterviewAgenticWorkflow', version=1)
+    request = StartWorkflowRequest(name='Interview Agentic Workflow', version=1)
 
     workflow_id = workflow_client.start_workflow(start_workflow_request=request)
     os.environ['WORKFLOW_ID'] = workflow_id

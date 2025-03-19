@@ -45,6 +45,14 @@
   align-self: flex-start;
 }
 
+.chat-bubble a {
+  pointer-events: none;
+  text-decoration: none;
+  font-weight: none;
+  font-style: none;
+  color: white !important;
+}
+
 /* Typing Indicator */
 .typing-indicator {
   font-style: italic;
