@@ -300,6 +300,7 @@ def configure_integrations(api_config: Configuration):
                                        models=models, config=openai_config)
 
     ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai-orkes-karl', ai_models=models)
