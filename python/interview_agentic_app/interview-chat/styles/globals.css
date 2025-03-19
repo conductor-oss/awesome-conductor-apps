@@ -54,9 +54,55 @@
 }
 
 /* Typing Indicator */
+.chat-bubble.typing-indicator {
+  min-height: 10px; /* Adjust as needed */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 15px; /* Add some padding */
+}
+
+/* Typing Indicator Animation */
 .typing-indicator {
-  font-style: italic;
-  color: #666;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.typing-indicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #666;
+  border-radius: 50%;
+  animation: typingAnimation 1.5s infinite ease-in-out;
+}
+
+/* Create delay for each dot */
+.typing-indicator span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typingAnimation {
+  0% {
+    opacity: 0.2;
+    transform: translateY(0px);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(0px);
+  }
 }
 
 .chat-box .chat-bubble p {
