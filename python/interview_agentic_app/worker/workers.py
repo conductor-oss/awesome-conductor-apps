@@ -53,34 +53,33 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
         }
         media = MediaIoBaseUpload(io.BytesIO(text.encode()), mimetype="text/plain")
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-        print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
+        print(f"Google Doc uploaded successfully. File ID: {file.get('id')}", file=sys.stderr)
 
-        # Share the file with karl.goeltner@orkes.io
-        permission = {
-            "type": "user",
-            "role": "writer",  # Can be 'reader', 'commenter', or 'writer'
-            "emailAddress": "karl.goeltner@orkes.io"
-        }
-        service.permissions().create(
-            fileId=file.get('id'),
-            body=permission,
-            fields="id"
-        ).execute()
-        print(f"File shared with karl.goeltner@orkes.io", file=sys.stderr)
-
+        # # Share the file with karl.goeltner@orkes.io
+        # permission = {
+        #     "type": "user",
+        #     "role": "writer",  # Can be 'reader', 'commenter', or 'writer'
+        #     "emailAddress": "karl.goeltner@orkes.io"
+        # }
+        # service.permissions().create(
+        #     fileId=file.get('id'),
+        #     body=permission,
+        #     fields="id"
+        # ).execute()
+        # print(f"File shared with karl.goeltner@orkes.io", file=sys.stderr)
 
          # Share the file with interviewee
         permission = {
             "type": "user",
             "role": "reader",  # Can be 'reader', 'commenter', or 'writer'
-            "emailAddress": email
+            "emailAddress": str(email)
         }
         service.permissions().create(
             fileId=file.get('id'),
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with interviewee at {email}", file=sys.stderr)
+        print(f"File shared with interviewee at {str(email)}", file=sys.stderr)
 
         return file.get('id')
     except Exception as error:
