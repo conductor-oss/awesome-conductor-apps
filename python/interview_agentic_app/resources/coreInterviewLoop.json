@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742346568418,
+    "updateTime": 1742357668476,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -38,7 +38,8 @@
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
           },
-          "temperature": 0.4
+          "temperature": 0.4,
+          "messages": "${workflow.variables.messages}"
         },
         "type": "LLM_CHAT_COMPLETE",
         "decisionCases": {},
@@ -557,7 +558,7 @@
     "schemaVersion": 2,
     "restartable": true,
     "workflowStatusListenerEnabled": false,
-    "ownerEmail": "example@email.com",
+    "ownerEmail": "220d4fb6-6511-4c9b-a8c8-25008efce956@apps.orkes.io",
     "timeoutPolicy": "ALERT_ONLY",
     "timeoutSeconds": 0,
     "variables": {},
