@@ -237,7 +237,13 @@ export default function Home() {
             <div dangerouslySetInnerHTML={{ __html: msg.message }} />
           </div>
         ))}
-        {loading && <div className="chat-bubble bot-message typing-indicator">...</div>}
+        {loading && (
+          <div className="chat-bubble bot-message typing-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        )}
       </div>
       <div className="input-box">
         <textarea
