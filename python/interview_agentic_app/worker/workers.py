@@ -1,5 +1,4 @@
-from conductor.client.automator.task_handler import TaskHandler
-from conductor.client.configuration.configuration import Configuration
+import json
 from conductor.client.worker.worker_task import worker_task
 import os
 
@@ -9,20 +8,15 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2 import service_account
 import io
 
 from datetime import datetime
 
-
-os.environ['CONDUCTOR_SERVER_URL'] = 'FILL IN HERE'
-os.environ['CONDUCTOR_AUTH_KEY'] = 'FILL IN HERE'
-os.environ['CONDUCTOR_AUTH_SECRET'] = 'FILL IN HERE'
-
-
 # If modifying these scopes, delete the file token.json.
 SCOPES = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/documents"]
 
-def upload_text_to_drive_as_doc(text, filename):
+def get_credentials():
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -30,11 +24,21 @@ def upload_text_to_drive_as_doc(text, filename):
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
-            creds = flow.run_local_server(port=0)
-        with open("token.json", "w") as token:
-            token.write(creds.to_json())
+            # dev vs prod interaction w/ Google API
+            if os.getenv('ENV') == 'prod':
+                # In production, use the service account JSON from the environment variable
+                service_account_info = json.loads(json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')))
+                creds = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=SCOPES)
+            else:
+                flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+                creds = flow.run_local_server(port=0)
+                with open("token.json", "w") as token:
+                    token.write(creds.to_json())
+    return creds
 
+def upload_text_to_drive_as_doc(text, filename, creds, email):
     try:
         service = build("drive", "v3", credentials=creds)
         file_metadata = {
@@ -44,14 +48,41 @@ def upload_text_to_drive_as_doc(text, filename):
         media = MediaIoBaseUpload(io.BytesIO(text.encode()), mimetype="text/plain")
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
+
+        # Share the file with karl.goeltner@orkes.io
+        permission = {
+            "type": "user",
+            "role": "writer",  # Can be 'reader', 'commenter', or 'writer'
+            "emailAddress": "karl.goeltner@orkes.io"
+        }
+        service.permissions().create(
+            fileId=file.get('id'),
+            body=permission,
+            fields="id"
+        ).execute()
+        print(f"File shared with karl.goeltner@orkes.io")
+
+         # Share the file with interviewee
+        permission = {
+            "type": "user",
+            "role": "reader",  # Can be 'reader', 'commenter', or 'writer'
+            "emailAddress": email
+        }
+        service.permissions().create(
+            fileId=file.get('id'),
+            body=permission,
+            fields="id"
+        ).execute()
+        print(f"File shared with interviewee at {email}")
+
         return file.get('id')
     except Exception as error:
         print(f"An error occurred: {error}")
         return None
 
-def apply_google_docs_formatting(doc_id, formatted_text):
+def apply_google_docs_formatting(doc_id, formatted_text, creds):
     try:
-        service = build("docs", "v1", credentials=Credentials.from_authorized_user_file("token.json", SCOPES))
+        service = build("docs", "v1", credentials=creds)
 
         requests = []
 
@@ -187,7 +218,7 @@ def apply_google_docs_formatting(doc_id, formatted_text):
 
 
 @worker_task(task_definition_name='storeInterviewTranscript')
-def storeInterviewTranscript(messages: str, name: str):
+def storeInterviewTranscript(messages: str, name: str, email: str):
     formatted_text = []
 
     # Iterate over the input data and prepare it for formatting
@@ -208,10 +239,11 @@ def storeInterviewTranscript(messages: str, name: str):
     # Upload raw text to Google Drive (to create the document)
     current_date = datetime.today().strftime('%m/%d/%Y')
     transcript_title = f'Interview Transcript for {name}: {current_date}'
-    doc_id = upload_text_to_drive_as_doc("", transcript_title)
+    creds = get_credentials()
+    doc_id = upload_text_to_drive_as_doc("", transcript_title, creds, email)
 
     if doc_id:
         # Now apply formatting to the document
-        apply_google_docs_formatting(doc_id, formatted_text)
+        apply_google_docs_formatting(doc_id, formatted_text, creds)
 
     return f'These are the formatted interview messages: {formatted_text}'

@@ -1,0 +1,12 @@
+{
+    "name": "interview-agentic-app",
+    "version": "0.1.0",
+    "private": true,
+    "scripts": {
+      "build": "cd interview-chat && npm install --legacy-peer-deps && npm run build",
+      "dev": "cd interview-chat && npm run dev",
+      "start": "cd interview-chat && npm run start",
+      "lint": "cd interview-chat && npm run lint"
+    }
+  }
+  
