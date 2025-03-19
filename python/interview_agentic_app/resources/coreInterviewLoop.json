@@ -38,7 +38,8 @@
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
           },
-          "temperature": 0.4
+          "temperature": 0.4,
+          "messages": "${workflow.variables.messages}"
         },
         "type": "LLM_CHAT_COMPLETE",
         "decisionCases": {},
