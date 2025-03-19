@@ -770,7 +770,8 @@
             "taskReferenceName": "storeInterviewTranscript_ref",
             "inputParameters": {
               "messages": "${transcript_formatter_ref.output.result}",
-              "name": "${workflow.variables.name}"
+              "name": "${workflow.variables.name}",
+              "email": "${workflow.variables.email}"
             },
             "type": "SIMPLE",
             "decisionCases": {},
