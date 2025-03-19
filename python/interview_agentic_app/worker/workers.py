@@ -10,6 +10,7 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 import io
+import sys
 
 from datetime import datetime
 
@@ -17,6 +18,7 @@ from datetime import datetime
 SCOPES = ["https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/documents"]
 
 def get_credentials():
+    print(f"ENTRY POINT", file=sys.stderr)
     creds = None
     if os.path.exists("token.json"):
         creds = Credentials.from_authorized_user_file("token.json", SCOPES)
@@ -24,13 +26,17 @@ def get_credentials():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            print(f"INSIDE GET CREDENTIALS", file=sys.stderr)
             # dev vs prod interaction w/ Google API
             if os.getenv('ENV') == 'prod':
+                print(f"ERROR CHECK", file=sys.stderr)
                 # In production, use the service account JSON from the environment variable
                 service_account_info = json.loads(json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')))
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES)
+                print(f"SERVICE_ACCOUNT_INFO: " + service_account_info, file=sys.stderr)
+                print(f"CREDS: " + service_account_info, file=sys.stderr)
             else:
                 flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
                 creds = flow.run_local_server(port=0)
@@ -60,12 +66,13 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with karl.goeltner@orkes.io")
+        print(f"File shared with karl.goeltner@orkes.io", file=sys.stderr)
+
 
          # Share the file with interviewee
         permission = {
             "type": "user",
-            "role": "writer",  # Can be 'reader', 'commenter', or 'writer'
+            "role": "reader",  # Can be 'reader', 'commenter', or 'writer'
             "emailAddress": email
         }
         service.permissions().create(
@@ -73,7 +80,7 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with interviewee at {email}")
+        print(f"File shared with interviewee at {email}", file=sys.stderr)
 
         return file.get('id')
     except Exception as error:
