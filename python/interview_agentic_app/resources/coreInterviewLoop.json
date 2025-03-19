@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742357668476,
+    "updateTime": 1742399063740,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -38,8 +38,7 @@
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
           },
-          "temperature": 0.4,
-          "messages": "${workflow.variables.messages}"
+          "temperature": 0.4
         },
         "type": "LLM_CHAT_COMPLETE",
         "decisionCases": {},
@@ -101,7 +100,8 @@
         "inputParameters": {
           "response": "${interviewee_response_ref.output.result.response}",
           "is_question_done": "${workflow.variables.is_question_done}",
-          "start_time": "${workflow.input.start_time}"
+          "start_time": "${workflow.input.start_time}",
+          "time_out": "${workflow.input.time_out}"
         },
         "type": "DO_WHILE",
         "decisionCases": {},
@@ -112,7 +112,7 @@
         "optional": false,
         "defaultExclusiveJoinTask": [],
         "asyncComplete": false,
-        "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n  return $.is_question_done != \"DONE\" && minElapsed <= 45;\n})();",
+        "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n  return $.is_question_done != \"DONE\" && minElapsed <= $.time_out;\n})();",
         "loopOver": [
           {
             "name": "interviewee_response",
@@ -549,7 +549,8 @@
       "language",
       "messages",
       "start_time",
-      "question_template"
+      "question_template",
+      "time_out"
     ],
     "outputParameters": {
       "messages": "${workflow.input.messages}"
@@ -558,7 +559,7 @@
     "schemaVersion": 2,
     "restartable": true,
     "workflowStatusListenerEnabled": false,
-    "ownerEmail": "220d4fb6-6511-4c9b-a8c8-25008efce956@apps.orkes.io",
+    "ownerEmail": "karl.goeltner@orkes.io",
     "timeoutPolicy": "ALERT_ONLY",
     "timeoutSeconds": 0,
     "variables": {},

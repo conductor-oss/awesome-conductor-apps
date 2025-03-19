@@ -1,6 +1,6 @@
 {
   "createTime": 1742250829558,
-  "updateTime": 1742345019151,
+  "updateTime": 1742402640748,
   "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
@@ -30,15 +30,15 @@
       "taskReferenceName": "set_variable_ref",
       "inputParameters": {
         "messages": [],
-        "interview_status": "\"\"",
-        "follow_up": "\"\"",
         "start_time": "${get_start_time_ref.output.result}",
         "is_initial_step_done": false,
         "is_final_step_done": false,
         "is_first_q_done": false,
         "is_second_q_done": false,
         "is_third_q_done": false,
-        "sub_workflow_id": "\"\""
+        "sub_workflow_id": "\"\"",
+        "time_out": 45,
+        "is_overtime": false
       },
       "type": "SET_VARIABLE",
       "decisionCases": {},
@@ -396,7 +396,8 @@
       "taskReferenceName": "interview_loop_ref",
       "inputParameters": {
         "number": 3,
-        "start_time": "${workflow.variables.start_time}"
+        "start_time": "${workflow.variables.start_time}",
+        "time_out": "${workflow.variables.time_out}"
       },
       "type": "DO_WHILE",
       "decisionCases": {},
@@ -407,7 +408,7 @@
       "optional": false,
       "defaultExclusiveJoinTask": [],
       "asyncComplete": false,
-      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n\n  return (\n    $.interview_loop_ref['iteration'] < $.number && minElapsed <= 45\n  );\n})();\n",
+      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n\n  return (\n    $.interview_loop_ref['iteration'] < $.number && minElapsed <= $.time_out\n  );\n})();\n",
       "loopOver": [
         {
           "name": "switch",
@@ -429,7 +430,8 @@
                       "language": "${workflow.variables.language}",
                       "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
-                      "question_template": "interview_question_generator"
+                      "question_template": "interview_question_generator",
+                      "time_out": "${workflow.variables.time_out}"
                     },
                     "version": 1
                   }
@@ -480,7 +482,8 @@
                       "language": "${workflow.variables.language}",
                       "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
-                      "question_template": "interview_question2_generator"
+                      "question_template": "interview_question2_generator",
+                      "time_out": "${workflow.variables.time_out}"
                     },
                     "version": 1
                   }
@@ -531,7 +534,8 @@
                       "language": "${workflow.variables.language}",
                       "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
-                      "question_template": "interview_question3_generator"
+                      "question_template": "interview_question3_generator",
+                      "time_out": "${workflow.variables.time_out}"
                     },
                     "version": 1
                   }
@@ -605,7 +609,8 @@
           "name": "set_messages_question",
           "taskReferenceName": "set_messages_question_ref",
           "inputParameters": {
-            "messages": "${wait_till_question_done_ref.output.result.response}"
+            "messages": "${wait_till_question_done_ref.output.result.messages}",
+            "is_overtime": "${wait_till_question_done_ref.output.result.is_overtime}"
           },
           "type": "SET_VARIABLE",
           "decisionCases": {},
@@ -629,10 +634,10 @@
       "name": "add_terminate_msg",
       "taskReferenceName": "add_terminate_msg_ref",
       "inputParameters": {
-        "interview_status": "${workflow.variables.interview_status}",
         "is_first_q_done": "${workflow.variables.is_first_q_done}",
         "is_second_q_done": "${workflow.variables.is_second_q_done}",
-        "is_third_q_done": "${workflow.variables.is_third_q_done}"
+        "is_third_q_done": "${workflow.variables.is_third_q_done}",
+        "is_overtime": "${workflow.variables.is_overtime}"
       },
       "type": "SWITCH",
       "decisionCases": {
@@ -731,7 +736,7 @@
       "asyncComplete": false,
       "loopOver": [],
       "evaluatorType": "graaljs",
-      "expression": "(function () {\n    const total_completion = $.is_first_q_done && $.is_second_q_done && $.is_third_q_done\n    switch (total_completion) {\n      case true:\n        return true;\n      default:\n        return false;\n    }\n  }())",
+      "expression": "(function () {\n    const total_completion = $.is_first_q_done && $.is_second_q_done && $.is_third_q_done && !$.is_overtime\n    switch (total_completion) {\n      case true:\n        return true;\n      default:\n        return false;\n    }\n  }())",
       "onStateChange": {},
       "permissive": false
     },

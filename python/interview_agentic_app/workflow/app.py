@@ -50,7 +50,7 @@ async def poll_for_response(custom_message="Processing request...", workflow_typ
         updated_workflow = workflow_client.get_workflow(workflow_id=os.environ[workflow_type])
     print("------------------------------------------------------------------------------------")
     
-    # check if the interview has timed out
+    # interview has timed out
     if reply_text == custom_message:
         raise Exception("Failed to update reply_text with a new message.")
     
@@ -183,14 +183,14 @@ def get_question_status():
 @app.route('/update_messages', methods=['POST'])
 async def update_messages():
     try:
-        # get messages from subworkflow
+        # get messages, is_overtime from subworkflow
         sub_workflow = workflow_client.get_workflow(workflow_id=os.environ['SUB_WORKFLOW_ID'])
         messages = sub_workflow.variables.get('messages', "")
+        data = request.get_json()
+        is_overtime = data.get('is_overtime')
 
         # use messages to update og-workflow
-        data = request.get_json()
-        task_client.update_task_by_ref_name(workflow_id=os.environ['WORKFLOW_ID'], task_ref_name=data.get('question'), status=TaskResultStatus.COMPLETED, output={"response": messages})
-        # reply_text = await poll_for_response("The interview has timed out. Please wait for the final evaluation...", workflow_type="SUB_WORKFLOW_ID")
+        task_client.update_task_by_ref_name(workflow_id=os.environ['WORKFLOW_ID'], task_ref_name=data.get('question'), status=TaskResultStatus.COMPLETED, output={"messages": messages, "is_overtime": is_overtime})
         return jsonify({"message": "Messages are updated"}), 200
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500

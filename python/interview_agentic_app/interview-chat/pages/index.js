@@ -167,7 +167,7 @@ export default function Home() {
     // DONE Case
     if (questionStatus === 'DONE' && !overtimeStatus) {
       // setIsInterviewTerminating(true);
-      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref" });
+      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
 
       // switch case for questions 1/2/3
       switch (q_id) {
@@ -193,7 +193,7 @@ export default function Home() {
     // TODO: TERMINATE Case (overtime)
     } else if (overtimeStatus) {
       console.log("TERMINATION DUE TO OVERTIME");
-      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref" });
+      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
       await handleFinalStep();
     }
   };
