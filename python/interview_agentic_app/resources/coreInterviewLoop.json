@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742271026720,
+    "updateTime": 1742346568418,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -11,7 +11,8 @@
         "inputParameters": {
           "is_question_done": "\"\"",
           "follow_up": "\"\"",
-          "messages": "${workflow.input.messages}"
+          "messages": "${workflow.input.messages}",
+          "is_overtime": false
         },
         "type": "SET_VARIABLE",
         "decisionCases": {},
@@ -36,9 +37,21 @@
           "promptVariables": {
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
-          }
+          },
+          "temperature": 0.4
         },
-        "type": "LLM_CHAT_COMPLETE"
+        "type": "LLM_CHAT_COMPLETE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
       },
       {
         "name": "concatenate_question",
@@ -243,7 +256,7 @@
                   "name": "concatenate_done_msg",
                   "taskReferenceName": "concatenate_done_msg_ref",
                   "inputParameters": {
-                    "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Congratulations, \" + $.name + \" you have successfully solved this question.\",\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
+                    "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Nice work \" + $.name + \"! You have successfully solved this question.\",\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
                     "evaluatorType": "graaljs",
                     "messages": "${workflow.variables.messages}",
                     "name": "${workflow.input.name}"
@@ -433,10 +446,11 @@
                 "name": "concatenate_error_msg",
                 "taskReferenceName": "concatenate_error_msg_ref",
                 "inputParameters": {
-                  "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Something has gone wrong. The interview status produced: \" + $.is_question_done + \" is invalid. The interview will now terminate.\",\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
+                  "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: \"Here is the question again:\\\\n\\\\n \" + $.question,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();",
                   "evaluatorType": "graaljs",
                   "is_question_done": "${evaluator_response_ref.output.result}",
-                  "messages": "${workflow.variables.messages}"
+                  "messages": "${workflow.variables.messages}",
+                  "question": "${question_generator_ref.output.result}"
                 },
                 "type": "INLINE",
                 "decisionCases": {},
@@ -485,6 +499,46 @@
           }
         ],
         "evaluatorType": "graaljs",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "check_if_overtime",
+        "taskReferenceName": "check_if_overtime_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  return $.is_question_done != \"DONE\";\n})();",
+          "evaluatorType": "graaljs",
+          "is_question_done": "${workflow.variables.is_question_done}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "set_is_overtime",
+        "taskReferenceName": "set_is_overtime_ref",
+        "inputParameters": {
+          "is_overtime": "${check_if_overtime_ref.output.result}"
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
         "onStateChange": {},
         "permissive": false
       }

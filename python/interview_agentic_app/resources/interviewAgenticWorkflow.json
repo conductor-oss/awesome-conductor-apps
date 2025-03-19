@@ -1,6 +1,6 @@
 {
   "createTime": 1742250829558,
-  "updateTime": 1742330348004,
+  "updateTime": 1742345019151,
   "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
@@ -35,9 +35,9 @@
         "start_time": "${get_start_time_ref.output.result}",
         "is_initial_step_done": false,
         "is_final_step_done": false,
-        "is_first_q_done": "\"\"",
-        "is_second_q_done": "\"\"",
-        "is_third_q_done": "\"\"",
+        "is_first_q_done": false,
+        "is_second_q_done": false,
+        "is_third_q_done": false,
         "sub_workflow_id": "\"\""
       },
       "type": "SET_VARIABLE",
@@ -407,7 +407,7 @@
       "optional": false,
       "defaultExclusiveJoinTask": [],
       "asyncComplete": false,
-      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n\n  return (\n    $.interview_loop_ref['iteration'] <= $.number && minElapsed <= 45\n  );\n})();\n",
+      "loopCondition": "(function () {\n  const startTime = new Date($.start_time);\n  const newTime = new Date();\n  const minElapsed = (newTime - startTime) / (1000 * 60); // Convert millisec to min\n\n  return (\n    $.interview_loop_ref['iteration'] < $.number && minElapsed <= 45\n  );\n})();\n",
       "loopOver": [
         {
           "name": "switch",
@@ -451,7 +451,8 @@
                 "name": "set_q1_workflow_id",
                 "taskReferenceName": "set_q1_workflow_id_ref",
                 "inputParameters": {
-                  "sub_workflow_id": "${sub_1st_question_workflow_ref.output.workflowId}"
+                  "sub_workflow_id": "${sub_1st_question_workflow_ref.output.workflowId}",
+                  "is_first_q_done": true
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -501,7 +502,8 @@
                 "name": "set_q2_workflow_id",
                 "taskReferenceName": "set_q2_workflow_id_ref",
                 "inputParameters": {
-                  "sub_workflow_id": "${sub_2nd_question_workflow_ref.output.workflowId}"
+                  "sub_workflow_id": "${sub_2nd_question_workflow_ref.output.workflowId}",
+                  "is_second_q_done": true
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -551,7 +553,8 @@
                 "name": "set_q3_workflow_id",
                 "taskReferenceName": "set_q3_workflow_id_ref",
                 "inputParameters": {
-                  "sub_workflow_id": "${sub_3rd_question_workflow_ref.output.workflowId}"
+                  "sub_workflow_id": "${sub_3rd_question_workflow_ref.output.workflowId}",
+                  "is_third_q_done": true
                 },
                 "type": "SET_VARIABLE",
                 "decisionCases": {},
@@ -623,36 +626,22 @@
       "permissive": false
     },
     {
-      "name": "STOP",
-      "taskReferenceName": "STOP_ref",
-      "inputParameters": {},
-      "type": "WAIT",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopOver": [],
-      "onStateChange": {},
-      "permissive": false
-    },
-    {
       "name": "add_terminate_msg",
       "taskReferenceName": "add_terminate_msg_ref",
       "inputParameters": {
-        "interview_status": "${workflow.variables.interview_status}"
+        "interview_status": "${workflow.variables.interview_status}",
+        "is_first_q_done": "${workflow.variables.is_first_q_done}",
+        "is_second_q_done": "${workflow.variables.is_second_q_done}",
+        "is_third_q_done": "${workflow.variables.is_third_q_done}"
       },
       "type": "SWITCH",
       "decisionCases": {
-        "DONE": [
+        "true": [
           {
             "name": "concatenate_interview_done_msg",
             "taskReferenceName": "concatenate_interview_done_msg_ref",
             "inputParameters": {
-              "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Congratulations \" + $.name + \", you have solved the problem successfully. The interview is now complete, thank you for your time. We will be in contact shortly.\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();",
+              "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\", \n        message: \"Congratulations \" + $.name + \", you have solved the coding challenge. The interview is now complete, thank you for your time. We will be in contact shortly.\", \n        timestamp: new Date().toISOString() \n      }\n    ]\n  };\n})();",
               "evaluatorType": "graaljs",
               "messages": "${workflow.variables.messages}",
               "name": "${workflow.variables.name}"
@@ -741,8 +730,8 @@
       "defaultExclusiveJoinTask": [],
       "asyncComplete": false,
       "loopOver": [],
-      "evaluatorType": "value-param",
-      "expression": "interview_status",
+      "evaluatorType": "graaljs",
+      "expression": "(function () {\n    const total_completion = $.is_first_q_done && $.is_second_q_done && $.is_third_q_done\n    switch (total_completion) {\n      case true:\n        return true;\n      default:\n        return false;\n    }\n  }())",
       "onStateChange": {},
       "permissive": false
     },

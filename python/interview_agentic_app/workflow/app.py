@@ -41,14 +41,14 @@ async def poll_for_response(custom_message="Processing request...", workflow_typ
 
         last_msg = messages_list[-1] if messages_list else "None"
         curr_timestamp = messages_list[-1].get('timestamp') if messages_list else "None"
-        print("LAST MESSAGE: " + str(last_msg) + ", TIME: " + curr_timestamp)
+        print("LAST MSG: " + str(last_msg))
         if prev_timestamp[0] != curr_timestamp and messages_list and messages_list[-1].get('role') == 'assistant':
             reply_text = extract_fn(messages_list) if extract_fn else messages_list[-1].get('message')
             prev_timestamp[0] = curr_timestamp
             break
         await asyncio.sleep(2)
         updated_workflow = workflow_client.get_workflow(workflow_id=os.environ[workflow_type])
-    print("----------------------------------------------")
+    print("------------------------------------------------------------------------------------")
     
     # check if the interview has timed out
     if reply_text == custom_message:
@@ -95,8 +95,8 @@ def stop_workers_endpoint():
     stop_workers()
     return jsonify({"message": "Workers stopped"}), 200
 
-@app.route('/get_welcome_message', methods=['GET'])
-async def get_welcome_message():
+@app.route('/get_most_recent_message', methods=['GET'])
+async def get_most_recent_message():
     try:
         reply_text = await poll_for_response("The interview has timed out. Please wait for the final evaluation...")
         return jsonify({"message": reply_text}), 200
@@ -122,16 +122,6 @@ async def send_name_language():
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
 
-# # /get_email_message (same as welcome message since it's just the most recent msg but make distinct for now)
-# @app.route('/get_email_message', methods=['GET'])
-# async def get_email_message():
-#     try:
-#         reply_text = await poll_for_response("The interview has timed out. Please wait for the final evaluation...")
-#         return jsonify({"message": reply_text}), 200
-#     except Exception as e:
-#         return jsonify({"message": "An error occurred", "error": str(e)}), 500
-
-# /get_is_email_valid
 @app.route('/get_is_email_valid', methods=['GET'])
 def get_is_email_valid():
     try:
@@ -141,7 +131,6 @@ def get_is_email_valid():
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
 
-# /send_email_address
 @app.route('/send_email_address', methods=['POST'])
 async def send_email_address():
     try:
@@ -155,11 +144,6 @@ async def send_email_address():
 @app.route('/get_sub_workflow_id', methods=['GET'])
 async def get_sub_workflow_id():
     try:
-        # need to make sure sub_workflow_id differs from prior sub_workflow_id 
-        # sub_workflow_id = workflow_client.get_workflow(workflow_id=os.environ['WORKFLOW_ID']).variables.get('sub_workflow_id', "")
-        # print("SUB_WORKFLOW_ID: " + str(sub_workflow_id))
-        # os.environ["SUB_WORKFLOW_ID"] = str(sub_workflow_id)
-
         sub_workflow_id = await poll_for_sub_workflow_id()
         return jsonify({"message": str(sub_workflow_id)}), 200
     except Exception as e:
@@ -191,7 +175,8 @@ def get_question_status():
     try:
         updated_workflow = workflow_client.get_workflow(workflow_id=os.environ['SUB_WORKFLOW_ID'])
         question_status = updated_workflow.variables.get('is_question_done', "")
-        return jsonify({"message": question_status}), 200
+        overtime_status = updated_workflow.variables.get('is_overtime', False)
+        return jsonify({"message": question_status, "isOvertime": overtime_status}), 200
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
     

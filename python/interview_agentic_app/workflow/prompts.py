@@ -120,6 +120,18 @@ interview_question_generator = """
 Given an interviewee's name ${name} and a programming language / framework ${language}, generate a leetcode-style technical software engineering question relevant to that language. The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**First Question:**". Your response:
 """
 
+interview_question2_generator = """
+Given an interviewee's name ${name} and a programming language / framework ${language}, generate a SECOND new & unique leetcode-style technical software engineering question relevant to that language. DO NOT repeat any similar question asked previously in this chat context.
+
+The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**Second Question:**". Your response:
+"""
+
+interview_question3_generator = """
+Given an interviewee's name ${name} and a programming language / framework ${language}, generate a THIRD & FINAL new & unique leetcode-style technical software engineering question relevant to that language. DO NOT repeat any similar question asked previously in this chat context.
+
+The question should assess problem-solving skills, algorithms, data structures, or language-specific best practices. Ensure the question is clear, unambiguous, and suited for a coding interview. Begin the response with, "**Final Question:**". Your response:
+"""
+
 interview_response_evaluator = """
 Evaluate the interviewee's ${name} response to the given technical question in ${language}.
 
@@ -256,6 +268,14 @@ def configure_integrations(api_config: Configuration):
     prompt_client.save_prompt('interview_question_generator',
                               description='Generate a technical question for the interviewee.',
                               prompt_template=interview_question_generator)
+    
+    prompt_client.save_prompt('interview_question2_generator',
+                              description='Generate a second technical question for the interviewee.',
+                              prompt_template=interview_question2_generator)
+    
+    prompt_client.save_prompt('interview_question3_generator',
+                              description='Generate a third technical question for the interviewee.',
+                              prompt_template=interview_question3_generator)
 
     prompt_client.save_prompt('interview_response_evaluator',
                               description="Evaluate an interviewee's response to a technical question by outputting either SIMPLIFY, HINT, or DONE.",
@@ -281,6 +301,8 @@ def configure_integrations(api_config: Configuration):
 
     ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai-orkes-karl', ai_models=models)
