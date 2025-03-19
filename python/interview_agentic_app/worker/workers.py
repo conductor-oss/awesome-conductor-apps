@@ -10,7 +10,6 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaIoBaseUpload
 from google.oauth2 import service_account
 import io
-import sys
 
 from datetime import datetime
 
@@ -48,7 +47,7 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
         }
         media = MediaIoBaseUpload(io.BytesIO(text.encode()), mimetype="text/plain")
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
-        print(f"Google Doc uploaded successfully. File ID: {file.get('id')}", file=sys.stderr)
+        print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
 
         # Share the file with karl.goeltner@orkes.io
         permission = {
@@ -61,7 +60,7 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with karl.goeltner@orkes.io", file=sys.stderr)
+        print(f"File shared with karl.goeltner@orkes.io")
 
          # Share the file with interviewee
         permission = {
@@ -74,7 +73,7 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with interviewee at {email}", file=sys.stderr)
+        print(f"File shared with interviewee at {email}")
 
         return file.get('id')
     except Exception as error:
