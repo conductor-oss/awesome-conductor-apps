@@ -35,8 +35,8 @@ def get_credentials():
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES)
-                print(f"SERVICE_ACCOUNT_INFO: " + service_account_info, file=sys.stderr)
-                print(f"CREDS: " + service_account_info, file=sys.stderr)
+                print(f"SERVICE_ACCOUNT_INFO: " + str(service_account_info), file=sys.stderr)
+                print(f"CREDS: " + str(creds), file=sys.stderr)
             else:
                 flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
                 creds = flow.run_local_server(port=0)
