@@ -1,0 +1,88 @@
+{
+  "createTime": 1742665526815,
+  "updateTime": 1742669072757,
+  "name": "vision_one_device_scan",
+  "description": "Mock Vision One device scan for the cyber security agentic workflow demo.",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "initialize_scan",
+      "taskReferenceName": "initialize_scan_ref",
+      "inputParameters": {
+        "expression": "(function() {\n  const deviceId = $.device_id;\n  console.log('Initializing scan for device: ' + deviceId);\n  return {\n    scan_id: 'scan-' + Math.floor(Math.random() * 10000),\n    device_id: deviceId,\n    status: 'initialized',\n    start_time: new Date().toISOString()\n  };\n})();",
+        "evaluatorType": "graaljs",
+        "device_id": "${workflow.input.device_id}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "simulate_scan_execution",
+      "taskReferenceName": "simulate_scan_execution_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function() {\n  const scanId = $.scan_id;\n  const deviceId = $.device_id;\n  \n  // Simulate different scan results based on device ID pattern\n  const isMalwareFound = deviceId.includes('001') || deviceId.includes('002');\n  const threatSeverity = deviceId.includes('002') ? 'critical' : 'medium';\n  \n  return {\n    scan_id: scanId,\n    device_id: deviceId,\n    status: 'completed',\n    completion_time: new Date().toISOString(),\n    scan_summary: {\n      files_scanned: Math.floor(Math.random() * 50000) + 100000,\n      scan_duration_seconds: Math.floor(Math.random() * 300) + 120,\n      malware_found: isMalwareFound,\n      threats_detected: isMalwareFound ? Math.floor(Math.random() * 3) + 1 : 0,\n      threats_remediated: isMalwareFound ? Math.floor(Math.random() * 3) : 0,\n      threat_severity: isMalwareFound ? threatSeverity : 'none'\n    }\n  };\n})();",
+        "scan_id": "${initialize_scan_ref.output.result.scan_id}",
+        "device_id": "${initialize_scan_ref.output.result.device_id}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "generate_scan_report",
+      "taskReferenceName": "generate_scan_report_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function() {\n  const results = $.scan_results;\n  const deviceId = results.device_id;\n  \n  let threatDetails = [];\n  \n  // Generate threat details if malware was found\n  if (results.scan_summary.malware_found) {\n    // Create different threat types based on device ID\n    if (deviceId.includes('001')) {\n      threatDetails.push({\n        name: 'Trojan.GenericKD.44758128',\n        type: 'Trojan',\n        path: 'C:\\\\Users\\\\john.doe\\\\Downloads\\\\quarterly_results.xlsm',\n        hash: 'ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c',\n        status: 'quarantined'\n      });\n    } else if (deviceId.includes('002')) {\n      threatDetails.push({\n        name: 'W97M.Downloader',\n        type: 'Trojan Downloader',\n        path: 'C:\\\\Users\\\\alice.smith\\\\Downloads\\\\invoice_template.docm',\n        hash: '8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f',\n        status: 'quarantined'\n      });\n      threatDetails.push({\n        name: 'Backdoor.Win32.Generic',\n        type: 'Backdoor',\n        path: 'C:\\\\Users\\\\alice.smith\\\\AppData\\\\Local\\\\Temp\\\\svc_host.exe',\n        hash: '2a7cee8c214ac76ba6fbbc82c59d5846a71d126a9cdcb4c036b92b106bc9cb4b',\n        status: 'active'\n      });\n    }\n  }\n  \n  return {\n    device_id: deviceId,\n    scan_summary: results.scan_summary,\n    threat_details: threatDetails,\n    remediation_status: results.scan_summary.malware_found ? \n      (results.scan_summary.threats_detected === results.scan_summary.threats_remediated ? 'complete' : 'partial') : \n      'not_required'\n  };\n})();",
+        "scan_results": "${simulate_scan_execution_ref.output.result}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "device_id"
+  ],
+  "outputParameters": {
+    "scan_results": "${generate_scan_report_ref.output.result}"
+  },
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "ram@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}

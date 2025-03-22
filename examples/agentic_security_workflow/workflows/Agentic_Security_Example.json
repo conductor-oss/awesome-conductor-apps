@@ -1,0 +1,522 @@
+{
+    "createTime": 1742668969296,
+    "updateTime": 1742499594098,
+    "name": "Agentic_Security_Example",
+    "description": "Extract security alerts and initiate scans and deep visibility threat hunts.",
+    "version": 6,
+    "tasks": [
+      {
+        "name": "get_start_time",
+        "taskReferenceName": "get_start_time_ref",
+        "inputParameters": {
+          "expression": "(function getTimeNowAndThirtyDaysAgo() {\n  const now = new Date();\n \n  return {\n    currentTime: now.toISOString()\n  };\n}\n)\n();",
+          "evaluatorType": "graaljs",
+          "value1": 1,
+          "value2": 2
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "get_alerts_calls_fork",
+        "taskReferenceName": "get_alerts_calls_fork_ref",
+        "inputParameters": {},
+        "type": "FORK_JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [
+          [
+            {
+              "name": "mock_security_malware_alerts",
+              "taskReferenceName": "mock_security_malware_alerts_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  const default_security_malware_alerts = {\n    \"status\": \"success\",\n    \"data\": {\n      \"total\": 5,\n      \"newly_seen\": 5,\n      \"page\": 1\n    },\n    \"result\": {\n      \"alerts\": [\n        {\n          \"timestamp\": 1679512845,\n          \"organization_unit\": \"Corporate\",\n          \"user\": \"john.doe@company.com\",\n          \"device\": \"Windows Workstation\",\n          \"device_id\": \"ACME-DEV-001-ABC\",\n          \"hostname\": \"WKSTN-JD001\",\n          \"event_type\": \"alert\",\n          \"app\": \"Box\",\n          \"object_type\": \"file\",\n          \"object\": \"quarterly_results.xlsm\",\n          \"alert_type\": \"Malware\",\n          \"alert_name\": \"Trojan.GenericKD.44758128\",\n          \"severity\": \"high\",\n          \"category\": \"Trojan\",\n          \"ccl\": \"3\",\n          \"policy\": \"Block Malware\",\n          \"action\": \"blocked\",\n          \"file_size\": 2456789,\n          \"md5\": \"a55b9e5d6e279778a752b33b81892144\",\n          \"sha256\": \"ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c\",\n          \"local_md5\": \"a55b9e5d6e279778a752b33b81892144\",\n          \"local_sha256\": \"ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c\",\n          \"browser\": \"Chrome\",\n          \"browser_version\": \"109.0.5414.120\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012368,\n          \"organization_unit\": \"Finance\",\n          \"user\": \"alice.smith@company.com\",\n          \"device\": \"Windows Workstation\",\n          \"device_id\": \"ACME-DEV-002-DEF\",\n          \"hostname\": \"WKSTN-AS002\",\n          \"event_type\": \"alert\",\n          \"app\": \"Dropbox\",\n          \"object_type\": \"file\",\n          \"object\": \"invoice_template.docm\",\n          \"alert_type\": \"Malware\",\n          \"alert_name\": \"W97M.Downloader\",\n          \"severity\": \"critical\",\n          \"category\": \"Trojan Downloader\",\n          \"ccl\": \"4\",\n          \"policy\": \"Block Malware\",\n          \"action\": \"blocked\",\n          \"file_size\": 1245678,\n          \"md5\": \"c3d825d7892f15e488c1f7472d4307a2\",\n          \"sha256\": \"8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f\",\n          \"local_md5\": \"c3d825d7892f15e488c1f7472d4307a2\",\n          \"local_sha256\": \"8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f\",\n          \"browser\": \"Edge\",\n          \"browser_version\": \"110.0.1587.63\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012375,\n          \"organization_unit\": \"Engineering\",\n          \"user\": \"robert.chen@company.com\",\n          \"device\": \"MacBook Pro\",\n          \"device_id\": \"ACME-DEV-007-STU\",\n          \"hostname\": \"MBP-RC007\",\n          \"event_type\": \"alert\",\n          \"app\": \"OneDrive\",\n          \"object_type\": \"file\",\n          \"object\": \"project_roadmap.xlsx\",\n          \"alert_type\": \"Malware\",\n          \"alert_name\": \"OSX.CoinMiner.A\",\n          \"severity\": \"medium\",\n          \"category\": \"Cryptominer\",\n          \"ccl\": \"3\",\n          \"policy\": \"Block Malware\",\n          \"action\": \"blocked\",\n          \"file_size\": 3458712,\n          \"md5\": \"f72e97b45bd5ab0f491c4c7e6388dd76\",\n          \"sha256\": \"d88bc4547abea342a3b5c5144d6d5c21c7fb6e918a857c9aff075b31f6fe8091\",\n          \"local_md5\": \"f72e97b45bd5ab0f491c4c7e6388dd76\",\n          \"local_sha256\": \"d88bc4547abea342a3b5c5144d6d5c21c7fb6e918a857c9aff075b31f6fe8091\",\n          \"browser\": \"Safari\",\n          \"browser_version\": \"16.3\",\n          \"os\": \"macOS\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012910,\n          \"organization_unit\": \"Engineering\",\n          \"user\": \"robert.chen@company.com\",\n          \"device\": \"Linux Workstation\",\n          \"device_id\": \"ACME-DEV-008-VWX\",\n          \"hostname\": \"LINUX-RC008\",\n          \"event_type\": \"alert\",\n          \"app\": \"GitHub\",\n          \"object_type\": \"file\",\n          \"object\": \"build_tools.tar.gz\",\n          \"alert_type\": \"Malware\",\n          \"alert_name\": \"Linux.Backdoor.Tsunami\",\n          \"severity\": \"high\",\n          \"category\": \"Backdoor\",\n          \"ccl\": \"4\",\n          \"policy\": \"Block Malware\",\n          \"action\": \"blocked\",\n          \"file_size\": 578234,\n          \"md5\": \"3ea97b45dd34fc5491c4121e638123a3\",\n          \"sha256\": \"a71fc4547a93b432a3bccc5144d6df21c7fb64298a857c9a3f075b31f6f28192\",\n          \"local_md5\": \"3ea97b45dd34fc5491c4121e638123a3\",\n          \"local_sha256\": \"a71fc4547a93b432a3bccc5144d6df21c7fb64298a857c9a3f075b31f6f28192\",\n          \"browser\": \"Firefox\",\n          \"browser_version\": \"110.0\",\n          \"os\": \"Linux\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680013215,\n          \"organization_unit\": \"Marketing\",\n          \"user\": \"jennifer.lopez@company.com\",\n          \"device\": \"Windows Laptop\",\n          \"device_id\": \"ACME-DEV-009-YZA\",\n          \"hostname\": \"LAPTOP-JL009\",\n          \"event_type\": \"alert\",\n          \"app\": \"Google Drive\",\n          \"object_type\": \"file\",\n          \"object\": \"campaign_assets.zip\",\n          \"alert_type\": \"Malware\",\n          \"alert_name\": \"Ransom.BlackCat\",\n          \"severity\": \"critical\",\n          \"category\": \"Ransomware\",\n          \"ccl\": \"5\",\n          \"policy\": \"Block Malware\",\n          \"action\": \"blocked\",\n          \"file_size\": 8923411,\n          \"md5\": \"e47b98c6fa2d1c83b7e49f8d6a52abc1\",\n          \"sha256\": \"7f8e23d14a9b5c6e7f0d1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3\",\n          \"local_md5\": \"e47b98c6fa2d1c83b7e49f8d6a52abc1\",\n          \"local_sha256\": \"7f8e23d14a9b5c6e7f0d1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3\",\n          \"browser\": \"Chrome\",\n          \"browser_version\": \"110.0.5481.178\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        }\n      ]\n    }\n  }\n  return $.security_malware_alerts || default_security_malware_alerts;\n})();",
+                "evaluatorType": "graaljs",
+                "security_malware_alerts": "${workflow.input.security_malware_alerts}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "extract_malware_alerts",
+              "taskReferenceName": "extract_malware_alerts_ref",
+              "inputParameters": {
+                "alerts": "${mock_security_malware_alerts_ref.output.result.result.alerts}",
+                "queryExpression": "{\n  malware_device_ids: [\n    ..\n    | .device_id? \n    | select( type == \"string\" )\n    | select(length > 0) \n    | {\"device_id\" : .} \n  ],\n  mw_sha256s: [\n    ..\n    | .local_sha256? \n    | select( type == \"string\" )\n    | select(length > 0) \n    | {\"local_sha256\" : .}\n  ],\n  malsite_users: [ \n    ..\n    | .user? \n    | select( type == \"string\" )\n    | select(length > 0) \n    | { \"user\": . } \n  ],\n  malware_md5s: [\n    ..\n    | .md5? \n    | select( type == \"string\" )\n    | select(length > 0) \n    | { \"md5\" : . }\n  ]\n}\n"
+              },
+              "type": "JSON_JQ_TRANSFORM",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          [
+            {
+              "name": "mock_security_malsite_alerts",
+              "taskReferenceName": "mock_security_malsite_alerts_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  const default_security_malsite_alerts = {\n    \"status\": \"success\",\n    \"data\": {\n      \"total\": 9,\n      \"newly_seen\": 9,\n      \"page\": 1\n    },\n    \"result\": {\n      \"alerts\": [\n        {\n          \"timestamp\": 1679425631,\n          \"organization_unit\": \"Marketing\",\n          \"user\": \"mark.johnson@company.com\",\n          \"device\": \"MacBook Pro\",\n          \"hostname\": \"MBP-MJ003\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"http://malicious-downloads.example.com/software.exe\",\n          \"domain\": \"malicious-downloads.example.com\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Known Malware Distribution Site\",\n          \"severity\": \"high\",\n          \"category\": \"Malware\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Safari\",\n          \"browser_version\": \"16.3\",\n          \"os\": \"macOS\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1679729521,\n          \"organization_unit\": \"Sales\",\n          \"user\": \"emily.wilson@company.com\",\n          \"device\": \"Windows Laptop\",\n          \"hostname\": \"LAPTOP-EW004\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://fake-login.example.net/portal\",\n          \"domain\": \"fake-login.example.net\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Phishing Site\",\n          \"severity\": \"medium\",\n          \"category\": \"Phishing\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Chrome\",\n          \"browser_version\": \"109.0.5414.120\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680025683,\n          \"organization_unit\": \"Engineering\",\n          \"user\": \"david.chen@company.com\",\n          \"device\": \"Windows Workstation\",\n          \"hostname\": \"WKSTN-DC005\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"http://malware-cdn.example.org/payload.zip\",\n          \"domain\": \"malware-cdn.example.org\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Known Malware Distribution Site\",\n          \"severity\": \"critical\",\n          \"category\": \"Malware\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Firefox\",\n          \"browser_version\": \"110.0\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680112083,\n          \"organization_unit\": \"IT\",\n          \"user\": \"sarah.miller@company.com\",\n          \"device\": \"Windows Laptop\",\n          \"hostname\": \"LAPTOP-SM006\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://fake-update.example.com/flash-update.exe\",\n          \"domain\": \"fake-update.example.com\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Fake Software Update Site\",\n          \"severity\": \"high\",\n          \"category\": \"Malware\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Chrome\",\n          \"browser_version\": \"109.0.5414.120\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680198483,\n          \"organization_unit\": \"Finance\",\n          \"user\": \"alice.smith@company.com\",\n          \"device\": \"Windows Workstation\",\n          \"hostname\": \"WKSTN-AS002\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://invoice-scam.example.net/document.php\",\n          \"domain\": \"invoice-scam.example.net\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Phishing Site\",\n          \"severity\": \"high\",\n          \"category\": \"Phishing\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Edge\",\n          \"browser_version\": \"110.0.1587.63\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680011995,\n          \"organization_unit\": \"Engineering\",\n          \"user\": \"robert.chen@company.com\",\n          \"device\": \"MacBook Pro\",\n          \"hostname\": \"MBP-RC007\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://xmr-pool.example.io/config.json\",\n          \"domain\": \"xmr-pool.example.io\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Cryptocurrency Mining Pool\",\n          \"severity\": \"medium\",\n          \"category\": \"Cryptomining\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Safari\",\n          \"browser_version\": \"16.3\",\n          \"os\": \"macOS\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012315,\n          \"organization_unit\": \"Engineering\",\n          \"user\": \"robert.chen@company.com\",\n          \"device\": \"Linux Workstation\",\n          \"hostname\": \"LINUX-RC008\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"http://github-assets.example.cc/build-tools/setup.sh\",\n          \"domain\": \"github-assets.example.cc\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Typosquatting Site\",\n          \"severity\": \"high\",\n          \"category\": \"Malware\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Firefox\",\n          \"browser_version\": \"110.0\",\n          \"os\": \"Linux\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012625,\n          \"organization_unit\": \"Marketing\",\n          \"user\": \"jennifer.lopez@company.com\",\n          \"device\": \"Windows Laptop\",\n          \"hostname\": \"LAPTOP-JL009\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://ad-campaigns.example.xyz/analytics.php\",\n          \"domain\": \"ad-campaigns.example.xyz\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Known Malicious Site\",\n          \"severity\": \"high\",\n          \"category\": \"Command and Control\",\n          \"policy\": \"Block Malicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Chrome\",\n          \"browser_version\": \"110.0.5481.178\",\n          \"os\": \"Windows\",\n          \"device_classification\": \"Corporate\"\n        },\n        {\n          \"timestamp\": 1680012970,\n          \"organization_unit\": \"Marketing\",\n          \"user\": \"jennifer.lopez@company.com\",\n          \"device\": \"Personal iPhone\",\n          \"hostname\": \"iPhone-JL\",\n          \"event_type\": \"alert\",\n          \"app\": \"Web Browsing\",\n          \"url\": \"https://marketing-templates.example.biz/download/\",\n          \"domain\": \"marketing-templates.example.biz\",\n          \"alert_type\": \"malsite\",\n          \"alert_name\": \"Suspicious Domain\",\n          \"severity\": \"medium\",\n          \"category\": \"Malware\",\n          \"policy\": \"Block Suspicious Websites\",\n          \"action\": \"blocked\",\n          \"browser\": \"Safari\",\n          \"browser_version\": \"16.3\",\n          \"os\": \"iOS\",\n          \"device_classification\": \"BYOD\"\n        }\n      ]\n    }\n  } \n  return $.security_malsite_alerts || default_security_malsite_alerts;\n})();",
+                "evaluatorType": "graaljs",
+                "security_malsite_alerts": "${workflow.input.security_malsite_alerts}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "extract_malsite_alerts",
+              "taskReferenceName": "extract_malsite_alerts_ref",
+              "inputParameters": {
+                "alerts": "${mock_security_malsite_alerts_ref.output.result.result.alerts}",
+                "queryExpression": "{ \n  malsite_users: [ \n    .alerts[] \n    | select(.user != null) \n    | if (.user | type) == \"string\" then { \"user\": .user } else .user[] end\n  ],\n  malsite_hostnames: [ \n    .alerts[] \n    | select(.hostname != null) \n    | if (.hostname | type) == \"string\" then {\"hostname\": .hostname} else .hostname[] end\n     \n  ]\n}"
+              },
+              "type": "JSON_JQ_TRANSFORM",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "get_device_id_dynamic_fork",
+              "taskReferenceName": "get_device_id_dynamic_fork_ref",
+              "inputParameters": {
+                "forkTaskWorkflow": "security_get_device_id",
+                "forkTaskInputs": "${extract_malsite_alerts_ref.output.result.malsite_hostnames}"
+              },
+              "type": "FORK_JOIN_DYNAMIC",
+              "decisionCases": {},
+              "dynamicForkTasksParam": "dynamicTasks",
+              "dynamicForkTasksInputParamName": "dynamicTasksInput",
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "get_device_id_dynamic_join",
+              "taskReferenceName": "get_device_id_dynamic_join_ref",
+              "inputParameters": {},
+              "type": "JOIN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [
+                "get_device_id_dynamic_join_ref"
+              ],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "extract_malsite_devices",
+              "taskReferenceName": "extract_malsite_devices_ref",
+              "inputParameters": {
+                "join_output": "${get_device_id_dynamic_join_ref.output}",
+                "queryExpression": "{\n  malsite_device_ids: [\n    ..\n    | .device_id? \n    | select( type == \"string\" )\n    | select(length > 0) \n    | {\"device_id\" : . } \n  ]\n \n}"
+              },
+              "type": "JSON_JQ_TRANSFORM",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        ],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "security_calls_join",
+        "taskReferenceName": "security_calls_join_ref",
+        "inputParameters": {},
+        "type": "JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [
+          "extract_malware_alerts_ref",
+          "extract_malsite_devices_ref"
+        ],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "llm_alert_analysis",
+        "taskReferenceName": "llm_alert_analysis_ref",
+        "inputParameters": {
+          "llmProvider": "openai",
+          "model": "gpt-4o-mini",
+          "promptName": "llm_alert_analysis",
+          "maxTokens": 16384,
+          "jsonOutput": true,
+          "promptVariables": {
+            "malsite_alerts_data": "${mock_security_malsite_alerts_ref.output.result}",
+            "malware_alerts_data": "${mock_security_malware_alerts_ref.output.result}"
+          }
+        },
+        "type": "LLM_TEXT_COMPLETE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "validate_llm_findings",
+        "taskReferenceName": "validate_llm_findings_ref",
+        "inputParameters": {
+          "llm_output": "${llm_alert_analysis_ref.output.result}",
+          "extracted_malware_sha256s": "${extract_malware_alerts_ref.output.result.mw_sha256s}",
+          "extracted_malware_devices": "${extract_malware_alerts_ref.output.result.malware_device_ids}",
+          "extracted_malsite_devices": "${extract_malsite_devices_ref.output.result.malsite_device_ids}",
+          "extracted_malware_users": "${extract_malware_alerts_ref.output.result.malware_users}",
+          "extracted_malsite_users": "${extract_malsite_alerts_ref.output.result.malsite_users}",
+          "evaluatorType": "graaljs",
+          "expression": "(function() {\n  // Get inputs\n  var llmOutput = $.llm_output;\n  var extractedSha256s = $.extracted_malware_sha256s;\n  var extractedMalwareDevices = $.extracted_malware_devices;\n  var extractedMalsiteDevices = $.extracted_malsite_devices;\n  var extractedMalwareUsers = $.extracted_malware_users;\n  var extractedMalsiteUsers = $.extracted_malsite_users;\n  \n  // Initialize results\n  var result = {\n    sha256_validation: { high_priority: [], low_priority: [] },\n    device_validation: { high_priority: [], low_priority: [] },\n    user_validation: { high_priority: [], low_priority: [] },\n    summary: {}\n  };\n  \n  // Helper function to check if item exists in array of objects\n  function existsInObjectArray(array, key, value) {\n    if (!array || !Array.isArray(array)) {\n      return false;\n    }\n    \n    for (var i = 0; i < array.length; i++) {\n      if (array[i] && array[i][key] === value) {\n        return true;\n      }\n    }\n    return false;\n  }\n  \n  // Helper function to extract values from array of objects\n  function extractValues(array, key) {\n    if (!array || !Array.isArray(array)) {\n      return [];\n    }\n    \n    var values = [];\n    for (var i = 0; i < array.length; i++) {\n      if (array[i] && array[i][key]) {\n        values.push(array[i][key]);\n      }\n    }\n    return values;\n  }\n  \n  // Validate SHA256 hashes\n  if (llmOutput.suspected_sha256s && Array.isArray(llmOutput.suspected_sha256s)) {\n    var extractedSha256Values = extractValues(extractedSha256s, 'local_sha256');\n    \n    for (var i = 0; i < llmOutput.suspected_sha256s.length; i++) {\n      var sha256 = llmOutput.suspected_sha256s[i];\n      if (extractedSha256Values.indexOf(sha256) >= 0) {\n        result.sha256_validation.high_priority.push(sha256);\n      } else {\n        result.sha256_validation.low_priority.push(sha256);\n      }\n    }\n  }\n  \n  // Validate devices\n  if (llmOutput.suspected_devices && Array.isArray(llmOutput.suspected_devices)) {\n    var mwDeviceIds = extractValues(extractedMalwareDevices, 'device_id');\n    var msDeviceIds = extractValues(extractedMalsiteDevices, 'device_id');\n    var allDeviceIds = mwDeviceIds.concat(msDeviceIds);\n    \n    for (var i = 0; i < llmOutput.suspected_devices.length; i++) {\n      var deviceId = llmOutput.suspected_devices[i];\n      if (allDeviceIds.indexOf(deviceId) >= 0) {\n        result.device_validation.high_priority.push(deviceId);\n      } else {\n        result.device_validation.low_priority.push(deviceId);\n      }\n    }\n  }\n  \n  // Validate users\n  if (llmOutput.suspected_users && Array.isArray(llmOutput.suspected_users)) {\n    var mwUsers = extractValues(extractedMalwareUsers, 'user');\n    var msUsers = extractValues(extractedMalsiteUsers, 'user');\n    var allUsers = mwUsers.concat(msUsers);\n    \n    for (var i = 0; i < llmOutput.suspected_users.length; i++) {\n      var user = llmOutput.suspected_users[i];\n      if (allUsers.indexOf(user) >= 0) {\n        result.user_validation.high_priority.push(user);\n      } else {\n        result.user_validation.low_priority.push(user);\n      }\n    }\n  }\n  \n  // Generate summary statistics\n  result.summary = {\n    sha256s: {\n      total_suspected: llmOutput.suspected_sha256s ? llmOutput.suspected_sha256s.length : 0,\n      valid_count: result.sha256_validation.high_priority.length,\n      invalid_count: result.sha256_validation.low_priority.length,\n      accuracy_percentage: llmOutput.suspected_sha256s && llmOutput.suspected_sha256s.length > 0 ?\n        Math.round((result.sha256_validation.high_priority.length / llmOutput.suspected_sha256s.length) * 100) : 0\n    },\n    devices: {\n      total_suspected: llmOutput.suspected_devices ? llmOutput.suspected_devices.length : 0,\n      valid_count: result.device_validation.high_priority.length,\n      invalid_count: result.device_validation.low_priority.length,\n      accuracy_percentage: llmOutput.suspected_devices && llmOutput.suspected_devices.length > 0 ?\n        Math.round((result.device_validation.high_priority.length / llmOutput.suspected_devices.length) * 100) : 0\n    },\n    users: {\n      total_suspected: llmOutput.suspected_users ? llmOutput.suspected_users.length : 0,\n      valid_count: result.user_validation.high_priority.length,\n      invalid_count: result.user_validation.low_priority.length,\n      accuracy_percentage: llmOutput.suspected_users && llmOutput.suspected_users.length > 0 ?\n        Math.round((result.user_validation.high_priority.length / llmOutput.suspected_users.length) * 100) : 0\n    },\n    overall_accuracy: llmOutput.suspected_sha256s && llmOutput.suspected_devices && llmOutput.suspected_users ?\n      Math.round((\n        (result.sha256_validation.high_priority.length + result.device_validation.high_priority.length + result.user_validation.high_priority.length) /\n        (llmOutput.suspected_sha256s.length + llmOutput.suspected_devices.length + llmOutput.suspected_users.length)\n      ) * 100) : 0\n  };\n  \n  // Generate action recommendation based on validation results\n  var actionRecommendation = '';\n  if (result.summary.overall_accuracy >= 90) {\n    actionRecommendation = 'HIGH_CONFIDENCE: Proceed with automated response based on LLM findings';\n  } else if (result.summary.overall_accuracy >= 70) {\n    actionRecommendation = 'MEDIUM_CONFIDENCE: Proceed with automated response for validated entries only';\n  } else {\n    actionRecommendation = 'LOW_CONFIDENCE: Require human review before proceeding';\n  }\n  \n  result.action_recommendation = actionRecommendation;\n  result.deep_scan = (llmOutput.threat_clusters || []).length > 0 ;\n  \n  return result;\n})();"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "decide_visionone_follow_ups",
+        "taskReferenceName": "decide_visionone_follow_ups_ref",
+        "inputParameters": {
+          "deep_scan_required": "${validate_llm_findings_ref.output.result.deep_scan}"
+        },
+        "type": "SWITCH",
+        "decisionCases": {
+          "true": [
+            {
+              "name": "alert_follow_up_actions_fork",
+              "taskReferenceName": "alert_follow_up_actions_fork_ref",
+              "inputParameters": {},
+              "type": "FORK_JOIN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [
+                [
+                  {
+                    "name": "last_30_days_threat_hunt_dynamic_fork",
+                    "taskReferenceName": "last_30_days_threat_hunt_dynamic_fork_ref",
+                    "inputParameters": {
+                      "forkTaskWorkflow": "vision_one_deep_visibility_hunt",
+                      "forkTaskInputs": "${extract_malware_alerts_ref.output.result.mw_sha256s}"
+                    },
+                    "type": "FORK_JOIN_DYNAMIC",
+                    "decisionCases": {},
+                    "dynamicForkTasksParam": "dynamicTasks",
+                    "dynamicForkTasksInputParamName": "dynamicTasksInput",
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  },
+                  {
+                    "name": "last_30_days_threat_hunt_join",
+                    "taskReferenceName": "last_30_days_threat_hunt_join_ref",
+                    "inputParameters": {},
+                    "type": "JOIN",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  }
+                ],
+                [
+                  {
+                    "name": "infected_device_scans_dynamic_fork",
+                    "taskReferenceName": "infected_device_scans_dynamic_fork_ref",
+                    "inputParameters": {
+                      "forkTaskWorkflow": "vision_one_device_scan",
+                      "forkTaskInputs": "${extract_malware_alerts_ref.output.result.malware_device_ids}"
+                    },
+                    "type": "FORK_JOIN_DYNAMIC",
+                    "decisionCases": {},
+                    "dynamicForkTasksParam": "dynamicTasks",
+                    "dynamicForkTasksInputParamName": "dynamicTasksInput",
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  },
+                  {
+                    "name": "infected_device_scans_join",
+                    "taskReferenceName": "infected_device_scans_join_ref",
+                    "inputParameters": {},
+                    "type": "JOIN",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  }
+                ],
+                [
+                  {
+                    "name": "malsite_visited_device_scans_dynamic_fork",
+                    "taskReferenceName": "malsite_visited_device_scans_dynamic_fork_ref",
+                    "inputParameters": {
+                      "forkTaskWorkflow": "vision_one_device_scan",
+                      "forkTaskInputs": "${extract_malsite_devices_ref.output.result.malsite_device_ids}"
+                    },
+                    "type": "FORK_JOIN_DYNAMIC",
+                    "decisionCases": {},
+                    "dynamicForkTasksParam": "dynamicTasks",
+                    "dynamicForkTasksInputParamName": "dynamicTasksInput",
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  },
+                  {
+                    "name": "malsite_visited_device_scans_join",
+                    "taskReferenceName": "malsite_visited_device_scans_join_ref",
+                    "inputParameters": {},
+                    "type": "JOIN",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  }
+                ]
+              ],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "alert_follow_up_actions_join",
+              "taskReferenceName": "alert_follow_up_actions_join_ref",
+              "inputParameters": {},
+              "type": "JOIN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [
+                "last_30_days_threat_hunt_join_ref",
+                "infected_device_scans_join_ref",
+                "malsite_visited_device_scans_join_ref"
+              ],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        },
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "evaluatorType": "graaljs",
+        "expression": "(function () {\n  return !!$.deep_scan_required;\n  // \"INITIATE_VISION_ONE_SCAN\";\n})();\n",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "generate_message_body",
+        "taskReferenceName": "generate_message_body_ref",
+        "inputParameters": {
+          "expression": "(function() {\n  var malsite_device_ids = [];\n  var malsiteUsers = [];\n  var malsiteHostnames = [];\n  var malware_device_ids = [];\n  var mwSha256s = [];\n  var malwareUsers = [];\n  var malwareMd5s = [];\n  var header = \"<strong>Please find below the scan results</strong><br><br>\";\n  var list0, list01, list02, list1, list2, list3, list4, emailBody;\n  var i;\n\n  for (i = 0; i < $.malsite_devices.malsite_device_ids.length; i++) {\n    malsite_device_ids.push($.malsite_devices.malsite_device_ids[i].device_id);\n  }\n\n  for (i = 0; i < $.malsite_users.malsite_users.length; i++) {\n    malsiteUsers.push($.malsite_users.malsite_users[i].user);\n  }\n\n  for (i = 0; i < $.malsite_users.malsite_hostnames.length; i++) {\n    malsiteHostnames.push($.malsite_users.malsite_hostnames[i].hostname);\n  }\n\n  for (i = 0; i < $.malware_alerts.malware_device_ids.length; i++) {\n    malware_device_ids.push($.malware_alerts.malware_device_ids[i].device_id);\n  }\n\n  for (i = 0; i < $.malware_alerts.mw_sha256s.length; i++) {\n    mwSha256s.push($.malware_alerts.mw_sha256s[i].local_sha256);\n  }\n\n  // for (i = 0; i < $.malware_alerts.malware_users.length; i++) {\n  //   malwareUsers.push($.malware_alerts.malware_users[i].user);\n  // }\n\n  for (i = 0; i < $.malware_alerts.malware_md5s.length; i++) {\n    malwareMd5s.push($.malware_alerts.malware_md5s[i].md5);\n  }\n\n  list0 = \"Devcies that have visited <strong>malsites</strong>:\" + malsite_device_ids + \"<br>\";\n  list01 = \"Users visiting malsites \" + malsiteUsers + \"<br>\";\n  list02 = \"Hostnames visiting malsites \" + malsiteHostnames + \"<br>\";\n  list1 = \"Devcies with malware present:\" + malware_device_ids + \"<br>\";\n  list2 = \"Malware SHA256 signatures:\" + mwSha256s + \"<br>\";\n  list3 = \"Malware MD5 signatures:\" + malwareMd5s + \"<br>\";\n  list4 = \"Users with malware insatlled:\" + malwareUsers + \"<br>\";\n\n  emailBody = header + list0 + list01 + list02 + list1 + list2 + list3 + list4;\n\n  return emailBody;\n})();",
+          "evaluatorType": "graaljs",
+          "malsite_devices": "${extract_malsite_devices_ref.output.result}",
+          "malware_alerts": "${extract_malware_alerts_ref.output.result}",
+          "malsite_users": "${extract_malsite_alerts_ref.output.result}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "notify_channels_subwf",
+        "taskReferenceName": "notify_channels_subwf_ref",
+        "inputParameters": {
+          "notification_type": "${workflow.input.notification_channel}",
+          "notification_from": "templates-dev@orkes.io",
+          "notification_to": "templates-dev@orkes.io",
+          "notification_message": "${generate_message_body_ref.output.result}"
+        },
+        "type": "SUB_WORKFLOW",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "subWorkflowParam": {
+          "name": "Notify-Channels-x-mocked"
+        },
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "notification_channel",
+      "recipient_role",
+      "security_malsite_alerts",
+      "security_malware_alerts"
+    ],
+    "outputParameters": {
+      "notified_channel": "${notify_channels_subwf_ref.output.notified_channel}",
+      "action_recommendation": "${validate_llm_findings_ref.output.action_recommendation}"
+    },
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "ram@orkes.io",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true
+  }
