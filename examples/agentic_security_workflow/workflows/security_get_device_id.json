@@ -1,0 +1,164 @@
+{
+  "createTime": 1742664786256,
+  "updateTime": 1742408720048,
+  "name": "security_get_device_id",
+  "description": "Sub workflow to get device info given the device_id.",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "set_variable",
+      "taskReferenceName": "set_variable_ref",
+      "inputParameters": {
+        "device_ino": {
+          "MBP-MJ003": {
+            "status": "success",
+            "device_info": {
+              "hostname": "MBP-MJ003",
+              "nsdeviceuid": "NS-DEV-003-GHI",
+              "user": "mark.johnson@company.com",
+              "os": "macOS",
+              "os_version": "12.6.3",
+              "last_seen": 1679485631
+            }
+          },
+          "LAPTOP-EW004": {
+            "status": "success",
+            "device_info": {
+              "hostname": "LAPTOP-EW004",
+              "nsdeviceuid": "NS-DEV-004-JKL",
+              "user": "emily.wilson@company.com",
+              "os": "Windows",
+              "os_version": "10.0.19044",
+              "last_seen": 1679789521
+            }
+          },
+          "WKSTN-DC005": {
+            "status": "success",
+            "device_info": {
+              "hostname": "WKSTN-DC005",
+              "nsdeviceuid": "NS-DEV-005-MNO",
+              "user": "david.chen@company.com",
+              "os": "Windows",
+              "os_version": "11.0.22621",
+              "last_seen": 1680085683
+            }
+          },
+          "LAPTOP-SM006": {
+            "status": "success",
+            "device_info": {
+              "hostname": "LAPTOP-SM006",
+              "nsdeviceuid": "NS-DEV-006-PQR",
+              "user": "sarah.miller@company.com",
+              "os": "Windows",
+              "os_version": "10.0.19044",
+              "last_seen": 1680172083
+            }
+          },
+          "WKSTN-AS002": {
+            "status": "success",
+            "device_info": {
+              "hostname": "WKSTN-AS002",
+              "nsdeviceuid": "NS-DEV-002-DEF",
+              "user": "alice.smith@company.com",
+              "os": "Windows",
+              "os_version": "10.0.19044",
+              "last_seen": 1680258483
+            }
+          },
+          "MBP-RC007": {
+            "status": "success",
+            "device_info": {
+              "hostname": "MBP-RC007",
+              "nsdeviceuid": "NS-DEV-007-STU",
+              "user": "robert.chen@company.com",
+              "os": "macOS",
+              "os_version": "13.2.1",
+              "last_seen": 1680012350
+            }
+          },
+          "LINUX-RC008": {
+            "status": "success",
+            "device_info": {
+              "hostname": "LINUX-RC008",
+              "nsdeviceuid": "NS-DEV-008-VWX",
+              "user": "robert.chen@company.com",
+              "os": "Linux",
+              "os_version": "Ubuntu 22.04",
+              "last_seen": 1680012920
+            }
+          },
+          "LAPTOP-JL009": {
+            "status": "success",
+            "device_info": {
+              "hostname": "LAPTOP-JL009",
+              "nsdeviceuid": "NS-DEV-009-YZA",
+              "user": "jennifer.lopez@company.com",
+              "os": "Windows",
+              "os_version": "11.0.22621",
+              "last_seen": 1680013250
+            }
+          },
+          "iPhone-JL": {
+            "status": "success",
+            "device_info": {
+              "hostname": "iPhone-JL",
+              "nsdeviceuid": "NS-DEV-010-BCD",
+              "user": "jennifer.lopez@company.com",
+              "os": "iOS",
+              "os_version": "16.3.1",
+              "last_seen": 1680013100
+            }
+          }
+        }
+      },
+      "type": "SET_VARIABLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "inline",
+      "taskReferenceName": "inline_ref",
+      "inputParameters": {
+        "expression": "(function () {\n  return $.deviceInfo[$.hostname];\n})();",
+        "evaluatorType": "graaljs",
+        "hostname": "${workflow.input.hostname}",
+        "deviceInfo": "${workflow.variables.device_ino}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "hostname"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "ram@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}

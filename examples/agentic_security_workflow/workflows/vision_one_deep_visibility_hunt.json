@@ -1,0 +1,89 @@
+{
+  "createTime": 1742665092287,
+  "updateTime": 1742669128616,
+  "name": "vision_one_deep_visibility_hunt",
+  "description": "Mock Vision One deep visibility hunt for the cyber security agentic workflow demo.",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "initialize_threat_hunt",
+      "taskReferenceName": "initialize_threat_hunt_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function() {\n  const fileHash = $.local_sha256;\n  console.log('Initializing deep visibility threat hunt for hash: ' + fileHash);\n  let query = \"FileHash = '\" + fileHash + \"' AND EventType IN ('File Creation', 'File Modification', 'Process Execution', 'Network Connection') TIMEFRAME Last30Days\";\n  return {\n    hunt_id: 'hunt-' + Math.floor(Math.random() * 10000),\n    file_hash: fileHash,\n    status: 'initialized',\n    start_time: new Date().toISOString(),\n    query: query\n  };\n})();",
+        "local_sha256": "${workflow.input.local_sha256}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "execute_threat_hunt",
+      "taskReferenceName": "execute_threat_hunt_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function() {\n  const huntId = $.hunt_id;\n  const fileHash = $.file_hash;\n  \n  // Determine if this hash would have matches based on our mock data\n  const isKnownMalware = fileHash === 'ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c' || \n                       fileHash === '8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f';\n  \n  // Number of matches depends on the hash\n  const matchCount = isKnownMalware ? \n    (fileHash === 'ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c' ? 2 : 4) : 0;\n  \n  return {\n    hunt_id: huntId,\n    file_hash: fileHash,\n    status: 'completed',\n    completion_time: new Date().toISOString(),\n    execution_time_seconds: Math.floor(Math.random() * 60) + 30,\n    matches_found: matchCount,\n    historical_presence: isKnownMalware\n  };\n})();",
+        "hunt_id": "${initialize_threat_hunt_ref.output.result.hunt_id}",
+        "file_hash": "${initialize_threat_hunt_ref.output.result.file_hash}",
+        "query": "${initialize_threat_hunt_ref.output.result.query}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "generate_hunt_report",
+      "taskReferenceName": "generate_hunt_report_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function() {\n  const results = $.hunt_results;\n  const fileHash = results.file_hash;\n  \n  let occurrences = [];\n  \n  // Generate occurrence details if matches were found\n  if (results.matches_found > 0) {\n    // Different patterns based on which hash we're dealing with\n    if (fileHash === 'ef537f25c895bfa782526529a9b63d97aa631564d5d789c2b765448c8635fb6c') {\n      occurrences.push({\n        agent_id: 'NS-DEV-001-ABC',\n        hostname: 'WKSTN-JD001',\n        username: 'john.doe',\n        event_type: 'File Creation',\n        path: 'C:\\\\Users\\\\john.doe\\\\Downloads\\\\quarterly_results.xlsm',\n        timestamp: new Date(Date.now() - 1000*60*60*24*5).toISOString()\n      });\n      occurrences.push({\n        agent_id: 'NS-DEV-001-ABC',\n        hostname: 'WKSTN-JD001',\n        username: 'john.doe',\n        event_type: 'Process Execution',\n        path: 'C:\\\\Users\\\\john.doe\\\\Downloads\\\\quarterly_results.xlsm',\n        timestamp: new Date(Date.now() - 1000*60*60*24*5).toISOString(),\n        parent_process: 'EXCEL.EXE'\n      });\n    } else if (fileHash === '8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f') {\n      occurrences.push({\n        agent_id: 'NS-DEV-002-DEF',\n        hostname: 'WKSTN-AS002',\n        username: 'alice.smith',\n        event_type: 'File Creation',\n        path: 'C:\\\\Users\\\\alice.smith\\\\Downloads\\\\invoice_template.docm',\n        timestamp: new Date(Date.now() - 1000*60*60*24*3).toISOString()\n      });\n      occurrences.push({\n        agent_id: 'NS-DEV-002-DEF',\n        hostname: 'WKSTN-AS002',\n        username: 'alice.smith',\n        event_type: 'Process Execution',\n        path: 'C:\\\\Users\\\\alice.smith\\\\Downloads\\\\invoice_template.docm',\n        timestamp: new Date(Date.now() - 1000*60*60*24*3).toISOString(),\n        parent_process: 'WINWORD.EXE'\n      });\n      occurrences.push({\n        agent_id: 'NS-DEV-002-DEF',\n        hostname: 'WKSTN-AS002',\n        username: 'alice.smith',\n        event_type: 'Process Execution',\n        path: 'C:\\\\Users\\\\alice.smith\\\\AppData\\\\Local\\\\Temp\\\\svc_host.exe',\n        timestamp: new Date(Date.now() - 1000*60*60*24*3 + 1000*60).toISOString(),\n        parent_process: 'WINWORD.EXE'\n      });\n      occurrences.push({\n        agent_id: 'NS-DEV-002-DEF',\n        hostname: 'WKSTN-AS002',\n        username: 'alice.smith',\n        event_type: 'Network Connection',\n        destination_ip: '203.0.113.100',\n        destination_port: 8080,\n        protocol: 'TCP',\n        process_name: 'svc_host.exe',\n        timestamp: new Date(Date.now() - 1000*60*60*24*3 + 1000*60*2).toISOString()\n      });\n    }\n  }\n  \n  return {\n    local_sha256: fileHash,\n    hunt_summary: {\n      matches_found: results.matches_found,\n      historical_presence: results.historical_presence,\n      affected_devices: results.matches_found > 0 ? 1 : 0,\n      execution_time_seconds: results.execution_time_seconds\n    },\n    occurrences: occurrences,\n    risk_assessment: results.matches_found > 0 ? \n      (fileHash === '8a1c7a943636a8d84c32a619d2f573a0ab45f7531ac01f3b3cbed6fb6f77d67f' ? 'critical' : 'high') : \n      'low'\n  };\n})();",
+        "hunt_results": "${execute_threat_hunt_ref.output.result}"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "local_sha256"
+  ],
+  "outputParameters": {
+    "hunt_results": "${generate_hunt_report_ref.output.result}"
+  },
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "ram@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}

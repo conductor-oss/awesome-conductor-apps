@@ -1,0 +1,158 @@
+{
+  "createTime": 1742664738425,
+  "updateTime": 1742449233371,
+  "name": "Notify-Channels-x-mocked",
+  "description": "A notification workflow with various notification mechanism e.g slack, email, sms etc.. with a specified message (mocked HTTP calls)",
+  "version": 2,
+  "tasks": [
+    {
+      "name": "switch_notify_provider_type",
+      "taskReferenceName": "switch_notify_provider_type_ref",
+      "inputParameters": {
+        "switchCaseValue": "${workflow.input.notification_type}"
+      },
+      "type": "SWITCH",
+      "decisionCases": {
+        "SLACK": [
+          {
+            "name": "slack_post_mock",
+            "taskReferenceName": "slack_post_ref",
+            "inputParameters": {
+              "evaluatorType": "graaljs",
+              "expression": "(function () {\n  return {\n    \"status\": \"success\", \n    \"message\": \"Slack notification sent successfully\"\n  };\n})();"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "SMS": [
+          {
+            "name": "encode_params",
+            "taskReferenceName": "encode_params_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  return (\"To=\" + encodeURIComponent(\"${workflow.input.notification_to}\")\n    + \"&From=\" + encodeURIComponent(\"${workflow.input.notification_from}\")\n    + \"&Body=\" + encodeURIComponent(\"${workflow.input.notification_message}\"));\n})();",
+              "evaluatorType": "graaljs"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "sms_twilio_mock",
+            "taskReferenceName": "sms_twilio_ref",
+            "inputParameters": {
+              "evaluatorType": "graaljs",
+              "result": "",
+              "expression": "(function () {\n  return {\n    \"status\": \"success\", \n    \"message\": \"SMS sent successfully\"\n  };\n})();\n\n"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "EMAIL": [
+          {
+            "name": "email_sendgrid_mock",
+            "taskReferenceName": "email_sendgrid_ref",
+            "inputParameters": {
+              "evaluatorType": "graaljs",
+              "expression": "(function () {\n  return {\n    \"status\": \"success\", \n    \"message\": \"Email sent successfully\"\n  };\n})();\n\n"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "PAGERDUTY": [
+          {
+            "name": "notify_pagerduty_mock",
+            "taskReferenceName": "notify_pagerduty_ref",
+            "inputParameters": {
+              "evaluatorType": "graaljs",
+              "expression": "(function () {\n  return {\n    \"status\": \"success\", \n    \"message\": \"PagerDuty event triggered successfully\"\n  };\n})();\n\n"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
+      },
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "evaluatorType": "value-param",
+      "expression": "switchCaseValue",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "notification_type",
+    "notification_from",
+    "notification_to",
+    "notification_message"
+  ],
+  "outputParameters": {
+    "notified_channel": "${switch_notify_provider_type_ref.output.selectedCase}"
+  },
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "ram@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}
