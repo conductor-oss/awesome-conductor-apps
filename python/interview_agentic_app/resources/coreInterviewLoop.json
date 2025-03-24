@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742399063740,
+    "updateTime": 1742854687609,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -11,8 +11,9 @@
         "inputParameters": {
           "is_question_done": "\"\"",
           "follow_up": "\"\"",
-          "messages": "${workflow.input.messages}",
-          "is_overtime": false
+          "messages": [],
+          "is_overtime": false,
+          "scorecard": {}
         },
         "type": "SET_VARIABLE",
         "decisionCases": {},
@@ -60,7 +61,7 @@
         "inputParameters": {
           "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: $.question,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
           "evaluatorType": "graaljs",
-          "messages": "${workflow.input.messages}",
+          "messages": "${workflow.variables.messages}",
           "question": "${question_generator_ref.output.result}"
         },
         "type": "INLINE",
@@ -505,6 +506,29 @@
         "permissive": false
       },
       {
+        "name": "grade_interviewee_response",
+        "taskReferenceName": "grade_interviewee_response_ref",
+        "inputParameters": {
+          "llmProvider": "openai-orkes-karl",
+          "model": "gpt-4o-mini",
+          "instructions": "grade_interviewee_response",
+          "promptVariables": {},
+          "messages": "${workflow.variables.messages}"
+        },
+        "type": "LLM_CHAT_COMPLETE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
         "name": "check_if_overtime",
         "taskReferenceName": "check_if_overtime_ref",
         "inputParameters": {
@@ -526,10 +550,11 @@
         "permissive": false
       },
       {
-        "name": "set_is_overtime",
-        "taskReferenceName": "set_is_overtime_ref",
+        "name": "set_is_overtime_and_scorecard",
+        "taskReferenceName": "set_is_overtime_and_scorecard_ref",
         "inputParameters": {
-          "is_overtime": "${check_if_overtime_ref.output.result}"
+          "is_overtime": "${check_if_overtime_ref.output.result}",
+          "scorecard": "${grade_interviewee_response_ref.output.result}"
         },
         "type": "SET_VARIABLE",
         "decisionCases": {},
@@ -548,14 +573,11 @@
     "inputParameters": [
       "name",
       "language",
-      "messages",
       "start_time",
       "question_template",
       "time_out"
     ],
-    "outputParameters": {
-      "messages": "${workflow.input.messages}"
-    },
+    "outputParameters": {},
     "failureWorkflow": "",
     "schemaVersion": 2,
     "restartable": true,

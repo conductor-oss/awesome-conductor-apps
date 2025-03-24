@@ -1,6 +1,6 @@
 {
   "createTime": 1742250829558,
-  "updateTime": 1742402640748,
+  "updateTime": 1742854722329,
   "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
@@ -428,7 +428,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -480,7 +479,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question2_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -532,7 +530,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question3_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -606,10 +603,32 @@
           "permissive": false
         },
         {
+          "name": "concatenate_loop_messages",
+          "taskReferenceName": "concatenate_loop_messages_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []), \n      ...($.newMessages || [])\n    ]\n  };\n})();",
+            "evaluatorType": "graaljs",
+            "messages": "${workflow.variables.messages}",
+            "newMessages": "${wait_till_question_done_ref.output.result.messages}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
           "name": "set_messages_question",
           "taskReferenceName": "set_messages_question_ref",
           "inputParameters": {
-            "messages": "${wait_till_question_done_ref.output.result.messages}",
+            "messages": "${concatenate_loop_messages_ref.output.result.messages}",
             "is_overtime": "${wait_till_question_done_ref.output.result.is_overtime}"
           },
           "type": "SET_VARIABLE",

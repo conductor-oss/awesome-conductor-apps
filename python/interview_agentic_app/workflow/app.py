@@ -152,10 +152,8 @@ async def get_sub_workflow_id():
 @app.route('/get_question', methods=['GET'])
 async def get_question():
     try:        
-        def extract_question(messages_list):
-            return [messages_list[-2].get('message'), messages_list[-1].get('message')]
-        
-        reply_text = await poll_for_response("The interview has timed out. Please wait for the final evaluation...", workflow_type="SUB_WORKFLOW_ID", extract_fn=extract_question)
+        reply_text = await poll_for_response("The interview has timed out. Please wait for the final evaluation...", workflow_type="SUB_WORKFLOW_ID")
+        reply_text = [reply_text]
         return jsonify({"message": reply_text}), 200
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
