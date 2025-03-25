@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742854687609,
+    "updateTime": 1742940780804,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -39,7 +39,7 @@
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
           },
-          "temperature": 0.4,
+          "temperature": 0.7,
           "messages": "${workflow.variables.messages}"
         },
         "type": "LLM_CHAT_COMPLETE",
@@ -231,7 +231,7 @@
             "name": "set_variable_3",
             "taskReferenceName": "set_variable_ref_3",
             "inputParameters": {
-              "is_question_done": "${evaluator_response_ref.output.result}"
+              "is_question_done": "${clean_evaluation_response_ref.output.result}"
             },
             "type": "SET_VARIABLE",
             "decisionCases": {},
@@ -506,6 +506,46 @@
         "permissive": false
       },
       {
+        "name": "check_if_overtime",
+        "taskReferenceName": "check_if_overtime_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  return $.is_question_done != \"DONE\";\n})();",
+          "evaluatorType": "graaljs",
+          "is_question_done": "${workflow.variables.is_question_done}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "set_is_overtime",
+        "taskReferenceName": "set_is_overtime_ref",
+        "inputParameters": {
+          "is_overtime": "${check_if_overtime_ref.output.result}"
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
         "name": "grade_interviewee_response",
         "taskReferenceName": "grade_interviewee_response_ref",
         "inputParameters": {
@@ -529,31 +569,9 @@
         "permissive": false
       },
       {
-        "name": "check_if_overtime",
-        "taskReferenceName": "check_if_overtime_ref",
+        "name": "set_scorecard",
+        "taskReferenceName": "set_scorecard_ref",
         "inputParameters": {
-          "expression": "(function () {\n  return $.is_question_done != \"DONE\";\n})();",
-          "evaluatorType": "graaljs",
-          "is_question_done": "${workflow.variables.is_question_done}"
-        },
-        "type": "INLINE",
-        "decisionCases": {},
-        "defaultCase": [],
-        "forkTasks": [],
-        "startDelay": 0,
-        "joinOn": [],
-        "optional": false,
-        "defaultExclusiveJoinTask": [],
-        "asyncComplete": false,
-        "loopOver": [],
-        "onStateChange": {},
-        "permissive": false
-      },
-      {
-        "name": "set_is_overtime_and_scorecard",
-        "taskReferenceName": "set_is_overtime_and_scorecard_ref",
-        "inputParameters": {
-          "is_overtime": "${check_if_overtime_ref.output.result}",
           "scorecard": "${grade_interviewee_response_ref.output.result}"
         },
         "type": "SET_VARIABLE",

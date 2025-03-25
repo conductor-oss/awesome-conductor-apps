@@ -67,7 +67,18 @@ async def poll_for_sub_workflow_id(max_wait_time=60):
             return str(sub_workflow_id)
         await asyncio.sleep(2)
      # interview has timed out
-    raise Exception("Failed to run final workers.")
+    raise Exception("Failed to fetch new sub_workflow.")
+
+async def poll_for_scorecard(max_wait_time=60):
+    for _ in range(max_wait_time):
+        updated_workflow = workflow_client.get_workflow(workflow_id=os.environ['SUB_WORKFLOW_ID'])
+        scorecard = updated_workflow.variables.get('scorecard', {})
+        if scorecard != {}:
+            print(f"New scorecard found: {scorecard}")
+            return scorecard
+        await asyncio.sleep(2)
+     # interview has timed out
+    raise Exception("Failed to fetch scorecard.")
 
 async def poll_for_final_step_done(max_wait_time=60):
     for _ in range(max_wait_time):
@@ -178,17 +189,18 @@ def get_question_status():
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
     
-@app.route('/update_messages', methods=['POST'])
-async def update_messages():
+@app.route('/update_primary_workflow_data', methods=['POST'])
+async def update_primary_workflow_data():
     try:
-        # get messages, is_overtime from subworkflow
+        # get messages, scorecard, is_overtime from subworkflow
+        scorecard = await poll_for_scorecard()
         sub_workflow = workflow_client.get_workflow(workflow_id=os.environ['SUB_WORKFLOW_ID'])
         messages = sub_workflow.variables.get('messages', "")
         data = request.get_json()
         is_overtime = data.get('is_overtime')
 
         # use messages to update og-workflow
-        task_client.update_task_by_ref_name(workflow_id=os.environ['WORKFLOW_ID'], task_ref_name=data.get('question'), status=TaskResultStatus.COMPLETED, output={"messages": messages, "is_overtime": is_overtime})
+        task_client.update_task_by_ref_name(workflow_id=os.environ['WORKFLOW_ID'], task_ref_name=data.get('question'), status=TaskResultStatus.COMPLETED, output={"messages": messages, "is_overtime": is_overtime, "scorecard": scorecard})
         return jsonify({"message": "Messages are updated"}), 200
     except Exception as e:
         return jsonify({"message": "An error occurred", "error": str(e)}), 500
