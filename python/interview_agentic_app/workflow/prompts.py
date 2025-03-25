@@ -146,12 +146,12 @@ Example Scenario:
 Example Scenario:
 - The response contains some correct elements but is missing key points or has some mistakes.
 - The interviewee may have started solving the problem, but needs a hint to finish it properly.
-- The interviewee **only suggests an approach (e.g., "Could I use a dictionary for this?") but does not provide an actual solution.**
+- The interviewee only suggests an approach (e.g., "Could I use a dictionary for this?") but does not provide an actual solution.
 
-3. DONE: Output this if the code response is fully correct, complete, and demonstrates a clear understanding of the question. No further action or simplification is needed.
+3. DONE: Output this if the code response is fully correct, complete, and demonstrates a clear understanding of the question, with a fully working solution that addresses the problem. No further action or simplification is needed.
 Example Scenario:
 - The answer is fully correct with no gaps or errors.
-- The interviewee shows a clear understanding of the problem and provides a solution that satisfies the question.
+- The interviewee shows a clear understanding of the problem and provides a solution that satisfies the question and works correctly without needing any further changes.
 
 Strictly return only 'SIMPLIFY', 'HINT', or 'DONE'. Do not generate explanations, reasoning, or additional text.
 
@@ -219,6 +219,46 @@ Here is a second example with proper formatting using explicit `\n` characters:
 **Hint:**\n\nTo implement the `unique_elements` function, consider using a set to keep track of the elements you've already seen. This will help you efficiently check for uniqueness while preserving the order of their first occurrence. Here’s a structured approach to guide you:\n\n1. **Initialize an empty list** to store the unique elements.\n\n2. **Create an empty set** to track the elements that have already been added to the list.\n\n3. **Iterate through the input list**:\n   - For each element, check if it is in the set.\n   - If it is not in the set, append it to the unique elements list and add it to the set.\n\n4. **Return the unique elements list** at the end.\n\n**Time Complexity:**\nAim for O(n) where n is the number of elements in the input list, since you will be iterating through the list once.\n\n**Space Complexity:**\nThe space complexity will be O(u), where u is the number of unique elements, due to the storage in the set and the output list.\n\nThis approach will help you efficiently handle larger lists as well. Good luck!
 
 ***You must be adding explicit `\n` characters into the text output to provide appropriate markdown formatting.
+"""
+
+grade_interviewee_response = """
+You are an expert software engineering interviewer. Your task is to evaluate the interviewee's response to a technical question from a conversation history.  
+
+Evaluation Criteria (0-5 for each):
+1. Correctness: Is the solution fully correct? There must be code provided.
+2. Efficiency: How optimal is the solution in terms of time and space complexity?  
+3. Code Quality & Readability: Is the code clean, structured, and easy to read? There must be code provided.
+4. Problem-Solving Approach: Did the interviewee follow a clear and logical thought process?  
+5. Communication & Explanation: Did they articulate their reasoning and trade-offs well?  
+6. Handling Edge Cases: Did they identify and correctly handle edge cases?  
+
+Each category is scored from 0 to 5, making the total score out of 30.  
+
+Input Format:
+You will receive a chat history between the interviewer and the interviewee. Identify the relevant technical question and evaluate the interviewee’s response.  
+
+Output Format:
+- Only return valid JSON
+- Do not include any extra text, explanations, or formatting tags
+
+Example Output (strictly JSON, no extra text):
+{
+  "correctness": 5,
+  "efficiency": 5,
+  "code_quality": 5,
+  "problem_solving": 5,
+  "communication": 4,
+  "edge_cases": 4,
+  "total_score": 28,
+  "comments": "The solution is correct, efficient, and well-structured. Initially, the interviewee missed handling special characters but improved it upon feedback."
+}
+
+Task:
+1. Extract the relevant technical question and the interviewee's responses from the chat history.
+2. Evaluate the responses based on the criteria above.
+3. Output only valid JSON. Do not include any additional text.
+
+Now, analyze the previous chat history and provide an evaluation.  
 """
 
 interview_thank_you_email_generator = """
@@ -289,6 +329,10 @@ def configure_integrations(api_config: Configuration):
                               description="Generate a simplified question based on the original question.",
                               prompt_template=interview_simplification_generator)
     
+    prompt_client.save_prompt('grade_interviewee_response',
+                              description="Grade an interviewee's responses to a SWE question according to correctness, efficiency, code quality & readability, problem-solving approach, communication & explanation, and handling edge cases.",
+                              prompt_template=grade_interviewee_response)
+    
     prompt_client.save_prompt('interview_thank_you_email_generator',
                               description="Generate a personalized thank you email to the interviewee.",
                               prompt_template=interview_thank_you_email_generator)
@@ -307,4 +351,5 @@ def configure_integrations(api_config: Configuration):
     ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('grade_interviewee_response', 'openai-orkes-karl', ai_models=models)
     ai_orchestrator.associate_prompt_template('interview_thank_you_email_generator', 'openai-orkes-karl', ai_models=models)

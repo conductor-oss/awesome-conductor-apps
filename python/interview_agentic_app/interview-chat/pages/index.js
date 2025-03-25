@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Message } from 'react-chat-ui';
 import { marked } from 'marked';
 
-const API_BASE_URL = 'https://awesome-conductor-apps.onrender.com'; //'http://localhost:5000'
+const API_BASE_URL = 'https://awesome-conductor-apps.onrender.com'; //'http://localhost:5000';
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
@@ -121,6 +121,7 @@ export default function Home() {
       setIsEmailValid(emailLoopStatus.data.message);
 
       if (emailLoopStatus.data.message) {
+        addMessage(response.data.message, 'Bot');
         await getInterviewQuestion(true);
       } else {
         addMessage(response.data.message || "Sorry, I didn't understand that.", 'Bot');
@@ -130,7 +131,7 @@ export default function Home() {
     }
   };
 
-  const getInterviewQuestion = async (getTwo) => {
+  const getInterviewQuestion = async () => {
     // Start new subworkflow routine
     const sub_workflow_id = await axios.get(`${API_BASE_URL}/get_sub_workflow_id`);
     console.log(`Starting sub_workflow id: ${sub_workflow_id.data.message}`);
@@ -145,11 +146,9 @@ export default function Home() {
         senderName: 'Bot'
       };
     });
-    // Select only the required number of messages
-    const filteredBotMessages = getTwo ? botMessages : botMessages.slice(-1);
 
     // Update messages state
-    setMessages(prevMessages => [...prevMessages, ...filteredBotMessages]);
+    setMessages(prevMessages => [...prevMessages, ...botMessages]);
   };
 
   const handleCoreInterviewLoop = async () => {
@@ -166,20 +165,19 @@ export default function Home() {
 
     // DONE Case
     if (questionStatus === 'DONE' && !overtimeStatus) {
-      // setIsInterviewTerminating(true);
-      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
+      await axios.post(`${API_BASE_URL}/update_primary_workflow_data`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
 
       // switch case for questions 1/2/3
       switch (q_id) {
         case 1:
           setIsFirstQDone(true);
           console.log("DONE UPDATING Q1 MESSAGES");
-          await getInterviewQuestion(false);
+          await getInterviewQuestion();
           break;
         case 2:
           setIsSecondQDone(true);
           console.log("DONE UPDATING Q2 MESSAGES");
-          await getInterviewQuestion(false);
+          await getInterviewQuestion();
           break;
         case 3:
           setIsThirdQDone(true);
@@ -193,7 +191,7 @@ export default function Home() {
     // TERMINATE Case (overtime)
     } else if (overtimeStatus) {
       console.log("TERMINATION DUE TO OVERTIME");
-      await axios.post(`${API_BASE_URL}/update_messages`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
+      await axios.post(`${API_BASE_URL}/update_primary_workflow_data`, { question: "wait_till_question_done_ref", is_overtime: isQuestionDone.data.isOvertime });
       await handleFinalStep();
     }
   };
