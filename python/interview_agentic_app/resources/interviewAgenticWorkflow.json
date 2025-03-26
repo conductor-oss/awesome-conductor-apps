@@ -1,6 +1,6 @@
 {
   "createTime": 1742250829558,
-  "updateTime": 1742402640748,
+  "updateTime": 1742942117648,
   "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
@@ -36,9 +36,9 @@
         "is_first_q_done": false,
         "is_second_q_done": false,
         "is_third_q_done": false,
-        "sub_workflow_id": "\"\"",
         "time_out": 45,
-        "is_overtime": false
+        "is_overtime": false,
+        "scorecards": []
       },
       "type": "SET_VARIABLE",
       "decisionCases": {},
@@ -428,7 +428,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -480,7 +479,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question2_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -532,7 +530,6 @@
                     "input": {
                       "name": "${workflow.variables.name}",
                       "language": "${workflow.variables.language}",
-                      "messages": "${workflow.variables.messages}",
                       "start_time": "${workflow.variables.start_time}",
                       "question_template": "interview_question3_generator",
                       "time_out": "${workflow.variables.time_out}"
@@ -606,11 +603,56 @@
           "permissive": false
         },
         {
+          "name": "concatenate_loop_messages",
+          "taskReferenceName": "concatenate_loop_messages_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []), \n      ...($.newMessages || [])\n    ]\n  };\n})();",
+            "evaluatorType": "graaljs",
+            "messages": "${workflow.variables.messages}",
+            "newMessages": "${wait_till_question_done_ref.output.result.messages}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "concatenate_scorecard",
+          "taskReferenceName": "concatenate_scorecard_ref",
+          "inputParameters": {
+            "expression": "(function () {\n  return {\n    scorecards: [...$.scorecards, $.newScorecard]\n  };\n})();",
+            "evaluatorType": "graaljs",
+            "scorecards": "${workflow.variables.scorecards}",
+            "newScorecard": "${wait_till_question_done_ref.output.result.scorecard}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
           "name": "set_messages_question",
           "taskReferenceName": "set_messages_question_ref",
           "inputParameters": {
-            "messages": "${wait_till_question_done_ref.output.result.messages}",
-            "is_overtime": "${wait_till_question_done_ref.output.result.is_overtime}"
+            "messages": "${concatenate_loop_messages_ref.output.result.messages}",
+            "is_overtime": "${wait_till_question_done_ref.output.result.is_overtime}",
+            "scorecards": "${concatenate_scorecard_ref.output.result.scorecards}"
           },
           "type": "SET_VARIABLE",
           "decisionCases": {},
@@ -794,6 +836,27 @@
         ],
         [
           {
+            "name": "create_scorecard_summary",
+            "taskReferenceName": "create_scorecard_summary_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  return (function () {\n    if (!$.scorecards.length) return \"No scorecards available.\";\n\n    const categories = [\"code_quality\", \"edge_cases\", \"correctness\", \"efficiency\", \"problem_solving\", \"communication\", \"total_score\"];\n    \n    // Calculate averages\n    const totals = {};\n    categories.forEach(function(cat) { totals[cat] = 0; });\n    \n    let highestScore = -Infinity, lowestScore = Infinity;\n    \n    $.scorecards.forEach(function(scorecard) {\n      categories.forEach(function(cat) { totals[cat] += scorecard[cat]; });\n      highestScore = Math.max(highestScore, scorecard.total_score);\n      lowestScore = Math.min(lowestScore, scorecard.total_score);\n    });\n\n    const averages = {};\n    categories.forEach(function(cat) { averages[cat] = (totals[cat] / $.scorecards.length).toFixed(1); });\n\n    // Extract common feedback themes\n    const comments = $.scorecards.map(function(s) { return s.comments; }).join(\" \");\n    \n    const strengths = [];\n    if (averages.code_quality >= 4.5) strengths.push(\"✅ Clean and well-structured code.\");\n    if (averages.correctness >= 4.5) strengths.push(\"✅ Correct solutions.\");\n    if (averages.efficiency >= 4.5) strengths.push(\"✅ Efficient implementations.\");\n    if (averages.problem_solving >= 4.5) strengths.push(\"✅ Strong problem-solving skills.\");\n\n    const improvements = [];\n    if (comments.match(/edge cases/i)) improvements.push(\"🔹 More detailed discussion on edge cases.\");\n    if (comments.match(/efficiency|optimize/i)) improvements.push(\"🔹 Further efficiency optimizations.\");\n    if (averages.code_quality < 3.5) improvements.push(\"🔹 Poor code quality.\");\n    if (averages.correctness < 3.5) improvements.push(\"🔹 Code is mostly incorrect.\");\n    if (averages.communication < 4.5) improvements.push(\"🔹 More elaboration when explaining the approach.\");\n\n    // Generate summary using string concatenation and HTML formatting\n    var summary = \"\";\n    summary += \"<h4><strong>Interview Evaluation Summary</strong></h4>\\n\";\n    summary += \"<h4><strong>Average Scores:</strong></h4>\\n\";\n    summary += \"<ul>\";\n    summary += \"<li>Code Quality: <strong>\" + averages.code_quality + \"</strong></li>\\n\";\n    summary += \"<li>Edge Cases: <strong>\" + averages.edge_cases + \"</strong></li>\\n\";\n    summary += \"<li>Correctness: <strong>\" + averages.correctness + \"</strong></li>\\n\";\n    summary += \"<li>Efficiency: <strong>\" + averages.efficiency + \"</strong></li>\\n\";\n    summary += \"<li>Problem-Solving: <strong>\" + averages.problem_solving + \"</strong></li>\\n\";\n    summary += \"<li>Communication: <strong>\" + averages.communication + \"</strong></li>\\n\";\n    summary += \"<li>Total Score (Avg out of 30): <strong>\" + averages.total_score + \"</strong></li>\\n\";\n    summary += \"</ul>\";\n    summary += \"<ul>\";\n    summary += \"<li><strong>Highest Score:</strong> <strong>\" + highestScore + \"</strong></li>\\n\";\n    summary += \"<li><strong>Lowest Score:</strong> <strong>\" + lowestScore + \"</strong></li>\\n\";\n    summary += \"</ul>\";\n    summary += \"<h4><strong>Key Strengths:</strong></h4>\\n\";\n    summary += \"<ul>\";\n    summary += (strengths.length ? strengths.map(function(strength) { return \"<li>\" + strength + \"</li>\"; }).join(\"\") : \"<li>✅ No major strengths identified.</li>\");\n    summary += \"</ul>\";\n    summary += \"<h4><strong>Areas for Improvement:</strong></h4>\\n\";\n    summary += \"<ul>\";\n    summary += (improvements.length ? improvements.map(function(improvement) { return \"<li>\" + improvement + \"</li>\"; }).join(\"\") : \"<li>🔹 No major improvements needed.</li>\");\n    summary += \"</ul>\";\n\n    return summary;\n  })();\n})();\n",
+              "evaluatorType": "graaljs",
+              "scorecards": "${workflow.variables.scorecards}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
             "name": "interview_thank_you_email_generator",
             "taskReferenceName": "interview_thank_you_email_generator_ref",
             "inputParameters": {
@@ -807,6 +870,28 @@
               "messages": "${workflow.variables.messages}"
             },
             "type": "LLM_CHAT_COMPLETE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "embed_summary_in_email",
+            "taskReferenceName": "embed_summary_in_email_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  return $.ty_email.replace(\n    /<p>Best regards,<\\/p>/,\n    `<p>` + $.summary + `</p>\\n  <p>Best regards,</p>`\n  );\n})();",
+              "evaluatorType": "graaljs",
+              "ty_email": "${interview_thank_you_email_generator_ref.output.result}",
+              "summary": "${create_scorecard_summary_ref.output.result}"
+            },
+            "type": "INLINE",
             "decisionCases": {},
             "defaultCase": [],
             "forkTasks": [],
@@ -848,7 +933,7 @@
                 "content": [
                   {
                     "type": "text/html",
-                    "value": "${interview_thank_you_email_generator_ref.output.result}"
+                    "value": "${embed_summary_in_email_ref.output.result}"
                   }
                 ]
               }

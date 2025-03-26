@@ -1,6 +1,6 @@
 {
     "createTime": 1742248110528,
-    "updateTime": 1742399063740,
+    "updateTime": 1742940780804,
     "name": "Core Interview Loop",
     "description": "Core interview loop that asks the user a question and handles hints, simplification, completion.",
     "version": 1,
@@ -11,8 +11,9 @@
         "inputParameters": {
           "is_question_done": "\"\"",
           "follow_up": "\"\"",
-          "messages": "${workflow.input.messages}",
-          "is_overtime": false
+          "messages": [],
+          "is_overtime": false,
+          "scorecard": {}
         },
         "type": "SET_VARIABLE",
         "decisionCases": {},
@@ -38,7 +39,7 @@
             "name": "${workflow.input.name}",
             "language": "${workflow.input.language}"
           },
-          "temperature": 0.4,
+          "temperature": 0.7,
           "messages": "${workflow.variables.messages}"
         },
         "type": "LLM_CHAT_COMPLETE",
@@ -60,7 +61,7 @@
         "inputParameters": {
           "expression": "(function () {\n  return {\n    messages: [\n      ...($.messages || []),\n      {\n        role: \"assistant\",\n        message: $.question,\n        timestamp: new Date().toISOString()\n      }\n    ]\n  };\n})();\n",
           "evaluatorType": "graaljs",
-          "messages": "${workflow.input.messages}",
+          "messages": "${workflow.variables.messages}",
           "question": "${question_generator_ref.output.result}"
         },
         "type": "INLINE",
@@ -230,7 +231,7 @@
             "name": "set_variable_3",
             "taskReferenceName": "set_variable_ref_3",
             "inputParameters": {
-              "is_question_done": "${evaluator_response_ref.output.result}"
+              "is_question_done": "${clean_evaluation_response_ref.output.result}"
             },
             "type": "SET_VARIABLE",
             "decisionCases": {},
@@ -543,19 +544,58 @@
         "loopOver": [],
         "onStateChange": {},
         "permissive": false
+      },
+      {
+        "name": "grade_interviewee_response",
+        "taskReferenceName": "grade_interviewee_response_ref",
+        "inputParameters": {
+          "llmProvider": "openai-orkes-karl",
+          "model": "gpt-4o-mini",
+          "instructions": "grade_interviewee_response",
+          "promptVariables": {},
+          "messages": "${workflow.variables.messages}"
+        },
+        "type": "LLM_CHAT_COMPLETE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "set_scorecard",
+        "taskReferenceName": "set_scorecard_ref",
+        "inputParameters": {
+          "scorecard": "${grade_interviewee_response_ref.output.result}"
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
       }
     ],
     "inputParameters": [
       "name",
       "language",
-      "messages",
       "start_time",
       "question_template",
       "time_out"
     ],
-    "outputParameters": {
-      "messages": "${workflow.input.messages}"
-    },
+    "outputParameters": {},
     "failureWorkflow": "",
     "schemaVersion": 2,
     "restartable": true,
