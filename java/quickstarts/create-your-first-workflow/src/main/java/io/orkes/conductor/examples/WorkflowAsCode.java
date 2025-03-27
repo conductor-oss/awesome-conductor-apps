@@ -32,14 +32,14 @@ public class WorkflowAsCode {
 
         // Create the workflow definition.
         ConductorWorkflow<Object> workflow = new WorkflowBuilder<>(executor)
-                .name("myFirstWorkflow")
+                .name("helloWorld")
                 .version(1)
-                .description("Workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
+                .description("Hello World workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
                 .add(new Http("get-user_ref").url("https://randomuser.me/api/"))
-                // This switch task will execute the "helloWorld" task if the user's country is "United States"
+                // This switch task will execute the "myTask" task if the user's country is "United States"
                 .add(new Switch("user-criteria_ref", "${get-user_ref.output.response.body.results[0].location.country}")
-                        .switchCase("United States", new SimpleTask("helloWorld", "simple_ref")
-                                .input("user", "${get-user_ref.output.response.body.results[0].name.first}")))
+                        .switchCase("United States", new SimpleTask("myTask", "myTask_ref")
+                                .input("name", "${get-user_ref.output.response.body.results[0].name.first}")))
                 .build();
 
         // Register the workflow with overwrite = true and registerTasks = true.
