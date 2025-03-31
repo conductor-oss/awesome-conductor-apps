@@ -33,7 +33,7 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 
 7. Add Orkes Conductor Developer Edition URL and Application access key to your environmental variables.
 
-```shell
+```shell 
 export CONDUCTOR_SERVER_URL=https://developer.orkescloud.com/api/
 export CONDUCTOR_AUTH_KEY=<your api key from step 4 above >
 export CONDUCTOR_AUTH_SECRET=<your api secret from step 5 above>
