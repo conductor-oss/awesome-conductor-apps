@@ -57,12 +57,15 @@ The repository contains the ​`llm_alert_analysis` prompt which analyzes the de
 
 ### 4. Run the Workflow
  
+ Run it directly with the baked-in inputs.
+
 1. Go back to **Definitions** > **Workflow**.
 2. Select the Agentic_Security_Example workflow.
 3. Switch to the **Run** tab in the right panel
 4. Select **Run Workflow**.
 
-As each task completes, you can review its output in real-time. Try the provided example inputs, then experiment with your own inputs
+As each task completes, you can review its output in real-time. Afterwards, you can experiment with your own inputs, by configuring `security_malsite_alerts` and `security_malware_alerts` to replace the default mock inputs.
+
 
 ## Troubleshooting
 
