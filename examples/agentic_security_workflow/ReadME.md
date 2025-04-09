@@ -4,9 +4,8 @@ This guide will help you set up and run the Agentic Security Workflow in Orkes C
 
 ## Prerequisites
 
-- An account on Conductor's [Developer Playground](https://developer.orkescloud.com/)
+- An account on Orkes Conductor's [Developer Playground](https://developer.orkescloud.com/)
 - An OpenAI API key
-- Access to this GitHub repository containing the workflow definitions
 
 ## Setup Process
 
