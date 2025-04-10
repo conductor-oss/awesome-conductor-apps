@@ -10,16 +10,16 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     # 1) Define the HTTP Poll input
     http_poll_input = HttpPollInput(
         uri="https://httpbin.org/delay/10",  # The API URL to poll for status
-        method="GET",  # HTTP method (GET)
-        accept="application/json",  # Accept header for JSON response
+        method="GET",
+        accept="application/json",
         termination_condition='$.output.response.statusCode == 200',  # Condition to stop polling
-        polling_interval=10  # Poll every 60 seconds
+        polling_interval=10  # Poll every 10 sec
     )
 
     # 2) Define the HTTP Poll task for checking the file processing status
     http_poll_task = HttpPollTask(
-        task_ref_name="check_file_processing_status",  # Reference name for the task
-        http_input=http_poll_input  # Pass the HTTP Poll input
+        task_ref_name="check_file_processing_status",
+        http_input=http_poll_input
     )
 
     # 3) Define SetVariableTask for success case
@@ -27,7 +27,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         task_ref_name="set_processing_complete_variable"
     )
     set_processing_complete_variable.input_parameters.update({
-        'processing_status': 'COMPLETED'  # Set the status to completed
+        'processing_status': 'COMPLETED'
     })
 
     # Define SetVariableTask for failure case
@@ -35,19 +35,19 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         task_ref_name="set_processing_failed_variable"
     )
     set_processing_failed_variable.input_parameters.update({
-        'processing_status': 'FAILED'  # Set the status to failed
+        'processing_status': 'FAILED'
     })
 
     # 4) Define SwitchTask to handle success and failure cases
     switch_task = SwitchTask(
-        task_ref_name="check_processing_status",  # Reference name for the switch task
-        case_expression="${check_file_processing_status.output.response.statusCode}",  # Case expression based on status
-        use_javascript=False  # Use value-param evaluator type
+        task_ref_name="check_processing_status",
+        case_expression="${check_file_processing_status.output.response.statusCode}",
+        use_javascript=False
     )
 
     # Configure the decision cases for the SwitchTask
-    switch_task.switch_case(200, set_processing_complete_variable)  # Case for success (file processed)
-    switch_task.default_case(set_processing_failed_variable)  # Default case for any other status
+    switch_task.switch_case(200, set_processing_complete_variable)
+    switch_task.default_case(set_processing_failed_variable)
 
     # Define the workflow and add the tasks
     workflow = ConductorWorkflow(
@@ -55,14 +55,13 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         executor=workflow_executor
     )
     workflow.version = 1
-    workflow.add(http_poll_task)  # Add the HTTP Poll task to check file processing status
-    workflow.add(switch_task)  # Add the switch task to handle the result
+    workflow.add(http_poll_task)
+    workflow.add(switch_task)
 
     # Register the workflow
     workflow.register(True)
 
     return workflow
-
 
 def main():
     # Initialize Configuration (API configuration)

@@ -16,7 +16,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
 
     # 2) Store the comment in a mock db once triggered, including the comment content from the wait_for_comment task
     store_comment_task = HttpTask(
-        task_ref_name="store_comment",  # Reference name for the task
+        task_ref_name="store_comment",
         http_input={
             "uri": "https://jsonplaceholder.typicode.com/posts",  # URL for mock db
             "method": "POST",  # HTTP POST method to store the comment
@@ -24,7 +24,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
                 "Content-Type": "application/json"
             },
             "body": {
-                "comment_body": "${wait_for_comment.output.comment.body}",  # Using the output from wait_for_comment
+                "comment_body": "${wait_for_comment.output.comment.body}",
                 "author": "user123"
             }
         }

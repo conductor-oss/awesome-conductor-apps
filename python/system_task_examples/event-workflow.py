@@ -13,7 +13,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
             "uri": "https://jsonplaceholder.typicode.com/posts/${workflow.input.orderId}",  # Dummy API endpoint
             "method": "GET",  # HTTP method (GET)
             "headers": {
-                "Content-Type": "application/json"  # Optional: Add content type header
+                "Content-Type": "application/json"
             }
         }
     )
@@ -27,9 +27,9 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
 
     # Update input parameters for the event task, using data from the HTTP task response
     event_task.input_parameters.update({
-        'orderId': '${fetch_order_details.output.response.body.id}',  # Using the 'id' from the HTTP response
-        'title': '${fetch_order_details.output.response.body.title}',  # Using 'title' from the response
-        'body': '${fetch_order_details.output.response.body.body}'  # Using 'body' from the response
+        'orderId': '${fetch_order_details.output.response.body.id}',
+        'title': '${fetch_order_details.output.response.body.title}',
+        'body': '${fetch_order_details.output.response.body.body}'
     })
 
     # Define the workflow and add the HTTP and Event tasks to the workflow
@@ -38,14 +38,13 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         executor=workflow_executor
     )
     workflow.version = 1
-    workflow.add(http_task)  # Adding the HTTP task
-    workflow.add(event_task)  # Adding the event task
+    workflow.add(http_task)
+    workflow.add(event_task)
 
     # Register the workflow
     workflow.register(True)
 
     return workflow
-
 
 def main():
     # Initialize Configuration (API configuration)

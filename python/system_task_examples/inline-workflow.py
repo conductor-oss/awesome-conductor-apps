@@ -6,7 +6,6 @@ from conductor.client.workflow.task.inline import InlineTask
 from conductor.client.workflow.task.set_variable_task import SetVariableTask
 from conductor.client.workflow.task.http_task import HttpTask
 
-
 def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     # 1) HTTP task to fetch random number from random.org
     fetch_random_number_task = HttpTask(
@@ -60,7 +59,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         executor=workflow_executor
     )
     workflow.version = 1
-    workflow.add(fetch_random_number_task)  # Add the HTTP task first
+    workflow.add(fetch_random_number_task)
     workflow.add(set_base_price)
     workflow.add(calculate_price_task)
     workflow.add(set_price_variable)
@@ -68,7 +67,6 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     # Register the workflow
     workflow.register(overwrite=True)
     return workflow
-
 
 def main():
     api_config = Configuration()

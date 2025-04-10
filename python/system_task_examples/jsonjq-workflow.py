@@ -5,7 +5,6 @@ from conductor.client.automator.task_handler import TaskHandler
 from conductor.client.workflow.task.json_jq_task import JsonJQTask
 from conductor.client.workflow.task.set_variable_task import SetVariableTask
 
-
 def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     # JQ script to transform user data
     jq_script = """
@@ -44,7 +43,6 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     workflow.add(set_variable_task)
     workflow.register(overwrite=True)
     return workflow
-
 
 def main():
     api_config = Configuration()

@@ -9,26 +9,26 @@ from conductor.client.workflow.task.set_variable_task import SetVariableTask
 def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
     # 1) Define the HTTP task for calling the payment API
     http_task = HttpTask(
-        task_ref_name="call_payment_api",  # Reference name for the task
+        task_ref_name="call_payment_api",
         http_input={
             "uri": "https://httpbin.org/status/200", # Use a Payment API endpoint
-            "method": "POST",  # HTTP method
+            "method": "POST",
             "headers": {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer ${workflow.input.auth_token}"  # Authorization token from workflow input
+                "Authorization": "Bearer ${workflow.input.auth_token}""
             },
             "body": {
-                "orderId": "${workflow.input.orderId}",  # Order ID from workflow input
-                "amount": "${workflow.input.amount}"  # Payment amount from workflow input
+                "orderId": "${workflow.input.orderId}",
+                "amount": "${workflow.input.amount}"
             }
         }
     )
 
     # 2) Define the SwitchTask with case expression
     switch_task = SwitchTask(
-        task_ref_name="check_payment_status",  # Reference name for the switch task
-        case_expression="${call_payment_api.output.response.statusCode}",  # Case expression (HTTP status code)
-        use_javascript=False  # Use value-param evaluator type
+        task_ref_name="check_payment_status",
+        case_expression="${call_payment_api.output.response.statusCode}",
+        use_javascript=False
     )
 
     # 3) Define SetVariableTask for success and failure cases
@@ -36,19 +36,19 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         task_ref_name="set_payment_success_variable"
     )
     set_payment_success_variable.input_parameters.update({
-        'payment_status': 'SUCCESS'  # Set the payment status to success
+        'payment_status': 'SUCCESS'
     })
 
     set_payment_failure_variable = SetVariableTask(
         task_ref_name="set_payment_failure_variable"
     )
     set_payment_failure_variable.input_parameters.update({
-        'payment_status': 'FAILURE'  # Set the payment status to failure
+        'payment_status': 'FAILURE'
     })
 
     # Configure the decision cases for the SwitchTask
-    switch_task.switch_case("200", set_payment_success_variable)  # Case for success (HTTP status 200)
-    switch_task.default_case(set_payment_failure_variable)  # Default case for failure
+    switch_task.switch_case("200", set_payment_success_variable)
+    switch_task.default_case(set_payment_failure_variable)
 
     # Define the workflow and add the tasks
     workflow = ConductorWorkflow(
@@ -56,14 +56,13 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
         executor=workflow_executor
     )
     workflow.version = 1
-    workflow.add(http_task)  # Add the HTTP task to call the payment API
-    workflow.add(switch_task)  # Add the switch task to check the payment status
+    workflow.add(http_task)
+    workflow.add(switch_task)
 
     # Register the workflow
     workflow.register(True)
 
     return workflow
-
 
 def main():
     # Initialize Configuration (API configuration)
