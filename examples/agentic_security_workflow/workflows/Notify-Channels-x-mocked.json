@@ -3,7 +3,7 @@
   "updateTime": 1742449233371,
   "name": "Notify-Channels-x-mocked",
   "description": "A notification workflow with various notification mechanism e.g slack, email, sms etc.. with a specified message (mocked HTTP calls)",
-  "version": 2,
+  "version": 1,
   "tasks": [
     {
       "name": "switch_notify_provider_type",
@@ -149,7 +149,6 @@
   "schemaVersion": 2,
   "restartable": true,
   "workflowStatusListenerEnabled": false,
-  "ownerEmail": "ram@orkes.io",
   "timeoutPolicy": "ALERT_ONLY",
   "timeoutSeconds": 0,
   "variables": {},
