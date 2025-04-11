@@ -27,7 +27,7 @@ def get_credentials():
             # dev vs prod interaction w/ Google API
             if os.getenv('ENV') == 'prod':
                 # In production, use the service account JSON from the environment variable
-                service_account_info = json.loads(json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')))
+                service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES)
