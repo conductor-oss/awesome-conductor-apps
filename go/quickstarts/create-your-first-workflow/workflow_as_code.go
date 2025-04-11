@@ -29,13 +29,13 @@ var (
 func main() {
 	// Create the workflow definition.
 	wf := workflow.NewConductorWorkflow(workflowExecutor).
-		Name("myFirstWorkflowGo").
+		Name("helloWorld").
 		Version(1).
-		Description("Workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
+		Description("Hello World workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
 
 	httpTask := workflow.NewHttpTask("get-user_ref", &workflow.HttpInput{Uri: "https://randomuser.me/api/"})
 	switchTask := workflow.NewSwitchTask("user-criteria_ref", "${get-user_ref.output.response.body.results[0].location.country}").
-		SwitchCase("United States", workflow.NewSimpleTask("helloWorld", "simple_ref").Input("user", "${get-user_ref.output.response.body.results[0].name.first}"))
+		SwitchCase("United States", workflow.NewSimpleTask("myTask", "myTask_ref").Input("name", "${get-user_ref.output.response.body.results[0].name.first}"))
 
 	wf.Add(httpTask)
 	wf.Add(switchTask)
