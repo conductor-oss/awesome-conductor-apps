@@ -72,6 +72,12 @@ To get your SendGrid API key:
 4. In the **Environment Variables** tab, add SendGrid credentials:
     - **Key**: `sendgrid_api_key`
     - **Value**: `[INSERT API KEY VALUE]`
+5. Use your associated SendGrid email address to update:
+    - resources/interviewAgenticWorkflow.json:  Line 930, from email address
+6. Set the environment variable for Google API:
+    ```shell
+    export SEND_GRID_EMAIL_ADDRESS=<YOUR_SEND_GRID_EMAIL_ADDRESS>>
+    ```
 
 ---
 

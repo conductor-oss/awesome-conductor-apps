@@ -56,18 +56,18 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
 
-        # Share the file with karl.goeltner@orkes.io
+        # Share the file with interviewer
         permission = {
             "type": "user",
             "role": "writer",  # Can be 'reader', 'commenter', or 'writer'
-            "emailAddress": "karl.goeltner@orkes.io"
+            "emailAddress": os.getenv('SEND_GRID_EMAIL_ADDRESS')
         }
         service.permissions().create(
             fileId=file.get('id'),
             body=permission,
             fields="id"
         ).execute()
-        print(f"File shared with karl.goeltner@orkes.io")
+        print(f"File shared with {os.getenv('SEND_GRID_EMAIL_ADDRESS')}")
 
          # Share the file with interviewee
         permission = {
