@@ -19,8 +19,8 @@ To get the Conductor developer account key:
 4. Set the environment variables:
     ```shell
     export CONDUCTOR_SERVER_URL=https://developer.orkescloud.com/api
-    export CONDUCTOR_AUTH_KEY=<<YOUR_CONDUCTOR_AUTH_KEY>>
-    export CONDUCTOR_AUTH_SECRET=<<YOUR_CONDUCTOR_AUTH_SECRET>>
+    export CONDUCTOR_AUTH_KEY=<YOUR_CONDUCTOR_AUTH_KEY>
+    export CONDUCTOR_AUTH_SECRET=<YOUR_CONDUCTOR_AUTH_SECRET>
     ```
 
 ---
@@ -32,7 +32,7 @@ To get your OpenAI API key:
 2. Generate a new API key following the provided instructions.
 3. Set the environment variable:
     ```shell
-    export OPENAI_API_KEY=<<YOUR_OPENAI_KEY>>
+    export OPENAI_API_KEY=YOUR_OPENAI_KEY>
     ```
 
 ---
@@ -44,9 +44,10 @@ To set up Google authentication, you can either set up a service account (works 
 1. Follow the [Google API Quickstart Tutorial](https://cloud.google.com/iam/docs/service-accounts-create#iam-service-accounts-create-console).
 2. Click Manage Keys and create a key and download the resulting `project-name.json`
 3. Json stringify the json contained in `project-name.json` by using this tool [JSON Stringify Online](https://jsonformatter.org/json-stringify-online)
-4. Set the environment variable:
+4. Set the environment variable for Google API:
     ```shell
-    export GOOGLE_SERVICE_ACCOUNT_JSON=<<YOUR_GOOGLE_SERVICE_ACCOUNT_JSON>>
+    export GOOGLE_SERVICE_ACCOUNT_JSON=<YOUR_GOOGLE_SERVICE_ACCOUNT_JSON>
+    export ENV=prod
     ```
 
 **Local only**
@@ -55,6 +56,10 @@ To set up Google authentication, you can either set up a service account (works 
 3. Configure the OAuth consent screen.
 4. Move the downloaded `credentials.json` file to your workflow directory.
 5. On the first run, the server will prompt you to log in with your Google credentials, generating the `token.json` file.
+6. Set the environment variable for Google API:
+    ```shell
+    export ENV=dev
+    ```
 
 ---
 
@@ -75,10 +80,9 @@ To get your SendGrid API key:
 ### Backend Server & Workflow
 To run the backend server and workflow:
 
-1. Set the Python path and environment type (for Google API, set 'dev' or 'prod'):
+1. Set the Python path:
     ```shell
     export PYTHONPATH=/[PATH_TO_REPO]/conductor-apps/python/interview_agentic_app
-    export ENV=dev
     ```
 2. Create a python virtual env
     ```shell

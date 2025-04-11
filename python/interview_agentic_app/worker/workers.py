@@ -25,13 +25,20 @@ def get_credentials():
             creds.refresh(Request())
         else:
             # dev vs prod interaction w/ Google API
-            if os.getenv('ENV') == 'prod':
-                # In production, use the service account JSON from the environment variable
+            if os.getenv('ENV') == 'deployed':
+                # In deploy, use the service account JSON from the env var, requires extra procesing
                 service_account_info = json.loads(json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')))
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES)
+            elif os.getenv('ENV') == 'prod':
+                # In prod, use the service account JSON from the env var
+                service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
+                creds = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=SCOPES)
             else:
+                # In local/prod, use your own credentials JSON
                 flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
                 creds = flow.run_local_server(port=0)
                 with open("token.json", "w") as token:

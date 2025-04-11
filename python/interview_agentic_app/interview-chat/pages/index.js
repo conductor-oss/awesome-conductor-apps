@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Message } from 'react-chat-ui';
 import { marked } from 'marked';
 
-const API_BASE_URL = 'https://awesome-conductor-apps.onrender.com'; //'http://localhost:5000';
+const API_BASE_URL = 'http://localhost:5000'; // Deployed version: 'https://awesome-conductor-apps.onrender.com';
 
 export default function Home() {
   const [messages, setMessages] = useState([]);
