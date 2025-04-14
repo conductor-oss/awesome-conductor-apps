@@ -7,6 +7,7 @@
         "name": "assesor_report",
         "version": 1,
         "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
           "properties": {
             "visible_assesments": {
               "type": "array",
