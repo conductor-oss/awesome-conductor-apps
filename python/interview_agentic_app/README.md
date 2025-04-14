@@ -43,10 +43,20 @@ To set up Google authentication, you can either set up a service account (works 
 **Local & Prod:**
 1. Follow the [Google API Quickstart Tutorial](https://cloud.google.com/iam/docs/service-accounts-create#iam-service-accounts-create-console).
 2. Click Manage Keys and create a key and download the resulting `project-name.json`
-3. Json stringify the json contained in `project-name.json` by using this tool [JSON Stringify Online](https://jsonformatter.org/json-stringify-online)
+3. JSON stringify the contents of `project-name.json` using one of the following methods:
+
+   - **Python library**  
+     Run this command in your terminal:
+     ```shell
+     python3 -c 'import json; print(json.dumps(json.load(open("/[PATH_TO_REPO]/project-name.json"))))'
+     ```
+
+   - **Online tool**  
+     Use [JSON Stringify Online](https://jsonformatter.org/json-stringify-online)
+
 4. Set the environment variable for Google API:
     ```shell
-    export GOOGLE_SERVICE_ACCOUNT_JSON=<YOUR_GOOGLE_SERVICE_ACCOUNT_JSON>
+    export GOOGLE_SERVICE_ACCOUNT_JSON=<PASTE_GOOGLE_SERVICE_ACCOUNT_JSON_STRING_HERE>
     export ENV=prod
     ```
 
