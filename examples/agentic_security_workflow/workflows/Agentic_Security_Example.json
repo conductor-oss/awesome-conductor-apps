@@ -3,7 +3,7 @@
     "updateTime": 1742499594098,
     "name": "Agentic_Security_Example",
     "description": "Extract security alerts and initiate scans and deep visibility threat hunts.",
-    "version": 6,
+    "version": 1,
     "tasks": [
       {
         "name": "get_start_time",
@@ -513,7 +513,6 @@
     "schemaVersion": 2,
     "restartable": true,
     "workflowStatusListenerEnabled": false,
-    "ownerEmail": "ram@orkes.io",
     "timeoutPolicy": "ALERT_ONLY",
     "timeoutSeconds": 0,
     "variables": {},
