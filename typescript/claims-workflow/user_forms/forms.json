@@ -1,0 +1,345 @@
+[
+    {
+        "createTime": 1742230294084,
+        "updateTime": 1742230715069,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "assesor_report",
+        "version": 1,
+        "jsonSchema": {
+          "properties": {
+            "visible_assesments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "damage_visiable": {
+                    "type": "boolean"
+                  },
+                  "damage_type": {
+                    "type": "string",
+                    "enum": [
+                      "Side collision Damage",
+                      "Minor front door damage",
+                      "Windshield Damage"
+                    ]
+                  },
+                  "coverage_determination": {
+                    "type": "string",
+                    "enum": [
+                      "Covered",
+                      "Not Covered"
+                    ]
+                  },
+                  "coverage_score": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "field_description_text_luo5agk13g": {
+              "type": "string"
+            },
+            "overall_coverage": {
+              "type": "string",
+              "enum": [
+                "Partially Covered",
+                "Full Coverage",
+                "Not Covered"
+              ]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/visible_assesments"
+            },
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/field_description_text_luo5agk13g",
+                  "label": "Overall Determination",
+                  "options": {
+                    "multi": true,
+                    "readonly": true,
+                    "display": "description-text"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/overall_coverage",
+                  "label": "Overall Coverage",
+                  "options": {}
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/rationale",
+                  "label": "Rationale"
+                }
+              ]
+            },
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/notes",
+                  "label": "Notes",
+                  "options": {
+                    "multi": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "createTime": 1741979242314,
+        "updateTime": 1742219514084,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "claimant_locator_form",
+        "version": 1,
+        "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "incident_city": {
+              "type": "string"
+            },
+            "incident_street": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "CA",
+                "MIA",
+                "NY"
+              ]
+            },
+            "policy_picker": {
+              "type": "string",
+              "oneOf": "${policyValues}"
+            },
+            "incident_description": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/incident_city",
+                      "label": "City"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/incident_street",
+                      "label": "Street"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/state",
+                      "label": "State",
+                      "options": {}
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/policy_picker",
+              "label": "Policy Picker",
+              "options": {
+                "autocomplete": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/incident_description",
+              "label": "Description",
+              "options": {
+                "multi": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime": 1742419368052,
+        "updateTime": 1742421336980,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "on_site_investigation",
+        "version": 1,
+        "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "investiagation_city": {
+              "type": "string"
+            },
+            "investigation_city": {
+              "type": "string"
+            },
+            "investigation_street": {
+              "type": "string"
+            },
+            "investigation_state": {
+              "type": "string",
+              "enum": [
+                "CA",
+                "MIA",
+                "NY"
+              ]
+            },
+            "investigation_description": {
+              "type": "string"
+            },
+            "field_description_text_kb72ahmysg": {
+              "type": "string"
+            },
+            "inestigation_weather_conditions": {
+              "type": "string"
+            },
+            "investigation_context": {
+              "type": "string"
+            },
+            "field_description_text_558wyek6v": {
+              "type": "string"
+            },
+            "investigation_structural_damage": {
+              "type": "string"
+            },
+            "witness_statements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/investiagation_city",
+              "label": "Location",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_city",
+              "label": "City"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_street",
+              "label": "Street"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_state",
+              "label": "State",
+              "options": {}
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_description",
+              "label": "Description",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/field_description_text_kb72ahmysg",
+              "label": "Weather Conditions",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/inestigation_weather_conditions",
+              "label": "Weather Conditions",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_context",
+              "label": "Incident Context",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/field_description_text_558wyek6v",
+              "label": "Inspection Findings",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_structural_damage",
+              "label": "Structural Damage",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/witness_statements",
+              "label": "Witness statements",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/notes",
+              "label": "Notes",
+              "options": {
+                "multi": true
+              }
+            }
+          ]
+        }
+      }
+]
