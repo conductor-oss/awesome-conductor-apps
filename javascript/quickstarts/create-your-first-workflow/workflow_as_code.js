@@ -21,10 +21,10 @@ const executor = new WorkflowExecutor(client);
 
 // Create the workflow definition.
 const wf = {
-  name: "myFirstWorkflow",
+  name: "helloWorld",
   version: 1,
   description:
-    "Workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.",
+    "Hello World workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.",
   tasks: [
     httpTask("get-user_ref", { uri: "https://randomuser.me/api/" }),
     switchTask(
@@ -32,8 +32,8 @@ const wf = {
       "${get-user_ref.output.response.body.results[0].location.country}",
       {
         "United States": [
-          simpleTask("simple_ref", "helloWorld", {
-            user: "${get-user_ref.output.response.body.results[0].name.first}",
+          simpleTask("myTask_ref", "myTask", {
+            name: "${get-user_ref.output.response.body.results[0].name.first}",
           }),
         ],
       }

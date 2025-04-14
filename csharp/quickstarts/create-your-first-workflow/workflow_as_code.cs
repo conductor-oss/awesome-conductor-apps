@@ -19,13 +19,13 @@ var executor = new WorkflowExecutor(conf);
 
 // Create the workflow definition.
 var workflow = new ConductorWorkflow()
-        .WithName("myFirstWorkflow")
-        .WithDescription("Workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
+        .WithName("helloWorld")
+        .WithDescription("Hello World workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.")
         .WithVersion(1)
         .WithTask(new HttpTask("get-user_ref", new HttpTaskSettings { uri = "https://randomuser.me/api/" }))
         .WithTask(new SwitchTask("user-criteria_ref", "${get-user_ref.output.response.body.results[0].location.country}")
             .WithDecisionCase("United States",
-                [new SimpleTask("helloWorld", "simple_ref").WithInput("user", "${get-user_ref.output.response.body.results[0].name.first}")]));
+                [new SimpleTask("myTask", "myTask_ref").WithInput("name", "${get-user_ref.output.response.body.results[0].name.first}")]));
 
 // Register the workflow with overwrite = true.
 executor.RegisterWorkflow(

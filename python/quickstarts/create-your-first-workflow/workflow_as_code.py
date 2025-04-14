@@ -22,16 +22,16 @@ def main():
     # Create the workflow definition.
     workflow = ConductorWorkflow(
         executor=executor,
-        name='myFirstWorkflow',
-        description='Workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.',
+        name='helloWorld',
+        description='Hello World workflow that greets a user. Uses a Switch task, HTTP task, and Simple task.',
         version=1
     )
 
     # Create the tasks.
     httpTask = HttpTask('get-user_ref', {'uri': 'https://randomuser.me/api/'})
     switchTask = SwitchTask('user-criteria_ref', '${get-user_ref.output.response.body.results[0].location.country}').switch_case(
-        'United States', SimpleTask('helloWorld', 'simple_ref').input(
-            key='user', value='${get-user_ref.output.response.body.results[0].name.first}'))
+        'United States', SimpleTask('myTask', 'myTask_ref').input(
+            key='name', value='${get-user_ref.output.response.body.results[0].name.first}'))
 
     # Add the tasks to the workflow using `add` method or the `>>` operator.
     workflow.add(httpTask)
@@ -43,7 +43,7 @@ def main():
 
     # Start the workflow.
     request = StartWorkflowRequest()
-    request.name = 'myFirstWorkflow'
+    request.name = 'helloWorld'
     request.version = 1
     id = executor.start_workflow(request)
     print(f"Started workflow {id}")
