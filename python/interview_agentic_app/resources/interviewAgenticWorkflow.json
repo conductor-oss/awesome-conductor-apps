@@ -927,7 +927,7 @@
                   }
                 ],
                 "from": {
-                  "email": "karl.goeltner@orkes.io"
+                  "email": "<SENDGRID_VERIFIED_SENDER_EMAIL>"
                 },
                 "subject": "Thank you ${workflow.variables.name} for interviewing with Orkes",
                 "content": [
