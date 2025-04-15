@@ -914,7 +914,7 @@
               "contentType": "application/json",
               "encode": true,
               "headers": {
-                "Authorization": "Bearer ${workflow.env.sendgrid_api_key}"
+                "Authorization": "Bearer ${workflow.secrets.sendgrid_api_key}"
               },
               "body": {
                 "personalizations": [

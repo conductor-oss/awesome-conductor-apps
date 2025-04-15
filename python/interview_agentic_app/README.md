@@ -79,9 +79,9 @@ To get your SendGrid API key:
 1. Log in to [SendGrid Email API](https://sendgrid.com/en-us/solutions/email-api).
 2. Follow the instructions to generate a Twilio SendGrid API key.
 3. Access your Orkes account at [Orkes Cloud Developer](https://developer.orkescloud.com/).
-4. In the **Environment Variables** tab, add SendGrid credentials:
-    - **Key**: `sendgrid_api_key`
-    - **Value**: `[INSERT API KEY VALUE]`
+4. Go to **Definitions** > **Secrets** from left-menu, and add the SendGrid credentials:
+    - **Secret name**: `sendgrid_api_key`
+    - **Secret value**: `[INSERT API KEY VALUE]`
 5. Use your associated SendGrid email address to update:
     - `resources/interviewAgenticWorkflow.json`:  Line 930, from email address value
 6. Set the environment variable for Google API:
