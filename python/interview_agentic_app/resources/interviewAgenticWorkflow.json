@@ -131,7 +131,7 @@
           "name": "name_question_evaluator",
           "taskReferenceName": "name_question_evaluator_ref",
           "inputParameters": {
-            "llmProvider": "openai-orkes-karl",
+            "llmProvider": "openai",
             "model": "gpt-4o-mini",
             "promptName": "name_question_evaluator",
             "promptVariables": {
@@ -281,7 +281,7 @@
           "name": "email_evaluator",
           "taskReferenceName": "email_evaluator_ref",
           "inputParameters": {
-            "llmProvider": "openai-orkes-karl",
+            "llmProvider": "openai",
             "model": "gpt-4o-mini",
             "promptName": "email_evaluator",
             "promptVariables": {
@@ -860,7 +860,7 @@
             "name": "interview_thank_you_email_generator",
             "taskReferenceName": "interview_thank_you_email_generator_ref",
             "inputParameters": {
-              "llmProvider": "openai-orkes-karl",
+              "llmProvider": "openai",
               "model": "gpt-4o-mini",
               "instructions": "interview_thank_you_email_generator",
               "promptVariables": {

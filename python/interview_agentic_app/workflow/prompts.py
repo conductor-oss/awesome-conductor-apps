@@ -339,17 +339,17 @@ def configure_integrations(api_config: Configuration):
 
     openai_api_key = os.getenv('OPENAI_API_KEY')
     openai_config = OpenAIConfig(api_key=openai_api_key)
-    ai_orchestrator.add_ai_integration('openai-orkes-karl', LLMProvider.OPEN_AI,
+    ai_orchestrator.add_ai_integration('openai', LLMProvider.OPEN_AI,
                                        description="Karl's Orkes' OpenAi Integration",
                                        models=models, config=openai_config)
 
-    ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('grade_interviewee_response', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_thank_you_email_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('grade_interviewee_response', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_thank_you_email_generator', 'openai', ai_models=models)
