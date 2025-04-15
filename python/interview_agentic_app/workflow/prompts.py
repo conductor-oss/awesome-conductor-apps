@@ -181,7 +181,7 @@ Formatting Instructions:
 - **Do not explicitly state the correct solution**—instead, provide guiding principles, best practices, or alternative considerations. 
 
 Use this as an example output for formatting. You must include explicit `\n` characters:
-**Question:**\n\nKarl, imagine you are tasked with implementing a function in Python that takes a list of integers and returns a new list containing only the unique elements from the original list, while maintaining the order of their first appearance. \n\nPlease write a function called `get_unique_elements` that accomplishes this. \n\n**Function Signature:**\n```python\ndef get_unique_elements(nums: List[int]) -> List[int]:\n```\n\n**Example:**\n```python\ninput_list = [4, 5, 4, 6, 7, 5, 8]\noutput_list = get_unique_elements(input_list)\nprint(output_list)  # Output should be [4, 5, 6, 7, 8]\n```\n\n**Constraints:**\n- The input list can contain both positive and negative integers.\n- The input list can be empty.\n- You should aim for a solution that has a time complexity of O(n), where n is the number of elements in the input list.\n\nPlease explain your approach and thought process as you implement the function.
+**Question:**\n\nJohn, imagine you are tasked with implementing a function in Python that takes a list of integers and returns a new list containing only the unique elements from the original list, while maintaining the order of their first appearance. \n\nPlease write a function called `get_unique_elements` that accomplishes this. \n\n**Function Signature:**\n```python\ndef get_unique_elements(nums: List[int]) -> List[int]:\n```\n\n**Example:**\n```python\ninput_list = [4, 5, 4, 6, 7, 5, 8]\noutput_list = get_unique_elements(input_list)\nprint(output_list)  # Output should be [4, 5, 6, 7, 8]\n```\n\n**Constraints:**\n- The input list can contain both positive and negative integers.\n- The input list can be empty.\n- You should aim for a solution that has a time complexity of O(n), where n is the number of elements in the input list.\n\nPlease explain your approach and thought process as you implement the function.
 
 Here is a second example with proper formatting using explicit `\n` characters:
 **Hint:**\n\nTo implement the `unique_elements` function, consider using a set to keep track of the elements you've already seen. This will help you efficiently check for uniqueness while preserving the order of their first occurrence. Here’s a structured approach to guide you:\n\n1. **Initialize an empty list** to store the unique elements.\n\n2. **Create an empty set** to track the elements that have already been added to the list.\n\n3. **Iterate through the input list**:\n   - For each element, check if it is in the set.\n   - If it is not in the set, append it to the unique elements list and add it to the set.\n\n4. **Return the unique elements list** at the end.\n\n**Time Complexity:**\nAim for O(n) where n is the number of elements in the input list, since you will be iterating through the list once.\n\n**Space Complexity:**\nThe space complexity will be O(u), where u is the number of unique elements, due to the storage in the set and the output list.\n\nThis approach will help you efficiently handle larger lists as well. Good luck!
@@ -213,7 +213,7 @@ Formatting Instructions:
 - **Do not include the full solution**—only simplify the question for better understanding.  
 
 Use this as an example output for formatting. You must include explicit `\n` characters:
-**Question:**\n\nKarl, imagine you are tasked with implementing a function in Python that takes a list of integers and returns a new list containing only the unique elements from the original list, while maintaining the order of their first appearance. \n\nPlease write a function called `get_unique_elements` that accomplishes this. \n\n**Function Signature:**\n```python\ndef get_unique_elements(nums: List[int]) -> List[int]:\n```\n\n**Example:**\n```python\ninput_list = [4, 5, 4, 6, 7, 5, 8]\noutput_list = get_unique_elements(input_list)\nprint(output_list)  # Output should be [4, 5, 6, 7, 8]\n```\n\n**Constraints:**\n- The input list can contain both positive and negative integers.\n- The input list can be empty.\n- You should aim for a solution that has a time complexity of O(n), where n is the number of elements in the input list.\n\nPlease explain your approach and thought process as you implement the function.
+**Question:**\n\nJohn, imagine you are tasked with implementing a function in Python that takes a list of integers and returns a new list containing only the unique elements from the original list, while maintaining the order of their first appearance. \n\nPlease write a function called `get_unique_elements` that accomplishes this. \n\n**Function Signature:**\n```python\ndef get_unique_elements(nums: List[int]) -> List[int]:\n```\n\n**Example:**\n```python\ninput_list = [4, 5, 4, 6, 7, 5, 8]\noutput_list = get_unique_elements(input_list)\nprint(output_list)  # Output should be [4, 5, 6, 7, 8]\n```\n\n**Constraints:**\n- The input list can contain both positive and negative integers.\n- The input list can be empty.\n- You should aim for a solution that has a time complexity of O(n), where n is the number of elements in the input list.\n\nPlease explain your approach and thought process as you implement the function.
 
 Here is a second example with proper formatting using explicit `\n` characters:
 **Hint:**\n\nTo implement the `unique_elements` function, consider using a set to keep track of the elements you've already seen. This will help you efficiently check for uniqueness while preserving the order of their first occurrence. Here’s a structured approach to guide you:\n\n1. **Initialize an empty list** to store the unique elements.\n\n2. **Create an empty set** to track the elements that have already been added to the list.\n\n3. **Iterate through the input list**:\n   - For each element, check if it is in the set.\n   - If it is not in the set, append it to the unique elements list and add it to the set.\n\n4. **Return the unique elements list** at the end.\n\n**Time Complexity:**\nAim for O(n) where n is the number of elements in the input list, since you will be iterating through the list once.\n\n**Space Complexity:**\nThe space complexity will be O(u), where u is the number of unique elements, due to the storage in the set and the output list.\n\nThis approach will help you efficiently handle larger lists as well. Good luck!
@@ -339,17 +339,17 @@ def configure_integrations(api_config: Configuration):
 
     openai_api_key = os.getenv('OPENAI_API_KEY')
     openai_config = OpenAIConfig(api_key=openai_api_key)
-    ai_orchestrator.add_ai_integration('openai-orkes-karl', LLMProvider.OPEN_AI,
-                                       description="Karl's Orkes' OpenAi Integration",
+    ai_orchestrator.add_ai_integration('openai', LLMProvider.OPEN_AI,
+                                       description="OpenAi Integration",
                                        models=models, config=openai_config)
 
-    ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('grade_interviewee_response', 'openai-orkes-karl', ai_models=models)
-    ai_orchestrator.associate_prompt_template('interview_thank_you_email_generator', 'openai-orkes-karl', ai_models=models)
+    ai_orchestrator.associate_prompt_template('name_question_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('email_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question2_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_question3_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_response_evaluator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_hint_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_simplification_generator', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('grade_interviewee_response', 'openai', ai_models=models)
+    ai_orchestrator.associate_prompt_template('interview_thank_you_email_generator', 'openai', ai_models=models)

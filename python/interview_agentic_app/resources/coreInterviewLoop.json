@@ -32,7 +32,7 @@
         "name": "question_generator",
         "taskReferenceName": "question_generator_ref",
         "inputParameters": {
-          "llmProvider": "openai-orkes-karl",
+          "llmProvider": "openai",
           "model": "gpt-4o-mini",
           "instructions": "${workflow.input.question_template}",
           "promptVariables": {
@@ -181,7 +181,7 @@
             "name": "evaluator_response",
             "taskReferenceName": "evaluator_response_ref",
             "inputParameters": {
-              "llmProvider": "openai-orkes-karl",
+              "llmProvider": "openai",
               "model": "gpt-4o-mini",
               "instructions": "interview_response_evaluator",
               "promptVariables": {
@@ -302,7 +302,7 @@
                   "name": "interview_hint_generator",
                   "taskReferenceName": "interview_hint_generator_ref",
                   "inputParameters": {
-                    "llmProvider": "openai-orkes-karl",
+                    "llmProvider": "openai",
                     "model": "gpt-4o-mini",
                     "instructions": "interview_hint_generator",
                     "promptVariables": {
@@ -375,7 +375,7 @@
                   "name": "interview_simplification_generator",
                   "taskReferenceName": "interview_simplification_generator_ref",
                   "inputParameters": {
-                    "llmProvider": "openai-orkes-karl",
+                    "llmProvider": "openai",
                     "model": "gpt-4o-mini",
                     "instructions": "interview_simplification_generator",
                     "promptVariables": {
@@ -549,7 +549,7 @@
         "name": "grade_interviewee_response",
         "taskReferenceName": "grade_interviewee_response_ref",
         "inputParameters": {
-          "llmProvider": "openai-orkes-karl",
+          "llmProvider": "openai",
           "model": "gpt-4o-mini",
           "instructions": "grade_interviewee_response",
           "promptVariables": {},
@@ -600,7 +600,6 @@
     "schemaVersion": 2,
     "restartable": true,
     "workflowStatusListenerEnabled": false,
-    "ownerEmail": "karl.goeltner@orkes.io",
     "timeoutPolicy": "ALERT_ONLY",
     "timeoutSeconds": 0,
     "variables": {},
