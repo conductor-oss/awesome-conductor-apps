@@ -55,6 +55,9 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
         media = MediaIoBaseUpload(io.BytesIO(text.encode()), mimetype="text/plain")
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
+        print("#" * 50)
+        print(f"Transcript File URL: https://docs.google.com/document/d/{file.get('id')}")
+        print("#" * 50)
 
         # Share the file with interviewer
         permission = {
@@ -253,4 +256,4 @@ def storeInterviewTranscript(messages: str, name: str, email: str):
         # Now apply formatting to the document
         apply_google_docs_formatting(doc_id, formatted_text, creds)
 
-    return f'These are the formatted interview messages: {formatted_text}'
+    return f'https://docs.google.com/document/d/{doc_id}' if doc_id else "Failed to create document"
