@@ -32,7 +32,7 @@ To get your OpenAI API key:
 2. Generate a new API key following the provided instructions.
 3. Set the environment variable:
     ```shell
-    export OPENAI_API_KEY=YOUR_OPENAI_KEY>
+    export OPENAI_API_KEY=<YOUR_OPENAI_KEY>
     ```
 
 ---
@@ -54,7 +54,7 @@ To set up Google authentication, you can either set up a service account (works 
    - **Online tool**  
      Use [JSON Stringify Online](https://jsonformatter.org/json-stringify-online)
 
-4. Set the environment variable for Google API:
+4. Set the environment variables:
     ```shell
     export GOOGLE_SERVICE_ACCOUNT_JSON=<PASTE_GOOGLE_SERVICE_ACCOUNT_JSON_STRING_HERE>
     export ENV=prod
@@ -66,7 +66,7 @@ To set up Google authentication, you can either set up a service account (works 
 3. Configure the OAuth consent screen.
 4. Move the downloaded `credentials.json` file to your workflow directory.
 5. On the first run, the server will prompt you to log in with your Google credentials, generating the `token.json` file.
-6. Set the environment variable for Google API:
+6. Set the environment variable:
     ```shell
     export ENV=dev
     ```
@@ -74,17 +74,17 @@ To set up Google authentication, you can either set up a service account (works 
 ---
 
 ### 4. Get SendGrid API Key
-To get your SendGrid API key:
+To get your SendGrid API key and update sender's email address:
 
 1. Log in to [SendGrid Email API](https://sendgrid.com/en-us/solutions/email-api).
 2. Follow the instructions to generate a Twilio SendGrid API key.
-3. Access your Orkes account at [Orkes Cloud Developer](https://developer.orkescloud.com/).
-4. Go to **Definitions** > **Secrets** from left-menu, and add the SendGrid credentials:
-    - **Secret name**: `sendgrid_api_key`
-    - **Secret value**: `[INSERT API KEY VALUE]`
-5. Use your associated SendGrid email address to update:
+3. Set the environment variable:
+    ```shell
+    export SENDGRID_API_KEY=<YOUR_SENDGRID_API_KEY>
+    ```
+4. Use your associated SendGrid email address to update the sender email address used in the workflow:
     - `resources/interviewAgenticWorkflow.json`:  Line 930, from email address value
-6. Set the environment variable for Google API:
+5. Set the environment variable:
     ```shell
     export SEND_GRID_EMAIL_ADDRESS=<YOUR_SEND_GRID_EMAIL_ADDRESS>
     ```
@@ -98,7 +98,8 @@ To run the backend server and workflow:
 
 1. Set the Python path:
     ```shell
-    export PYTHONPATH=/[PATH_TO_REPO]/conductor-apps/python/interview_agentic_app
+    cd conductor-apps/python/interview_agentic_app
+    export PYTHONPATH=$(pwd)
     ```
 2. Create a python virtual env
     ```shell
