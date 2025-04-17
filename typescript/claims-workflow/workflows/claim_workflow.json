@@ -390,7 +390,7 @@
   },
   "enforceSchema": true,
   "metadata": {
-    "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+    "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workers/install.sh)\""
   }
 }
 ]
