@@ -601,8 +601,8 @@
     "restartable": true,
     "workflowStatusListenerEnabled": false,
     "ownerEmail": "karl.goeltner@orkes.io",
-    "timeoutPolicy": "ALERT_ONLY",
-    "timeoutSeconds": 0,
+    "timeoutPolicy": "TIME_OUT_WF",
+    "timeoutSeconds": 2700,
     "variables": {},
     "inputTemplate": {},
     "enforceSchema": true

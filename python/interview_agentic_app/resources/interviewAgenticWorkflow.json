@@ -1,6 +1,6 @@
 {
   "createTime": 1742250829558,
-  "updateTime": 1742942117648,
+  "updateTime": 1744921074441,
   "name": "Interview Agentic Workflow",
   "description": "A workflow that simulates a SWE interview process",
   "version": 1,
@@ -832,6 +832,72 @@
             "loopOver": [],
             "onStateChange": {},
             "permissive": false
+          },
+          {
+            "name": "delay_transcript",
+            "taskReferenceName": "delay_transcript_ref",
+            "inputParameters": {
+              "duration": "15 seconds"
+            },
+            "type": "WAIT",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "send_transcript_email",
+            "taskReferenceName": "send_transcript_email_ref",
+            "inputParameters": {
+              "uri": "https://api.sendgrid.com/v3/mail/send",
+              "method": "POST",
+              "accept": "application/json",
+              "contentType": "application/json",
+              "encode": true,
+              "headers": {
+                "Authorization": "Bearer ${workflow.env.sendgrid_api_key}"
+              },
+              "body": {
+                "personalizations": [
+                  {
+                    "to": [
+                      {
+                        "email": "${email_evaluator_ref.output.result.email}"
+                      }
+                    ]
+                  }
+                ],
+                "from": {
+                  "email": "karl.goeltner@orkes.io"
+                },
+                "subject": "Thank you ${workflow.variables.name} for interviewing with Orkes",
+                "content": [
+                  {
+                    "type": "text/html",
+                    "value": "<p>Dear ${workflow.variables.name},</p><p>Please find the interview transcript below:</p><p>${storeInterviewTranscript_ref.output.result}</p><p>Best regards,<br/><br/>John Doe<br/>Senior Talent Recruiter</p>"
+                  }
+                ]
+              }
+            },
+            "type": "HTTP",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
           }
         ],
         [
@@ -1009,8 +1075,8 @@
   "restartable": true,
   "workflowStatusListenerEnabled": false,
   "ownerEmail": "karl.goeltner@orkes.io",
-  "timeoutPolicy": "ALERT_ONLY",
-  "timeoutSeconds": 0,
+  "timeoutPolicy": "TIME_OUT_WF",
+  "timeoutSeconds": 2700,
   "variables": {},
   "inputTemplate": {},
   "enforceSchema": true

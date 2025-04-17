@@ -25,13 +25,20 @@ def get_credentials():
             creds.refresh(Request())
         else:
             # dev vs prod interaction w/ Google API
-            if os.getenv('ENV') == 'prod':
-                # In production, use the service account JSON from the environment variable
+            if os.getenv('ENV') == 'deployed':
+                # In deploy, use the service account JSON from the env var, requires extra procesing
                 service_account_info = json.loads(json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON')))
                 creds = service_account.Credentials.from_service_account_info(
                     service_account_info,
                     scopes=SCOPES)
+            elif os.getenv('ENV') == 'prod':
+                # In prod, use the service account JSON from the env var
+                service_account_info = json.loads(os.getenv('GOOGLE_SERVICE_ACCOUNT_JSON'))
+                creds = service_account.Credentials.from_service_account_info(
+                    service_account_info,
+                    scopes=SCOPES)
             else:
+                # In local/prod, use your own credentials JSON
                 flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
                 creds = flow.run_local_server(port=0)
                 with open("token.json", "w") as token:
@@ -48,6 +55,9 @@ def upload_text_to_drive_as_doc(text, filename, creds, email):
         media = MediaIoBaseUpload(io.BytesIO(text.encode()), mimetype="text/plain")
         file = service.files().create(body=file_metadata, media_body=media, fields="id").execute()
         print(f"Google Doc uploaded successfully. File ID: {file.get('id')}")
+        print("#" * 50)
+        print(f"Transcript File URL: https://docs.google.com/document/d/{file.get('id')}")
+        print("#" * 50)
 
         # Share the file with karl.goeltner@orkes.io
         permission = {
@@ -246,4 +256,4 @@ def storeInterviewTranscript(messages: str, name: str, email: str):
         # Now apply formatting to the document
         apply_google_docs_formatting(doc_id, formatted_text, creds)
 
-    return f'These are the formatted interview messages: {formatted_text}'
+    return f'https://docs.google.com/document/d/{doc_id}' if doc_id else "Failed to create document"
