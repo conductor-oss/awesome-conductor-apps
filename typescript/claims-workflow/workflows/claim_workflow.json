@@ -1,307 +1,283 @@
 [
-  {
-    "createTime": 1744672697904,
-    "updateTime": 1744673560959,
-    "name": "insurance_claim",
-    "description": "Business Process Automation -> Claims processing",
-    "version": 1,
-    "tasks": [
-      {
-        "name": "findPolicyForCustomer",
-        "taskReferenceName": "findPolicyForCustomer_ref",
-        "description": "Finds customer policy by first name and last name",
-        "inputParameters": {
-          "firstName": "${workflow.input.firstName}",
-          "lastName": "${workflow.input.lastName}"
-        },
-        "type": "SIMPLE",
-        "decisionCases": {},
-        "defaultCase": [],
-        "forkTasks": [],
-        "startDelay": 0,
-        "joinOn": [],
-        "optional": false,
-        "defaultExclusiveJoinTask": [],
-        "asyncComplete": false,
-        "loopOver": [],
-        "onStateChange": {},
-        "permissive": false
+{
+  "createTime": 1744723921531,
+  "updateTime": 1744926584324,
+  "name": "insurance_claim",
+  "description": "Business Process Automation -> Claims processing",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "findPolicyForCustomer",
+      "taskReferenceName": "findPolicyForCustomer_ref",
+      "description": "Finds customer policy by first name and last name",
+      "inputParameters": {
+        "firstName": "${workflow.input.firstName}",
+        "lastName": "${workflow.input.lastName}"
       },
-      {
-        "name": "map_policies_to_menu_items",
-        "taskReferenceName": "map_policies_to_menu_items_ref",
-        "description": "Prepares data for human task",
-        "inputParameters": {
-          "expression": "(function () {\n  return $.policies.map(p => ({\n    \"const\": p.policy_number,\n    title: p.policy_type\n  }));\n})();",
-          "evaluatorType": "graaljs",
-          "policies": "${findPolicyForCustomer_ref.output.policies}"
-        },
-        "type": "INLINE",
-        "decisionCases": {},
-        "defaultCase": [],
-        "forkTasks": [],
-        "startDelay": 0,
-        "joinOn": [],
-        "optional": false,
-        "defaultExclusiveJoinTask": [],
-        "asyncComplete": false,
-        "loopOver": [],
-        "onStateChange": {},
-        "permissive": false
+      "type": "SIMPLE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "map_policies_to_menu_items",
+      "taskReferenceName": "map_policies_to_menu_items_ref",
+      "description": "Prepares data for human task",
+      "inputParameters": {
+        "expression": "(function () {\n  return $.policies.map(p => ({\n    \"const\": p.policy_number,\n    title: p.policy_type\n  }));\n})();",
+        "evaluatorType": "graaljs",
+        "policies": "${findPolicyForCustomer_ref.output.policies}"
       },
-      {
-        "name": "human",
-        "taskReferenceName": "take_claim_ref",
-        "description": "From to take claims information",
-        "inputParameters": {
-          "__humanTaskDefinition": {
-            "assignmentCompletionStrategy": "LEAVE_OPEN",
-            "assignments": [],
-            "userFormTemplate": {
-              "name": "claimant_locator_form",
-              "version": 1
-            }
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "human",
+      "taskReferenceName": "take_claim_ref",
+      "description": "From to take claims information",
+      "inputParameters": {
+        "__humanTaskDefinition": {
+          "assignmentCompletionStrategy": "LEAVE_OPEN",
+          "assignments": [],
+          "userFormTemplate": {
+            "name": "claimant_locator_form",
+            "version": 1
+          }
+        },
+        "policyValues": "${map_policies_to_menu_items_ref.output.result}"
+      },
+      "type": "HUMAN",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "policy_valid",
+      "taskReferenceName": "policy_valid_ref",
+      "description": "Determines if the policy is valid given the claim",
+      "inputParameters": {
+        "claim_details": "${take_claim_ref.output}"
+      },
+      "type": "SWITCH",
+      "decisionCases": {
+        "yes": [
+          {
+            "name": "createClaimForPolicy",
+            "taskReferenceName": "createClaimForPolicy_ref",
+            "description": "Persists the claim in the database for the given policy",
+            "inputParameters": {
+              "policyId": "${take_claim_ref.output.policy_picker}",
+              "description": "${take_claim_ref.output.incident_description}"
+            },
+            "type": "SIMPLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
           },
-          "policyValues": "${map_policies_to_menu_items_ref.output.result}"
-        },
-        "type": "HUMAN",
-        "decisionCases": {},
-        "defaultCase": [],
-        "forkTasks": [],
-        "startDelay": 0,
-        "joinOn": [],
-        "optional": false,
-        "defaultExclusiveJoinTask": [],
-        "asyncComplete": false,
-        "loopOver": [],
-        "onStateChange": {},
-        "permissive": false
-      },
-      {
-        "name": "policy_valid",
-        "taskReferenceName": "policy_valid_ref",
-        "description": "Determines if the policy is valid given the claim",
-        "inputParameters": {
-          "claim_details": "${take_claim_ref.output}"
-        },
-        "type": "SWITCH",
-        "decisionCases": {
-          "yes": [
-            {
-              "name": "createClaimForPolicy",
-              "taskReferenceName": "createClaimForPolicy_ref",
-              "description": "Persists the claim in the database for the given policy",
-              "inputParameters": {
-                "policyId": "${take_claim_ref.output.policy_picker}",
-                "description": "${take_claim_ref.output.incident_description}"
+          {
+            "name": "human",
+            "taskReferenceName": "assesor_findings_ref",
+            "description": "Asessor fills in finding from the place of the event",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "assignments": [],
+                "userFormTemplate": {
+                  "name": "assesor_report",
+                  "version": 1
+                }
               },
-              "type": "SIMPLE",
-              "decisionCases": {},
-              "defaultCase": [],
-              "forkTasks": [],
-              "startDelay": 0,
-              "joinOn": [],
-              "optional": false,
-              "defaultExclusiveJoinTask": [],
-              "asyncComplete": false,
-              "loopOver": [],
-              "onStateChange": {},
-              "permissive": false
+              "visible_assesments": []
             },
-            {
-              "name": "human",
-              "taskReferenceName": "assesor_findings_ref",
-              "description": "Asessor fills in finding from the place of the event",
-              "inputParameters": {
-                "__humanTaskDefinition": {
-                  "assignmentCompletionStrategy": "LEAVE_OPEN",
-                  "assignments": [],
-                  "userFormTemplate": {
-                    "name": "assesor_report",
-                    "version": 1
-                  }
-                },
-                "visible_assesments": []
-              },
-              "type": "HUMAN",
-              "decisionCases": {},
-              "defaultCase": [],
-              "forkTasks": [],
-              "startDelay": 0,
-              "joinOn": [],
-              "optional": false,
-              "defaultExclusiveJoinTask": [],
-              "asyncComplete": false,
-              "loopOver": [],
-              "onStateChange": {},
-              "permissive": false
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "incident_covered_by_policy",
+            "taskReferenceName": "incident_covered_by_policy_ref",
+            "description": "Determine if the incident is covered by the policy",
+            "inputParameters": {
+              "overall_coverage": "${assesor_findings_ref.output.overall_coverage}"
             },
-            {
-              "name": "incident_covered_by_policy",
-              "taskReferenceName": "incident_covered_by_policy_ref",
-              "description": "Determine if the incident is covered by the policy",
-              "inputParameters": {
-                "overall_coverage": "${assesor_findings_ref.output.overall_coverage}"
-              },
-              "type": "SWITCH",
-              "decisionCases": {
-                "yes": [
-                  {
-                    "name": "determine_price_of_damage",
-                    "taskReferenceName": "determine_price_of_damage_ref",
-                    "description": "Calculate the price of the damage",
-                    "inputParameters": {
-                      "expression": "(function () {\n  const costMap = {\n    \"Side collision Damage\": 2500,\n    \"Minor front door damage\": 500,\n    \"Windshield Damage\": 1000\n  }\n\n  const items = $.assesor_findings.map(va => {\n    //\n    const estimated_cost = costMap[va.get(\"damage_type\")]\n    return ({\n      description: va.get(\"damage_type\"),\n      estimated_cost,\n      coverage: va.get(\"coverage_determination\"),\n      covered_percentage: va.get(\"coverage_score\")\n    })\n  });\n\n  const totalCost = items.reduce((acc, { estimated_cost, coverage,covered_percentage }) => {\n    const total_damage_cost = acc.total_damage_cost + estimated_cost;\n    if (coverage === \"Not covered\") {\n      const total_non_covered_cost = acc.total_non_covered_cost + estimated_cost\n      return ({\n        total_covered_cost: acc.total_covered_cost,\n        total_non_covered_cost,\n        total_damage_cost\n      })\n\n    }\n    const vaPercent = Number(covered_percentage) / 100;\n    const totalToPay = estimated_cost * vaPercent;\n    const total_covered_cost = acc.total_covered_cost + totalToPay;\n\n\n    return ({\n      total_covered_cost,\n      total_non_covered_cost: acc.total_non_covered_cost,\n      total_damage_cost\n    })\n  }, { total_covered_cost: 0, total_non_covered_cost: 0, total_damage_cost: 0 });\n\n  return {\n    \"damage_estimation\": {\n      \"total_damage_cost\": totalCost.total_damage_cost,\n      \"items\": items\n    },\n    \"coverage_calculation\": {\n      \"total_covered_cost\": totalCost.total_covered_cost,\n      \"total_non_covered_cost\": totalCost.total_non_covered_cost,\n      \"explanation\": $.asessor_rationale\n    }\n  }\n\n})();",
-                      "evaluatorType": "graaljs",
-                      "assesor_findings": "${assesor_findings_ref.output.visible_assesments}",
-                      "asessor_rationale": "${assesor_findings_ref.output.rationale}"
-                    },
-                    "type": "INLINE",
-                    "decisionCases": {},
-                    "defaultCase": [],
-                    "forkTasks": [],
-                    "startDelay": 0,
-                    "joinOn": [],
-                    "optional": false,
-                    "defaultExclusiveJoinTask": [],
-                    "asyncComplete": false,
-                    "loopOver": [],
-                    "onStateChange": {},
-                    "permissive": false
-                  },
-                  {
-                    "name": "exceed_cost",
-                    "taskReferenceName": "exceed_cost_ref",
-                    "description": "Does the damage exceed a suspicious cost",
-                    "inputParameters": {
-                      "totalCost": "${determine_price_of_damage_ref.output.result.coverage_calculation.total_covered_cost}"
-                    },
-                    "type": "SWITCH",
-                    "decisionCases": {
-                      "yes": [
-                        {
-                          "name": "human",
-                          "taskReferenceName": "investigation_human_ref",
-                          "description": "Form for an additional investigation",
-                          "inputParameters": {
-                            "__humanTaskDefinition": {
-                              "assignmentCompletionStrategy": "LEAVE_OPEN",
-                              "assignments": [],
-                              "userFormTemplate": {
-                                "name": "on_site_investigation",
-                                "version": 1
-                              }
-                            },
-                            "investigation_city": "${assesor_findings_ref.output.incident_city}",
-                            "investigation_street": "${assesor_findings_ref.output.incident_street}",
-                            "investigation_state": "${assesor_findings_ref.output.incident_state}",
-                            "witness_statements": []
-                          },
-                          "type": "HUMAN",
-                          "decisionCases": {},
-                          "defaultCase": [],
-                          "forkTasks": [],
-                          "startDelay": 0,
-                          "joinOn": [],
-                          "optional": false,
-                          "defaultExclusiveJoinTask": [],
-                          "asyncComplete": false,
-                          "loopOver": [],
-                          "onStateChange": {},
-                          "permissive": false
-                        },
-                        {
-                          "name": "after_investigation_is_it_covered",
-                          "taskReferenceName": "after_investigation_is_it_covered_ref",
-                          "description": "Given the new findings is the claim really covered",
-                          "inputParameters": {
-                            "switchCaseValue": "${incident_covered_by_policy_ref.output.covered}"
-                          },
-                          "type": "SWITCH",
-                          "decisionCases": {
-                            "yes": []
-                          },
-                          "defaultCase": [
-                            {
-                              "name": "terminate",
-                              "taskReferenceName": "terminate_ref",
-                              "description": "Terminated after investigation.Incident not covered",
-                              "inputParameters": {
-                                "terminationStatus": "TERMINATED",
-                                "terminationReason": "Terminated after investigation.Incident not covered"
-                              },
-                              "type": "TERMINATE",
-                              "decisionCases": {},
-                              "defaultCase": [],
-                              "forkTasks": [],
-                              "startDelay": 0,
-                              "joinOn": [],
-                              "optional": false,
-                              "defaultExclusiveJoinTask": [],
-                              "asyncComplete": false,
-                              "loopOver": [],
-                              "onStateChange": {},
-                              "permissive": false
-                            }
-                          ],
-                          "forkTasks": [],
-                          "startDelay": 0,
-                          "joinOn": [],
-                          "optional": false,
-                          "defaultExclusiveJoinTask": [],
-                          "asyncComplete": false,
-                          "loopOver": [],
-                          "evaluatorType": "graaljs",
-                          "expression": "(function () {\n    if ($.switchCaseValue) {\n     return \"yes\"\n    }\n  }())",
-                          "onStateChange": {},
-                          "permissive": false
-                        }
-                      ]
-                    },
-                    "defaultCase": [],
-                    "forkTasks": [],
-                    "startDelay": 0,
-                    "joinOn": [],
-                    "optional": false,
-                    "defaultExclusiveJoinTask": [],
-                    "asyncComplete": false,
-                    "loopOver": [],
-                    "evaluatorType": "graaljs",
-                    "expression": "(function () {\n   if($.totalCost>100){\n    return \"yes\"\n   }\n  }())",
-                    "onStateChange": {},
-                    "permissive": false
-                  },
-                  {
-                    "name": "terminate_2",
-                    "taskReferenceName": "terminate_ref_2",
-                    "description": "Terminated send the payment to the client",
-                    "inputParameters": {
-                      "terminationStatus": "COMPLETED",
-                      "terminationReason": "Send Payment to client"
-                    },
-                    "type": "TERMINATE",
-                    "decisionCases": {},
-                    "defaultCase": [],
-                    "forkTasks": [],
-                    "startDelay": 0,
-                    "joinOn": [],
-                    "optional": false,
-                    "defaultExclusiveJoinTask": [],
-                    "asyncComplete": false,
-                    "loopOver": [],
-                    "onStateChange": {},
-                    "permissive": false
-                  }
-                ]
-              },
-              "defaultCase": [
+            "type": "SWITCH",
+            "decisionCases": {
+              "yes": [
                 {
-                  "name": "terminate_1",
-                  "taskReferenceName": "terminate_ref_1",
-                  "description": "Terminated because the policy does not cover the incident",
+                  "name": "determine_price_of_damage",
+                  "taskReferenceName": "determine_price_of_damage_ref",
+                  "description": "Calculate the price of the damage",
                   "inputParameters": {
-                    "terminationStatus": "TERMINATED",
-                    "terminationReason": "Policy does not cover incident"
+                    "expression": "(function () {\n  const costMap = {\n    \"Side collision Damage\": 2500,\n    \"Minor front door damage\": 500,\n    \"Windshield Damage\": 1000\n  }\n\n  const items = $.assesor_findings.map(va => {\n    //\n    const estimated_cost = costMap[va.get(\"damage_type\")]\n    return ({\n      description: va.get(\"damage_type\"),\n      estimated_cost,\n      coverage: va.get(\"coverage_determination\"),\n      covered_percentage: va.get(\"coverage_score\")\n    })\n  });\n\n  const totalCost = items.reduce((acc, { estimated_cost, coverage,covered_percentage }) => {\n    const total_damage_cost = acc.total_damage_cost + estimated_cost;\n    if (coverage === \"Not covered\") {\n      const total_non_covered_cost = acc.total_non_covered_cost + estimated_cost\n      return ({\n        total_covered_cost: acc.total_covered_cost,\n        total_non_covered_cost,\n        total_damage_cost\n      })\n\n    }\n    const vaPercent = Number(covered_percentage) / 100;\n    const totalToPay = estimated_cost * vaPercent;\n    const total_covered_cost = acc.total_covered_cost + totalToPay;\n\n\n    return ({\n      total_covered_cost,\n      total_non_covered_cost: acc.total_non_covered_cost,\n      total_damage_cost\n    })\n  }, { total_covered_cost: 0, total_non_covered_cost: 0, total_damage_cost: 0 });\n\n  return {\n    \"damage_estimation\": {\n      \"total_damage_cost\": totalCost.total_damage_cost,\n      \"items\": items\n    },\n    \"coverage_calculation\": {\n      \"total_covered_cost\": totalCost.total_covered_cost,\n      \"total_non_covered_cost\": totalCost.total_non_covered_cost,\n      \"explanation\": $.asessor_rationale\n    }\n  }\n\n})();",
+                    "evaluatorType": "graaljs",
+                    "assesor_findings": "${assesor_findings_ref.output.visible_assesments}",
+                    "asessor_rationale": "${assesor_findings_ref.output.rationale}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "exceed_cost",
+                  "taskReferenceName": "exceed_cost_ref",
+                  "description": "Does the damage exceed a suspicious cost",
+                  "inputParameters": {
+                    "totalCost": "${determine_price_of_damage_ref.output.result.coverage_calculation.total_covered_cost}"
+                  },
+                  "type": "SWITCH",
+                  "decisionCases": {
+                    "yes": [
+                      {
+                        "name": "human",
+                        "taskReferenceName": "investigation_human_ref",
+                        "description": "Form for an additional investigation",
+                        "inputParameters": {
+                          "__humanTaskDefinition": {
+                            "assignmentCompletionStrategy": "LEAVE_OPEN",
+                            "assignments": [],
+                            "userFormTemplate": {
+                              "name": "on_site_investigation",
+                              "version": 1
+                            }
+                          },
+                          "investigation_city": "${assesor_findings_ref.output.incident_city}",
+                          "investigation_street": "${assesor_findings_ref.output.incident_street}",
+                          "investigation_state": "${assesor_findings_ref.output.incident_state}",
+                          "witness_statements": []
+                        },
+                        "type": "HUMAN",
+                        "decisionCases": {},
+                        "defaultCase": [],
+                        "forkTasks": [],
+                        "startDelay": 0,
+                        "joinOn": [],
+                        "optional": false,
+                        "defaultExclusiveJoinTask": [],
+                        "asyncComplete": false,
+                        "loopOver": [],
+                        "onStateChange": {},
+                        "permissive": false
+                      },
+                      {
+                        "name": "after_investigation_is_it_covered",
+                        "taskReferenceName": "after_investigation_is_it_covered_ref",
+                        "description": "Given the new findings is the claim really covered",
+                        "inputParameters": {
+                          "switchCaseValue": "${incident_covered_by_policy_ref.output.covered}"
+                        },
+                        "type": "SWITCH",
+                        "decisionCases": {
+                          "yes": []
+                        },
+                        "defaultCase": [
+                          {
+                            "name": "terminate",
+                            "taskReferenceName": "terminate_ref",
+                            "description": "Terminated after investigation.Incident not covered",
+                            "inputParameters": {
+                              "terminationStatus": "TERMINATED",
+                              "terminationReason": "Terminated after investigation.Incident not covered"
+                            },
+                            "type": "TERMINATE",
+                            "decisionCases": {},
+                            "defaultCase": [],
+                            "forkTasks": [],
+                            "startDelay": 0,
+                            "joinOn": [],
+                            "optional": false,
+                            "defaultExclusiveJoinTask": [],
+                            "asyncComplete": false,
+                            "loopOver": [],
+                            "onStateChange": {},
+                            "permissive": false
+                          }
+                        ],
+                        "forkTasks": [],
+                        "startDelay": 0,
+                        "joinOn": [],
+                        "optional": false,
+                        "defaultExclusiveJoinTask": [],
+                        "asyncComplete": false,
+                        "loopOver": [],
+                        "evaluatorType": "graaljs",
+                        "expression": "(function () {\n    if ($.switchCaseValue) {\n     return \"yes\"\n    }\n  }())",
+                        "onStateChange": {},
+                        "permissive": false
+                      }
+                    ]
+                  },
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "evaluatorType": "graaljs",
+                  "expression": "(function () {\n   if($.totalCost>100){\n    return \"yes\"\n   }\n  }())",
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "terminate_2",
+                  "taskReferenceName": "terminate_ref_2",
+                  "description": "Terminated send the payment to the client",
+                  "inputParameters": {
+                    "terminationStatus": "COMPLETED",
+                    "terminationReason": "Send Payment to client"
                   },
                   "type": "TERMINATE",
                   "decisionCases": {},
@@ -316,33 +292,31 @@
                   "onStateChange": {},
                   "permissive": false
                 }
-              ],
-              "forkTasks": [],
-              "startDelay": 0,
-              "joinOn": [],
-              "optional": false,
-              "defaultExclusiveJoinTask": [],
-              "asyncComplete": false,
-              "loopOver": [],
-              "evaluatorType": "graaljs",
-              "expression": "(function () {\n  if($.overall_coverage!=\"Not Covered\"){\n    return \"yes\"\n  }\n   \n  }())",
-              "onStateChange": {},
-              "permissive": false
-            }
-          ]
-        },
-        "defaultCase": [
-          {
-            "name": "terminate_by_invalid_policy",
-            "taskReferenceName": "terminate_by_invalid_policy_ref",
-            "description": "Terminated because of invalid policy",
-            "inputParameters": {
-              "terminationStatus": "TERMINATED",
-              "terminationReason": "Terminated because of invalid policy"
+              ]
             },
-            "type": "TERMINATE",
-            "decisionCases": {},
-            "defaultCase": [],
+            "defaultCase": [
+              {
+                "name": "terminate_1",
+                "taskReferenceName": "terminate_ref_1",
+                "description": "Terminated because the policy does not cover the incident",
+                "inputParameters": {
+                  "terminationStatus": "TERMINATED",
+                  "terminationReason": "Policy does not cover incident"
+                },
+                "type": "TERMINATE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
             "forkTasks": [],
             "startDelay": 0,
             "joinOn": [],
@@ -350,44 +324,73 @@
             "defaultExclusiveJoinTask": [],
             "asyncComplete": false,
             "loopOver": [],
+            "evaluatorType": "graaljs",
+            "expression": "(function () {\n  if($.overall_coverage!=\"Not Covered\"){\n    return \"yes\"\n  }\n   \n  }())",
             "onStateChange": {},
             "permissive": false
           }
-        ],
-        "forkTasks": [],
-        "startDelay": 0,
-        "joinOn": [],
-        "optional": false,
-        "defaultExclusiveJoinTask": [],
-        "asyncComplete": false,
-        "loopOver": [],
-        "evaluatorType": "graaljs",
-        "expression": "(function () {\n  const claimDetails = $.claim_details;\n  if(claimDetails.get(\"policy_picker\")){\n    return \"yes\";\n  }\n\n  return \"policy-not-valid\"\n   \n  }())",
-        "onStateChange": {},
-        "permissive": false
-      }
-    ],
-    "inputParameters": [
-      "firstName",
-      "lastName"
-    ],
-    "outputParameters": {},
-    "failureWorkflow": "",
-    "schemaVersion": 2,
-    "restartable": true,
-    "workflowStatusListenerEnabled": false,
-    "ownerEmail": "james.stuart@orkes.io",
-    "timeoutPolicy": "ALERT_ONLY",
-    "timeoutSeconds": 0,
-    "variables": {},
-    "inputTemplate": {},
-    "inputSchema": {
-      "createTime": 0,
-      "updateTime": 0,
-      "name": "insurance-claims-input",
-      "version": 1,
-      "type": "JSON"
-    },
-    "enforceSchema": true
+        ]
+      },
+      "defaultCase": [
+        {
+          "name": "terminate_by_invalid_policy",
+          "taskReferenceName": "terminate_by_invalid_policy_ref",
+          "description": "Terminated because of invalid policy",
+          "inputParameters": {
+            "terminationStatus": "TERMINATED",
+            "terminationReason": "Terminated because of invalid policy"
+          },
+          "type": "TERMINATE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "evaluatorType": "graaljs",
+      "expression": "(function () {\n  const claimDetails = $.claim_details;\n  if(claimDetails.get(\"policy_picker\")){\n    return \"yes\";\n  }\n\n  return \"policy-not-valid\"\n   \n  }())",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "firstName",
+    "lastName"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "james.stuart@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "inputSchema": {
+    "createTime": 0,
+    "updateTime": 0,
+    "name": "insurance-claims-input",
+    "version": 1,
+    "type": "JSON"
+  },
+  "enforceSchema": true,
+  "metadata": {
+    "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
   }
+}
 ]
