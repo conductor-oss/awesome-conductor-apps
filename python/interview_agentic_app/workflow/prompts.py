@@ -298,7 +298,7 @@ def configure_integrations(api_config: Configuration):
     prompt_client = clients.get_prompt_client()
     ai_orchestrator = AIOrchestrator(api_configuration=api_config)
 
-    secrets_client.put_secret('sendgrid_api_key', os.getenv('SENDGRID_API_KEY'))
+    secrets_client.put_secret('sendgrid_api_key', os.getenv('SEND_GRID_API_KEY'))
 
     prompt_client.save_prompt('name_question_evaluator',
                               description="Evaluate an interviewee's response to providing their own name & programming language. Output three values: is_initial_step_done, name, language in JSON format.",
