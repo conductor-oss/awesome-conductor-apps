@@ -2,18 +2,19 @@
 This repository showcases sample applications built using Orkes Conductor, a powerful orchestration engine designed for microservices orchestration. These examples serve as practical guides for developers looking to implement complex workflows. 
 
 ## Sample applications
-* [Payment processing SAGA with Conductor and Go](https://github.com/conductor-oss/conductor-apps/tree/main/go/saga)
-* [How to rate limit workflow executions with Conductor](https://github.com/conductor-oss/conductor-apps/tree/main/java/rate_limit_application)
-* [Workflow example showing various timeout scenarios with Conductor](https://github.com/conductor-oss/conductor-apps/tree/main/java/timeouts_application)
-* [Agentic stock trading app with Conductor and Python](https://github.com/conductor-oss/conductor-apps/tree/main/python/agentic_trader_app)
+* [Software Engineer agentic interview app](python/interview_agentic_app)
+* [Payment processing SAGA with Conductor and Go](go/saga)
+* [How to rate limit workflow executions with Conductor](java/rate_limit_application)
+* [Workflow example showing various timeout scenarios with Conductor](java/timeouts_application)
+* [Agentic stock trading app with Conductor and Python](python/agentic_trader_app)
 
 ## Language-specific Worker and Workflow sample projects
-* [Clojure](https://github.com/conductor-oss/conductor-apps/clojure)
-* [Csharp](https://github.com/conductor-oss/conductor-apps/csharp)
-* [Go](https://github.com/conductor-oss/conductor-apps/go) 
-* [Java](https://github.com/conductor-oss/conductor-apps/java)
-* [JavaScript](https://github.com/conductor-oss/conductor-apps/javascript)
-* [Python](https://github.com/conductor-oss/conductor-apps/python)
+* [Clojure](clojure)
+* [Csharp](csharp)
+* [Go](go) 
+* [Java](java)
+* [JavaScript](javascript)
+* [Python](python)
 
 
 ## Getting started
@@ -33,8 +34,18 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 
 7. Add Orkes Conductor Developer Edition URL and Application access key to your environmental variables.
 
+MacOS/Linux
+
 ```shell
 export CONDUCTOR_SERVER_URL=https://developer.orkescloud.com/api/
 export CONDUCTOR_AUTH_KEY=<your api key from step 4 above >
 export CONDUCTOR_AUTH_SECRET=<your api secret from step 5 above>
+```
+
+Windows
+
+```powershell
+$env:CONDUCTOR_SERVER_URL = "https://developer.orkescloud.com/api/"
+$env:CONDUCTOR_AUTH_KEY = "<your api key from step 4 above>"
+$env:CONDUCTOR_AUTH_SECRET = "<your api secret from step 5 above>"
 ```
