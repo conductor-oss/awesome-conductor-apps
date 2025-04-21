@@ -14,7 +14,7 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "damage_visiable": {
+                  "damage_visible": {
                     "type": "boolean"
                   },
                   "damage_type": {
