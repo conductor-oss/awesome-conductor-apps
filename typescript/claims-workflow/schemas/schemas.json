@@ -1,29 +1,29 @@
 [
-    {
-        "createTime": 1744667530479,
-        "updateTime": 1744667530479,
-        "createdBy": "james.stuart@orkes.io",
-        "updatedBy": "james.stuart@orkes.io",
-        "name": "insurance-claims-input",
-        "version": 1,
-        "type": "JSON",
-        "data": {
-          "type": "object",
-          "$schema": "http://json-schema.org/draft-07/schema",
-          "properties": {
-            "firstName": {
-              "type": "string",
-              "default": "Jane"
-            },
-            "lastName": {
-              "type": "string",
-              "default": "Smith"
-            }
-          },
-          "required": [
-            "firstName",
-            "lastName"
-          ]
+  {
+    "createTime": 1745262876598,
+    "updateTime": 1745262876598,
+    "createdBy": "james.stuart@orkes.io",
+    "updatedBy": "james.stuart@orkes.io",
+    "name": "insurance-claims-input",
+    "version": 1,
+    "type": "JSON",
+    "data": {
+      "type": "object",
+      "$schema": "http://json-schema.org/draft-07/schema",
+      "properties": {
+        "firstName": {
+          "type": "string",
+          "default": "John"
+        },
+        "lastName": {
+          "type": "string",
+          "default": "Doe"
         }
-      }
+      },
+      "required": [
+        "firstName",
+        "lastName"
+      ]
+    }
+  }
 ]
