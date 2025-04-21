@@ -1,7 +1,7 @@
 [
   {
-    "createTime": 1744723921531,
-    "updateTime": 1744926584324,
+    "createTime": 1745270377565,
+    "updateTime": 1745272214972,
     "name": "insurance_claim",
     "description": "Business Process Automation -> Claims processing",
     "version": 1,
@@ -82,7 +82,8 @@
         "taskReferenceName": "policy_valid_ref",
         "description": "Determines if the policy is valid given the claim",
         "inputParameters": {
-          "claim_details": "${take_claim_ref.output}"
+          "claim_details": "${take_claim_ref.output}",
+          "policyTypes": "${map_policies_to_menu_items_ref.output.result}"
         },
         "type": "SWITCH",
         "decisionCases": {
@@ -338,7 +339,10 @@
             "description": "Terminated because of invalid policy",
             "inputParameters": {
               "terminationStatus": "TERMINATED",
-              "terminationReason": "Terminated because of invalid policy"
+              "terminationReason": "Terminated because of invalid policy",
+              "workflowOutput": {
+                "error": "Invalid policy ${${take_claim_ref.output.policy_picker}"
+              }
             },
             "type": "TERMINATE",
             "decisionCases": {},
@@ -362,7 +366,7 @@
         "asyncComplete": false,
         "loopOver": [],
         "evaluatorType": "graaljs",
-        "expression": "(function () {\n  const claimDetails = $.claim_details;\n  if(claimDetails.get(\"policy_picker\")){\n    return \"yes\";\n  }\n\n  return \"policy-not-valid\"\n   \n  }())",
+        "expression": "(function () {\n  const claimDetails = $.claim_details;\n  if (claimDetails.get(\"policy_picker\")) {\n    const policyType = $.policyTypes.find(p => p['const'] === claimDetails.get(\"policy_picker\"))\n    return policyType?.title === \"AUTO\" ? \"yes\" : \"policy-not-valid\";\n  }\n\n  return \"policy-not-valid\"\n\n}())",
         "onStateChange": {},
         "permissive": false
       }
