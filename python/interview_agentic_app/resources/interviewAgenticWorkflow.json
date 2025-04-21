@@ -875,7 +875,7 @@
                   }
                 ],
                 "from": {
-                  "email": "karl.goeltner@orkes.io"
+                  "email": "<SENDGRID_VERIFIED_SENDER_EMAIL>"
                 },
                 "subject": "Thank you ${workflow.variables.name} for interviewing with Orkes",
                 "content": [
@@ -1074,7 +1074,6 @@
   "schemaVersion": 2,
   "restartable": true,
   "workflowStatusListenerEnabled": false,
-  "ownerEmail": "karl.goeltner@orkes.io",
   "timeoutPolicy": "TIME_OUT_WF",
   "timeoutSeconds": 2700,
   "variables": {},

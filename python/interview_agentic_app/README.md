@@ -83,7 +83,7 @@ To get your SendGrid API key and update sender's email address:
     export SEND_GRID_API_KEY=<YOUR_SEND_GRID_API_KEY>
     ```
 4. Use your associated SendGrid email address to update the sender email address used in the workflow:
-    - `resources/interviewAgenticWorkflow.json`:  Line 930, from email address value
+    - `resources/interviewAgenticWorkflow.json`:  Line 878, from email address value
 5. Set the environment variable:
     ```shell
     export SEND_GRID_EMAIL_ADDRESS=<YOUR_SEND_GRID_EMAIL_ADDRESS>
