@@ -1,0 +1,86 @@
+{
+  "createTime": 1742490961955,
+  "updateTime": 1743601869742,
+  "name": "generate_transaction_workflow",
+  "description": "Generates random transaction records using LLM.",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "fraud_prompt",
+      "taskReferenceName": "fraudPrompt_ref",
+      "inputParameters": {
+        "llmProvider": "AdTest",
+        "model": "gpt-4o-mini-2024-07-18",
+        "promptName": "fraudGenerator",
+        "promptVariables": {}
+      },
+      "type": "LLM_TEXT_COMPLETE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": true,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "parse_transactions",
+      "taskReferenceName": "parse_transactions_ref",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "transactionResult": "${fraudPrompt_ref.output.result}",
+        "expression": "(function() {\n  if (!$.transactionResult) {\n    throw 'transactionResult is null or undefined';\n  }\n  \n  try {\n    return JSON.parse($.transactionResult);\n  } catch (e) {\n    throw 'Failed to parse JSON: ' + e.message;\n  }\n})()"
+      },
+      "type": "INLINE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "expression": "JSON.parse($.transactionResult.match(/```json\\n([\\s\\S]*?)\\n```/)[1])",
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "send_transaction",
+      "taskReferenceName": "send_transaction_ref",
+      "inputParameters": {
+        "payload": "${parse_transactions_ref.output}"
+      },
+      "type": "EVENT",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "sink": "sqs:Fraud_Transaction_Demo_Queue:arn:aws:sqs:us-east-2:255364981640:Fraud_Transaction_Demo_Queue",
+      "optional": true,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [],
+  "outputParameters": {
+    "transaction": "${parse_transactions_ref.output}"
+  },
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "alexus.depeza@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}

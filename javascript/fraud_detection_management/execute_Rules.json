@@ -1,0 +1,320 @@
+{
+  "createTime": 0,
+  "updateTime": 1745350081940,
+  "name": "execute_Rules",
+  "description": "Business rules to detect suspicious activities.",
+  "version": 2,
+  "tasks": [
+    {
+      "name": "sub_workflow",
+      "taskReferenceName": "sub_workflow_ref",
+      "inputParameters": {},
+      "type": "SUB_WORKFLOW",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "subWorkflowParam": {
+        "name": "generate_transaction_workflow",
+        "version": 1
+      },
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "counter",
+      "taskReferenceName": "do_while_ref",
+      "inputParameters": {
+        "transactions": "${sub_workflow_ref.output.transaction.result}"
+      },
+      "type": "DO_WHILE",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopCondition": "(function () { return $.do_while_ref['iteration'] < $.transactions.length; })();",
+      "loopOver": [
+        {
+          "name": "parse_transactions",
+          "taskReferenceName": "parse_transactions_ref",
+          "inputParameters": {
+            "expression": "(function () {\n    const current = $.iteration;\n    const transaction = $.each_transaction[current['iteration']-1]; \n\n    return {\n        transaction_id: transaction.transaction_id,\n        amount: transaction.amount,\n        user_id: transaction.user_id,\n        destination: transaction.destination,\n        fraud_history: transaction.fraud_history,\n        source: transaction.source,\n        transaction_type: transaction.transaction_type\n    };\n})();\n",
+            "evaluatorType": "graaljs",
+            "iteration": "${do_while_ref.output}",
+            "each_transaction": "${do_while_ref.input.transactions}"
+          },
+          "type": "INLINE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "llmRiskScore",
+          "taskReferenceName": "llm_text_complete_ref",
+          "inputParameters": {
+            "llmProvider": "AdTest",
+            "model": "gpt-4o-mini-2024-07-18",
+            "promptName": "riskScore",
+            "promptVariables": {
+              "transaction_id": "${parse_transactions_ref.output.result.transaction_id}",
+              "amount": "${parse_transactions_ref.output.result.amount}",
+              "user_id": "${parse_transactions_ref.output.result.user_id}",
+              "destination": "${parse_transactions_ref.output.result.destination}",
+              "fraud_history": "${parse_transactions_ref.output.result.fraud_history}",
+              "source": "${parse_transactions_ref.output.result.source}",
+              "transaction_type": "${parse_transactions_ref.output.result.transaction_type}"
+            }
+          },
+          "type": "LLM_TEXT_COMPLETE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "switch",
+          "taskReferenceName": "switch_ref",
+          "inputParameters": {
+            "score": "${llm_text_complete_ref.output.result}"
+          },
+          "type": "SWITCH",
+          "decisionCases": {
+            "Low Risk": [
+              {
+                "name": "low_risk_payment",
+                "taskReferenceName": "low_risk_payment_ref",
+                "inputParameters": {},
+                "type": "SUB_WORKFLOW",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "subWorkflowParam": {
+                  "name": "payment_flow",
+                  "version": 1
+                },
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "Medium Risk": [],
+            "High Risk": [
+              {
+                "name": "review_transaction",
+                "taskReferenceName": "review_transaction_ref",
+                "inputParameters": {
+                  "__humanTaskDefinition": {
+                    "assignmentCompletionStrategy": "LEAVE_OPEN",
+                    "assignments": [
+                      {
+                        "assignee": {
+                          "user": "alexus.depeza@orkes.io",
+                          "userType": "CONDUCTOR_USER"
+                        },
+                        "slaMinutes": 60
+                      }
+                    ],
+                    "userFormTemplate": {
+                      "name": "manager_approval",
+                      "version": 1
+                    },
+                    "displayName": "High Risk Transaction Review"
+                  },
+                  "approved": false,
+                  "denied": false,
+                  "transaction_id": "${parse_transactions_ref.output.result.transaction_id}",
+                  "amount": "${parse_transactions_ref.output.result.amount}"
+                },
+                "type": "HUMAN",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "log_feedback",
+                "taskReferenceName": "log_feedback_ref",
+                "inputParameters": {
+                  "uri": "https://orkes-api-tester.orkesconductor.com/api",
+                  "method": "POST",
+                  "accept": "application/json",
+                  "contentType": "application/json",
+                  "encode": true
+                },
+                "type": "HTTP",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "switch_1",
+                "taskReferenceName": "switch_ref_1",
+                "inputParameters": {
+                  "denied": "${review_transaction_ref.output.denied}",
+                  "approved": "${review_transaction_ref.output.approved}"
+                },
+                "type": "SWITCH",
+                "decisionCases": {
+                  "denied": [
+                    {
+                      "name": "http_2",
+                      "taskReferenceName": "http_ref_2",
+                      "inputParameters": {
+                        "uri": "https://orkes-api-tester.orkesconductor.com/api",
+                        "method": "GET",
+                        "accept": "application/json",
+                        "contentType": "application/json",
+                        "encode": true
+                      },
+                      "type": "HTTP",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ],
+                  "approved": [
+                    {
+                      "name": "high_risk_payment",
+                      "taskReferenceName": "high_risk_payment_ref",
+                      "inputParameters": {},
+                      "type": "SUB_WORKFLOW",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "subWorkflowParam": {
+                        "name": "payment_flow",
+                        "version": 1
+                      },
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ]
+                },
+                "defaultCase": [
+                  {
+                    "name": "http_1",
+                    "taskReferenceName": "http_ref_1",
+                    "inputParameters": {
+                      "uri": "https://orkes-api-tester.orkesconductor.com/api",
+                      "method": "GET",
+                      "accept": "application/json",
+                      "contentType": "application/json",
+                      "encode": true
+                    },
+                    "type": "HTTP",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  }
+                ],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "evaluatorType": "graaljs",
+                "expression": "(function () {\n  if ($.denied === true) {\n    return \"denied\";\n  } else if ($.approved === true) {\n    return \"approved\";\n  }\n  return \"default\";  \n})();",
+                "onStateChange": {},
+                "permissive": false
+              }
+            ]
+          },
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "evaluatorType": "graaljs",
+          "expression": "(function () {\n    const score = parseInt($.score);\n\n    switch (true) {\n        case (score >= 0 && score <= 1):\n            return \"Low Risk\";\n        case (score >= 2 && score < 3):\n            return \"Medium Risk\";\n        case (score >= 3):\n            return \"High Risk\";\n        default:\n            return \"Invalid Risk Score\"; \n    }\n})();",
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "evaluatorType": "graaljs",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [],
+  "outputParameters": {},
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "alexus.depeza@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "enforceSchema": true
+}
