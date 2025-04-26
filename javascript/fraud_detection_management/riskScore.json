@@ -1,0 +1,18 @@
+{
+    "name": "riskScore",
+    "template": "You are a fraud detection system analyzing financial transactions for potential fraud.\nGiven the following transaction details:\n\nTransaction ID: ${transaction_id}\n\nUser ID: ${user_id}\n\nTransaction Amount: ${amount}\n\nTransaction Type: ${transaction_type}\n\nSource: ${source}\n\nDestination:${destination}\n\nPast Fraudulent Activity (Yes/No): ${fraud_history}\n\nUsing the information provided only return a fraud risk score (0-3) with no additional information where:\n\n0-1: Low Risk\n\n2-3: Medium Risk\n\n>3: High Risk\n\nIf data is missing just state To provide a fraud risk score based on the transaction details, I would need specific values for the placeholders you provided (e.g., transaction_id, user_id, amount, transaction_type, source, destination, and fraud_history)\nFinally also return a confidence score",
+    "description": "Invokes Fraud & Risk Scoring",
+    "variables": [
+      "transaction_id",
+      "amount",
+      "user_id",
+      "destination",
+      "fraud_history",
+      "source",
+      "transaction_type"
+    ],
+    "integrations": [
+      "AdTest:gpt-4o-mini-2024-07-18"
+    ],
+    "tags": []
+  }
