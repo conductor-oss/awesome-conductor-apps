@@ -1,6 +1,6 @@
 # Agentic Workflow: Save PDF Worker with Conductor
 
-Automated agent workflow that generates a PDF from HTML input using [Conductor](https://github.com/conductor-oss/conductor) and [WeasyPrint](https://weasyprint.org/).
+Conductor worker task that generates a PDF from HTML input using [Conductor](https://github.com/conductor-oss/conductor) and [WeasyPrint](https://weasyprint.org/).
 Use this worker in conjunction with the Agentic Research workflow.
 
 ---
@@ -25,11 +25,11 @@ pip install conductor-python weasyprint
 Set your environment variables:
 ```shell
 export CONDUCTOR_SERVER_URL=https://developer.orkescloud.com/api;
-export CONDUCTOR_AUTH_KEY=<<YOUR_CONDUCTOR_AUTH_KEY>>
-export CONDUCTOR_AUTH_SECRET=<<YOUR_CONDUCTOR_AUTH_SECRET>>
+export CONDUCTOR_AUTH_KEY=<YOUR_CONDUCTOR_AUTH_KEY>
+export CONDUCTOR_AUTH_SECRET=<YOUR_CONDUCTOR_AUTH_SECRET>
 ```
 
-(Replace `<<YOUR_CONDUCTOR_AUTH_KEY>>` and `<<YOUR_CONDUCTOR_AUTH_SECRET>>` with your own credentials.)
+(Replace `<YOUR_CONDUCTOR_AUTH_KEY>` and `<YOUR_CONDUCTOR_AUTH_SECRET>` with your own credentials.)
 
 ---
 
