@@ -1,32 +1,32 @@
 [
     {
-    "id": "a247b111-47ea-40f4-a8b6-2ec3eca6e9de",
-    "title": "Claims workflow",
-    "description": "This workflow is used to process claims.",
-    "version": 2,
-    "featureLabelAndLinks": {
+        "id": "a247b111-47ea-40f4-a8b6-2ec3eca6e9de",
+        "title": "Claims workflow",
+        "description": "This workflow is used to process claims.",
+        "version": 2,
+        "featureLabelAndLinks": {
             "HTTP System Task": "https://orkes.io/content/docs/reference-docs/system-tasks/http-task",
             "Dynamic Fork": "https://orkes.io/content/reference-docs/operators/dynamic-fork",
             "Sub Workflows": "https://orkes.io/content/docs/reference-docs/sub-workflow-task",
             "JQ JSON Transform System Task": "https://orkes.io/content/reference-docs/system-tasks/jq-transform",
-            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task",
+            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
         },
-    "githubProjectLinks": {
-      "TS": "https://github.com/orkes-io/orkes-templates/tree/claims-workflow/claims-workflow"
+        "githubProjectLinks": {
+            "TS": "https://github.com/orkes-io/orkes-templates/tree/claims-workflow/claims-workflow"
         },
-    "thumbnailUrl": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/execution.gif",
-    "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/claim_workflow.json",
-    "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/tasks/tasks.json",
-    "userFormsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
-    "schemasGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
-    "helpDocumentationLink": "https://orkes.io/content/templates/automatic-subtitle-generator",
-    "category": "DEVOPS",
-    "tags": [
+        "thumbnailUrl": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/claim_workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
+        "helpDocumentationLink": "https://orkes.io/content/templates/automatic-subtitle-generator",
+        "category": "DEVOPS",
+        "tags": [
             "Business"
         ],
-    "createdAt": "2023-10-11T00:09:22.978+00:00",
-    "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
-    "updatedAt": "2025-01-31T16:46:48.476+00:00",
-    "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+        "createdAt": "2023-10-11T00:09:22.978+00:00",
+        "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+        "updatedAt": "2025-01-31T16:46:48.476+00:00",
+        "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
     }
 ]
