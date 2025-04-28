@@ -1,9 +1,9 @@
 [
     {
-        "id": "a247b111-47ea-40f4-a8b6-2ec3eca6e9de",
+        "id": "claims_workflow",
         "title": "Claims workflow",
         "description": "This workflow is used to process claims.",
-        "version": 2,
+        "version": 1,
         "featureLabelAndLinks": {
             "HTTP System Task": "https://orkes.io/content/docs/reference-docs/system-tasks/http-task",
             "Dynamic Fork": "https://orkes.io/content/reference-docs/operators/dynamic-fork",
@@ -20,7 +20,7 @@
         "userFormsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
         "schemasGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
         "helpDocumentationLink": "https://orkes.io/content/templates/automatic-subtitle-generator",
-        "category": "DEVOPS",
+        "category": "Processes",
         "tags": [
             "Business"
         ],
