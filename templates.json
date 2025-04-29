@@ -5,21 +5,17 @@
         "description": "This workflow is used to process claims.",
         "version": 1,
         "featureLabelAndLinks": {
-            "HTTP System Task": "https://orkes.io/content/docs/reference-docs/system-tasks/http-task",
-            "Dynamic Fork": "https://orkes.io/content/reference-docs/operators/dynamic-fork",
-            "Sub Workflows": "https://orkes.io/content/docs/reference-docs/sub-workflow-task",
-            "JQ JSON Transform System Task": "https://orkes.io/content/reference-docs/system-tasks/jq-transform",
             "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
         },
         "githubProjectLinks": {
-            "TS": "https://github.com/orkes-io/orkes-templates/tree/claims-workflow/claims-workflow"
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/refs/heads/claims-workflow/typescript/claims-workflow"
         },
-        "thumbnailUrl": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/claim_workflow.json",
-        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/tasks/tasks.json",
-        "userFormsGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
-        "schemasGithubLink": "https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
-        "helpDocumentationLink": "https://orkes.io/content/templates/automatic-subtitle-generator",
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/claim_workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
+        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/claims-workflow/typescript/claims-workflow/README.md",
         "category": "Processes",
         "tags": [
             "Business"

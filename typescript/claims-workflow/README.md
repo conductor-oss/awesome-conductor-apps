@@ -96,4 +96,4 @@ The workflow integrates human tasks where manual intervention is required, such 
 To run the insurance claims workflow in your Conductor instance, execute the following installation script:
 
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workers/install.sh)"
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workers/run.sh"
