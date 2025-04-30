@@ -6,6 +6,9 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 * [How to rate limit workflow executions with Conductor](https://github.com/conductor-oss/conductor-apps/java/rate_limit_application)
 * [Workflow example showing various timeout scenarios with Conductor](https://github.com/conductor-oss/conductor-apps/java/timeouts_application)
 * [Agentic stock trading app with Conductor and Python](https://github.com/conductor-oss/conductor-apps/python/agentic_trader_app)
+* [Agentic security workflow](examples/agentic_security_workflow)
+* [Software engineer interview agentic workflow](python/interview_agentic_app)
+* [Fraud detection management](javascript/fraud_detection_management)
 
 ## Language-specific Worker and Workflow sample projects
 * [Clojure](https://github.com/conductor-oss/conductor-apps/clojure)
@@ -33,8 +36,16 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 
 7. Add Orkes Conductor Developer Edition URL and Application access key to your environmental variables.
 
+#### MacOS/Linux
 ```shell
 export CONDUCTOR_SERVER_URL=https://developer.orkescloud.com/api/
 export CONDUCTOR_AUTH_KEY=<your api key from step 4 above >
 export CONDUCTOR_AUTH_SECRET=<your api secret from step 5 above>
+```
+
+#### Windows
+```powershell
+$env:CONDUCTOR_SERVER_URL = "https://developer.orkescloud.com/api/" 
+$env:CONDUCTOR_AUTH_KEY = "<your api key from step 4 above>" 
+$env:CONDUCTOR_AUTH_SECRET = "<your api secret from step 5 above>"
 ```
