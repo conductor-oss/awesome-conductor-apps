@@ -394,7 +394,8 @@
     },
     "enforceSchema": true,
     "metadata": {
-      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workers/install.sh)\""
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Sudakatux/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workers/install.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/tree/claims-workflow/typescript/claims-workflow"
     }
   }
 ]
