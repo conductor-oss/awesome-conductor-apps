@@ -52,7 +52,7 @@
       {
         "name": "human",
         "taskReferenceName": "take_claim_ref",
-        "description": "From to take claims information",
+        "description": "Form to take claims information",
         "inputParameters": {
           "__humanTaskDefinition": {
             "assignmentCompletionStrategy": "LEAVE_OPEN",
