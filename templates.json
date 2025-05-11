@@ -41,6 +41,7 @@
         "promptsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/prompts.json",
         "integrationAndModelsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/integration_model.json",
         "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/schemas/schemas.json",
         "category": "AI",
         "tags": [
             "AI"
