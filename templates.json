@@ -24,5 +24,30 @@
         "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
         "updatedAt": "2025-01-31T16:46:48.476+00:00",
         "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+    },
+    {
+        "id": "agentic_research",
+        "title": "Agentic Research",
+        "description": "Agentic Research Assistant",
+        "version": 1,
+        "featureLabelAndLinks": {
+            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
+        },
+        "githubProjectLinks": {
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python"
+        },
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/agentic_research.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/workflows/agentic_research.json",
+        "promptsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/prompts.json",
+        "integrationAndModelsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/integration_model.json",
+        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md",
+        "category": "Processes",
+        "tags": [
+            "Business"
+        ],
+        "createdAt": "2023-10-11T00:09:22.978+00:00",
+        "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+        "updatedAt": "2025-01-31T16:46:48.476+00:00",
+        "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
     }
 ]
