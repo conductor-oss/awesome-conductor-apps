@@ -1,0 +1,147 @@
+[
+    {
+        "integration": {
+            "createTime": 1740553289327,
+            "updateTime": 1740554888346,
+            "createdBy": "liv.wong@orkes.io",
+            "updatedBy": "liv.wong@orkes.io",
+            "name": "openAI",
+            "type": "openai",
+            "description": "Please remember to set your api key",
+            "category": "AI_MODEL",
+            "configuration": {
+                "api_key": ""
+            },
+            "enabled": true,
+            "tags": [],
+            "modelsCount": 2
+        },
+        "models": [
+            {
+                "createTime": 1740554452842,
+                "updateTime": 1740554452842,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "openAI",
+                "api": "chatgpt-4o-latest",
+                "description": "",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            },
+            {
+                "createTime": 1740555096649,
+                "updateTime": 1740555096649,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "openAI",
+                "api": "gpt-4o",
+                "description": "generic 4o model",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            }
+        ]
+    },
+    {
+        "integration": {
+            "createTime": 1744720454332,
+            "updateTime": 1744720454332,
+            "createdBy": "liv.wong@orkes.io",
+            "updatedBy": "liv.wong@orkes.io",
+            "name": "AnthropicClaude",
+            "type": "anthropic",
+            "description": "Please remember to set your api key",
+            "category": "AI_MODEL",
+            "configuration": {
+                "api_key": "",
+                "endpoint": "https://api.anthropic.com/v1"
+            },
+            "enabled": true,
+            "tags": [],
+            "modelsCount": 2
+        },
+        "models": [
+            {
+                "createTime": 1744720504944,
+                "updateTime": 1744720504944,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "AnthropicClaude",
+                "api": "claude-3-5-sonnet-20240620",
+                "description": "",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            },
+            {
+                "createTime": 1745571334147,
+                "updateTime": 1745571334147,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "AnthropicClaude",
+                "api": "claude-3-7-sonnet-20250219",
+                "description": "Highest level of intelligence and capability with toggleable extended thinking",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            }
+        ]
+    },
+    {
+        "integration": {
+            "createTime": 1745559258577,
+            "updateTime": 1745559258577,
+            "createdBy": "liv.wong@orkes.io",
+            "updatedBy": "liv.wong@orkes.io",
+            "name": "perplexity",
+            "type": "perplexity",
+            "description": "Please remember to set your api key",
+            "category": "AI_MODEL",
+            "configuration": {
+                "api_key": ""
+            },
+            "enabled": true,
+            "tags": [],
+            "modelsCount": 3
+        },
+        "models": [
+            {
+                "createTime": 1745564846826,
+                "updateTime": 1745564846826,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "perplexity",
+                "api": "sonar",
+                "description": "Lightweight, cost-effective search model with grounding.",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            },
+            {
+                "createTime": 1745564864146,
+                "updateTime": 1745564864146,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "perplexity",
+                "api": "sonar-pro",
+                "description": "Advanced search offering with grounding, supporting complex queries and follow-ups.",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            },
+            {
+                "createTime": 1745564894132,
+                "updateTime": 1745564894132,
+                "createdBy": "liv.wong@orkes.io",
+                "updatedBy": "liv.wong@orkes.io",
+                "integrationName": "perplexity",
+                "api": "sonar-deep-research",
+                "description": "Expert-level research model conducting exhaustive searches and generating comprehensive reports.",
+                "configuration": {},
+                "enabled": true,
+                "tags": []
+            }
+        ]
+    }
+]

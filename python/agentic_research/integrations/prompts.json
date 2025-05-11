@@ -1,0 +1,92 @@
+[
+    {
+        "createTime": 1745391645502,
+        "updateTime": 1745605143199,
+        "createdBy": "liv.wong@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "break_into_subtopics",
+        "template": "You are an academic research agent. Your task is to identify relevant and specific sub-topics within the field mentioned in the user's query:\n\"${user-query}\"\n\nMake sure:\n- If the query is broad, generate a diverse but representative set of sub-topics (up to 5).\n- If the query is narrow or specific, output only the most relevant sub-topics (fewer than 5 is fine).\n- Sub-topics must directly align with the focus of the query—avoid generalities.\n- Only output a JSON-style array of topic strings.\n\nEx. 1\nInput: \"What are the latest findings in child development psychology?\"\nOutput: [\"cognitive development\", \"emotional and social development\", \"language acquisition\", \"attachment and parenting styles\", \"impact of technology on development\"]\n\nEx. 2\nInput: \"What is still unknown about neutron stars?\"\nOutput: [\"interior composition and equation of state\", \"post-merger behavior\", \"magnetic field dynamics\"]\n\nEx. 3\nInput: \"What are the implications of microplastics in drinking water?\"\nOutput: [\"human health impacts of microplastics\", \"microplastic contamination pathways\", \"removal methods in water treatment systems\"]\n\nEx. 4\nInput: \"I want to know what are the current efforts into the taxonomy of Singapore's fly species.\"\nOutput: [\"taxonomic classification of Diptera in Southeast Asia\", \"endemic fly species in Singapore\", \"molecular phylogenetics of Singaporean flies\", \"biodiversity surveys and insect sampling methods in urban tropics\"]",
+        "description": "Break a research query into distinct subtopics.",
+        "variables": [
+          "user-query"
+        ],
+        "integrations": [
+          "openAI:gpt-4o"
+        ],
+        "tags": []
+      },
+      {
+        "createTime": 1745448458086,
+        "updateTime": 1745448463343,
+        "createdBy": "karl.goeltner@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "query_task_decision",
+        "template": "You are an academic research agent.\n\nGiven the user's request, identify what kind of research task they want to perform:\n\nOptions:\n- literature-review - if they are asking for a summary of existing knowledge\n- research-gap - if they want to identify what is still unknown or under-researched\n- both - if they want both a literature review and to find gaps\n- none - if the query doesn't request any research\n\nUser query: \"${user-query}\"\n\nOutput only one of: \"literature-review\", \"research-gap\", \"both\", or \"none\"\n\nEx. 1\nQuery: What are the latest findings in child development psychology?\nOutput: literature-review\n\nEx. 2\nQuery: What is still unknown about neutron stars?\nOutput: research-gap\n\nEx. 3\nQuery: What do we know and don't know about black holes?\nOutput: both\n\nEx. 4\nQuery: Write me a Haiku!\nOutput: none",
+        "description": "Based on the user's query, determine subsequent tasks research-gap, literature-review, both or none.",
+        "variables": [
+          "user-query"
+        ],
+        "integrations": [
+          "openAI:gpt-4o"
+        ],
+        "tags": []
+      },
+      {
+        "createTime": 1745446512243,
+        "updateTime": 1745604772958,
+        "createdBy": "karl.goeltner@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "literature_review_task",
+        "template": "You are an academic research assistant.\n\nYour task is to write a concise literature review for the following topic:\n\"${sub-topic}\"\n\nFollow these instructions carefully:\n\n🔍 Use Only Verifiable Information\n- Base your summary solely on reliable academic sources.\n- If no credible information is available on a point, do not make assumptions or generalizations. It is better to omit than speculate.\n📚 Ground the Review in Real Citations\n- As much as possible, include author names, publication years, or study titles.\n- If such details are not available, clearly state the lack of citation rather than inventing examples.\n✍️ Tone and Style\n- Write in a concise, academic, and readable tone.\n- Highlight foundational theories, well-known studies, and recent developments in the field.\n- Do not overstate the certainty of findings; reflect the nuance and debate present in the literature.\n🧠 Structure and Focus\n- Focus on summarizing what is well-understood or frequently studied.\n- If relevant, note key gaps or disagreements in the research.\n\nExample Inputs and Expected Outputs:\n\nSub-Topic 1: \"attachment theory\"\nOutput 1: \"Attachment theory, developed by John Bowlby in the mid-20th century, posits that early emotional bonds between children and caregivers are critical for psychological development. Mary Ainsworth's \"Strange Situation\" study (1978) identified attachment styles such as secure, avoidant, and anxious. Recent literature explores how attachment patterns persist into adulthood (Mikulincer & Shaver, 2016) and how cultural contexts influence attachment behavior. Neurobiological research has also linked secure attachment to lower stress reactivity in infants.\"\n\nSub-Topic 2: \"neutron star mergers and gravitational waves\"\nOutput 2: \"Neutron star mergers are a key source of gravitational waves, as confirmed by the landmark detection of GW170817 in 2017 by LIGO and Virgo. These events provide insight into the r-process nucleosynthesis responsible for heavy elements like gold and platinum. Literature since 2018 has focused on electromagnetic counterparts (e.g., kilonovae), constraints on the neutron star equation of state, and the role of binary evolution in producing merger progenitors. Current research emphasizes multi-messenger astronomy and refining mass-radius measurements through future observations.\"\n\nSub-Topic 3: \"quantum computing in early childhood education\"\nOutput 3: \"There is currently limited peer-reviewed literature directly addressing the use of quantum computing in early childhood education. While quantum computing is an emerging field in computer science and physics, its application in K–12 education—particularly among early learners—has not been widely explored. Existing studies on quantum education primarily focus on undergraduate and graduate-level curricula (e.g., Singh et al., 2020) or public engagement strategies. Future interdisciplinary research could examine how simplified quantum concepts might be introduced in age-appropriate educational contexts, but as of now, this remains an underexplored area in the academic literature.\"\n\nTips for Strong Literature Review:\n- Be specific about the tone: \"concise,\" \"academic,\" \"grounded in research\"\n- Encourage citations and publication dates to increase trust\n- Prompt for recent and foundational work\n- If using a web-search agent, you can also instruct the model to \"retrieve recent peer-reviewed sources\" before summarizing",
+        "description": "Given a subtopic, conduct a literature review.",
+        "variables": [
+          "sub-topic"
+        ],
+        "integrations": [
+          "perplexity:sonar-pro",
+          "perplexity:sonar-deep-research",
+          "perplexity:sonar",
+          "openAI:gpt-4o"
+        ],
+        "tags": []
+      },
+      {
+        "createTime": 1745448492149,
+        "updateTime": 1745604580090,
+        "createdBy": "karl.goeltner@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "research_gap_task",
+        "template": "You are an academic research assistant.\n\nYour task is to identify verifiable research gaps in the following topic:\n\"${sub-topic}\"\n\nCarefully review the existing body of knowledge and pinpoint areas that remain poorly understood, underexplored, or debated. Focus on:\n- Unanswered questions highlighted by recent reviews or studies\n- Methodological limitations (e.g., sample size, bias, study design)\n- Outdated theories or assumptions challenged by newer work\n- Contradictions between major findings or schools of thought\n- Population or context-specific gaps (e.g., non-Western settings, underrepresented groups)\n\nWrite in an academic yet accessible tone. Each gap should be clearly framed to guide future research efforts.\n\n⚠️ If insufficient peer-reviewed literature exists on the topic, explicitly state that the research field is still emerging or underdeveloped.\n\nAs much as possible, reference key authors, study names, or publication years to justify why these gaps persist and why they matter.\n\nExample Inputs and Expected Outputs:\n\nSub-Topic 1: \"attachment theory\"\nOutput 1: \"While attachment theory is well-established, several gaps remain. For example, there is limited understanding of how digital communication platforms (e.g., texting, social media) affect attachment formation during adolescence (see Madigan et al., 2018). Cross-cultural validation is also limited; most empirical studies focus on Western contexts, with relatively little research from collectivist cultures (Mesman et al., 2016). Additionally, longitudinal studies tracking the impact of early attachment on adult psychopathology across diverse populations are scarce, hindering broader generalizability.\"\n\nSub-Topic 2: \"neutron star mergers and gravitational waves\"\nOutput 2: \"Despite the breakthrough observation of GW170817 (Abbott et al., 2017), major research gaps persist. One involves the poorly constrained role of magnetic fields in post-merger dynamics, which remain difficult to simulate accurately. Another is the uncertainty around how much mass is ejected during mergers and its impact on r-process nucleosynthesis. Current theoretical models often diverge from observational estimates, particularly regarding kilonova brightness and decay curves (Metzger, 2019).\"\n\nSub-Topic 3: \"impact of technology on child development\"\nOutput 3: \"While research on screen time is abundant, gaps remain in understanding how different types of digital content—interactive vs. passive—affect cognitive outcomes (Rideout & Robb, 2021). There is also limited research on the influence of AI-generated or algorithmically curated content on children's language and emotional development. Furthermore, few large-scale studies explore how socio-economic disparities mediate access, content quality, and parental mediation practices.\"\n\nTips for Strong Research Gap Analysis:\n- Analyze limitations in the current research, not just summarize it.\n- Use cues like underexplored, contradictory, outdated, or not well understood.\n- Encourage it to include why a gap matters (i.e. “this gap impedes X”).\n- Mentioning methodological or population-specific gaps often adds depth.",
+        "description": "Given a subtopic, conduct a research-gap analysis.",
+        "variables": [
+          "sub-topic"
+        ],
+        "integrations": [
+          "perplexity:sonar-pro",
+          "perplexity:sonar-deep-research",
+          "perplexity:sonar",
+          "openAI:gpt-4o"
+        ],
+        "tags": []
+      },
+      {
+        "createTime": 1745448514814,
+        "updateTime": 1745640831351,
+        "createdBy": "karl.goeltner@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "compile_subtopic_responses",
+        "template": "You are an academic research assistant.\n\nYou are given information on sub-topics within a broader research field. This information may include:\n- A list of literature reviews (summaries of key findings, theories, or recent work)\n- A list of research gaps (open questions, underexplored areas, or suggested future research)\n\nYou may receive one, the other, or both.\n\nYour task is to generate a single, synthesized literature review that addresses the original research question:\n${original_question}\n\nOrganize the report according to the information from the subtopics:\n- Summarize the key points under a \"Literature Review\" section (if provided).\n- List any identified research gaps under a \"Research Gaps\" section (if provided).\n- If only one type of content is available, include just that.\n- Avoid structuring the report by each subtopic, it should be synthesized to the original question.\n\nYour final output should be:\n- A cohesive, academic-style report written in a formal tone using all sub-topics\n- Focused on synthesizing the provided content to give a holistic view of the research landscape related to the original question\n\nEnsure the output is in HTML format and fully wrapped in appropriate <html>, <head>, and <body> tags. Use the following structure:\n1. HTML Structure:\n- Use <h1>, <h2>, <h3> tags for headings.\n- Use <p> tags for paragraphs.\n- Use <ul> and <li> for lists.\n\nHere is the data:\n\nLiterature Reviews:\n${lit_reviews}\n\nResearch Gaps:\n${research_gaps}\n\nGenerate a synthesized academic report accordingly.",
+        "description": "Given a list of literature reviews and/or research gap analysis, compile a report.",
+        "variables": [
+          "original_question",
+          "research_gaps",
+          "lit_reviews"
+        ],
+        "integrations": [
+          "AnthropicClaude:claude-3-7-sonnet-20250219",
+          "openAI:gpt-4o",
+          "AnthropicClaude:claude-3-5-sonnet-20240620"
+        ],
+        "tags": []
+      }
+]

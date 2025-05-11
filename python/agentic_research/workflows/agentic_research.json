@@ -1,0 +1,714 @@
+[
+  {
+    "createTime": 1745391595856,
+    "updateTime": 1745640991815,
+    "name": "agentic_research",
+    "description": "Agentic Research Assistant",
+    "version": 2,
+    "tasks": [
+      {
+        "name": "set_global_variables",
+        "taskReferenceName": "set_global_variables_ref",
+        "inputParameters": {
+          "answer": " ",
+          "query": "${workflow.input.question}",
+          "lit_reviews": [],
+          "research_gaps": []
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "fork",
+        "taskReferenceName": "fork_ref",
+        "inputParameters": {},
+        "type": "FORK_JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [
+          [
+            {
+              "name": "break_into_subtopics",
+              "taskReferenceName": "break_into_subtopics_ref",
+              "inputParameters": {
+                "llmProvider": "openAI",
+                "model": "gpt-4o",
+                "promptName": "break_into_subtopics",
+                "promptVariables": {
+                  "user-query": "${workflow.variables.query}"
+                }
+              },
+              "type": "LLM_TEXT_COMPLETE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "taskDefinition": {
+                "createTime": 0,
+                "updateTime": 0,
+                "retryCount": 3,
+                "timeoutSeconds": 0,
+                "inputKeys": [],
+                "outputKeys": [],
+                "timeoutPolicy": "TIME_OUT_WF",
+                "retryLogic": "FIXED",
+                "retryDelaySeconds": 60,
+                "responseTimeoutSeconds": 3600,
+                "inputTemplate": {},
+                "rateLimitPerFrequency": 0,
+                "rateLimitFrequencyInSeconds": 1,
+                "backoffScaleFactor": 1,
+                "totalTimeoutSeconds": 0,
+                "enforceSchema": false
+              },
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "cacheConfig": {
+                "key": "${promptVariables}-break_into_subtopics_ref",
+                "ttlInSecond": 3600
+              },
+              "permissive": false
+            },
+            {
+              "name": "cast_subtopics_array",
+              "taskReferenceName": "cast_subtopics_array_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  const array = JSON.parse($.subtopics);\n  return array;\n})();",
+                "evaluatorType": "graaljs",
+                "subtopics": "${break_into_subtopics_ref.output.result}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          [
+            {
+              "name": "determine_research_task",
+              "taskReferenceName": "determine_research_task_ref",
+              "inputParameters": {
+                "llmProvider": "openAI",
+                "model": "gpt-4o",
+                "promptName": "query_task_decision",
+                "promptVariables": {
+                  "user-query": "${workflow.input.question}"
+                }
+              },
+              "type": "LLM_TEXT_COMPLETE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "cacheConfig": {
+                "key": "${promptVariables}-determine_research_task_ref",
+                "ttlInSecond": 3600
+              },
+              "permissive": false
+            }
+          ]
+        ],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "join",
+        "taskReferenceName": "join_ref",
+        "inputParameters": {},
+        "type": "JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [
+          "cast_subtopics_array_ref",
+          "determine_research_task_ref"
+        ],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "set_llm_output",
+        "taskReferenceName": "set_llm_output_ref",
+        "inputParameters": {
+          "subtopics": "${cast_subtopics_array_ref.output.result}",
+          "decision": "${determine_research_task_ref.output.result}"
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "switch",
+        "taskReferenceName": "switch_ref",
+        "inputParameters": {
+          "taskDecision": "${workflow.variables.decision}"
+        },
+        "type": "SWITCH",
+        "decisionCases": {
+          "literature-review": [
+            {
+              "name": "set_lit_review_task",
+              "taskReferenceName": "set_lit_review_task_ref",
+              "inputParameters": {
+                "dynamicTasks": [
+                  {
+                    "name": "lit_review_task",
+                    "taskReferenceName": "lit_review_task_ref",
+                    "inputParameters": {
+                      "llmProvider": "perplexity",
+                      "model": "sonar",
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "literature_review_task",
+                      "maxTokens": 16384
+                    },
+                    "type": "LLM_TEXT_COMPLETE"
+                  }
+                ]
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "research-gap": [
+            {
+              "name": "set_research_gap_task",
+              "taskReferenceName": "set_research_gap_task_ref",
+              "inputParameters": {
+                "dynamicTasks": [
+                  {
+                    "name": "research_gap_task",
+                    "taskReferenceName": "research_gap_task_ref",
+                    "inputParameters": {
+                      "llmProvider": "perplexity",
+                      "model": "sonar",
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "research_gap_task",
+                      "maxTokens": 16384
+                    },
+                    "type": "LLM_TEXT_COMPLETE"
+                  }
+                ]
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "both": [
+            {
+              "name": "set_both_tasks",
+              "taskReferenceName": "set_both_tasks_ref",
+              "inputParameters": {
+                "dynamicTasks": [
+                  {
+                    "name": "lit_review_task",
+                    "taskReferenceName": "lit_review_task_ref",
+                    "inputParameters": {
+                      "llmProvider": "perplexity",
+                      "model": "sonar",
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "literature_review_task",
+                      "maxTokens": 16384
+                    },
+                    "type": "LLM_TEXT_COMPLETE",
+                    "maxTokens": 16384
+                  },
+                  {
+                    "name": "research_gap_task",
+                    "taskReferenceName": "research_gap_task_ref",
+                    "inputParameters": {
+                      "llmProvider": "perplexity",
+                      "model": "sonar",
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "research_gap_task"
+                    },
+                    "type": "LLM_TEXT_COMPLETE",
+                    "maxTokens": 16384
+                  }
+                ]
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        },
+        "defaultCase": [
+          {
+            "name": "terminate",
+            "taskReferenceName": "terminate_ref",
+            "inputParameters": {
+              "terminationStatus": "COMPLETED",
+              "terminationReason": "Not a proper research query"
+            },
+            "type": "TERMINATE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "evaluatorType": "value-param",
+        "expression": "taskDecision",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "do_while",
+        "taskReferenceName": "do_while_ref",
+        "inputParameters": {
+          "subtopics": "${workflow.variables.subtopics}"
+        },
+        "type": "DO_WHILE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopCondition": "(function () {\n  if ($.do_while_ref['iteration'] < $.subtopics.length) {\n    return true;\n  }\n  return false;\n})();",
+        "loopOver": [
+          {
+            "name": "get_current_subtask",
+            "taskReferenceName": "get_current_subtask_ref",
+            "inputParameters": {
+              "expression": "(function () { \n  const i = $.iteration - 1;\n  return $.subtopics[i];\n})();",
+              "evaluatorType": "graaljs",
+              "iteration": "${do_while_ref.output.iteration}",
+              "subtopics": "${workflow.variables.subtopics}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "fork_join_dynamic",
+            "taskReferenceName": "fork_join_dynamic_ref",
+            "inputParameters": {
+              "dynamicTasks": "${workflow.variables.dynamicTasks}",
+              "dynamicTasksInput": {
+                "lit_review_task_ref": {
+                  "promptVariables": {
+                    "sub-topic": "${get_current_subtask_ref.output.result}"
+                  },
+                  "promptName": "literature_review_task"
+                },
+                "research_gap_task_ref": {
+                  "promptVariables": {
+                    "sub-topic": "${get_current_subtask_ref.output.result}"
+                  },
+                  "promptName": "research_gap_task"
+                }
+              }
+            },
+            "type": "FORK_JOIN_DYNAMIC",
+            "decisionCases": {},
+            "dynamicForkTasksParam": "dynamicTasks",
+            "dynamicForkTasksInputParamName": "dynamicTasksInput",
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "join_1",
+            "taskReferenceName": "join_1_ref",
+            "inputParameters": {},
+            "type": "JOIN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "switch_1",
+            "taskReferenceName": "switch_ref_1",
+            "inputParameters": {
+              "taskDecision": "${workflow.variables.decision}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "both": [
+                {
+                  "name": "concat_both_tasks",
+                  "taskReferenceName": "concat_both_tasks_ref",
+                  "inputParameters": {
+                    "expression": "(function () {\n  return {\n    lit_reviews: [...$.lit_reviews, $.new_lit_review],\n    research_gaps: [...$.research_gaps, $.new_research_gap]\n  };\n})();",
+                    "evaluatorType": "graaljs",
+                    "lit_reviews": "${workflow.variables.lit_reviews}",
+                    "new_lit_review": "${lit_review_task_ref.output.result}",
+                    "research_gaps": "${workflow.variables.research_gaps}",
+                    "new_research_gap": "${research_gap_task_ref.output.result}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "add_both_tasks",
+                  "taskReferenceName": "add_both_tasks_ref",
+                  "inputParameters": {
+                    "lit_reviews": "${concat_both_tasks_ref.output.result.lit_reviews}",
+                    "research_gaps": "${concat_both_tasks_ref.output.result.research_gaps}"
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "research-gap": [
+                {
+                  "name": "concat_research_gap_task",
+                  "taskReferenceName": "concat_research_gap_task_ref",
+                  "inputParameters": {
+                    "expression": "(function () {\n  return {\n    research_gaps: [...$.research_gaps, $.new_research_gap]\n  };\n})();",
+                    "evaluatorType": "graaljs",
+                    "research_gaps": "${workflow.variables.research_gaps}",
+                    "new_research_gap": "${research_gap_task_ref.output.result}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "add_research_gap_task",
+                  "taskReferenceName": "add_research_gap_task_ref",
+                  "inputParameters": {
+                    "research_gaps": "${concat_research_gap_task_ref.output.result.research_gaps}"
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "literature-review": [
+                {
+                  "name": "concat_lit_review_task",
+                  "taskReferenceName": "concat_lit_review_task_ref",
+                  "inputParameters": {
+                    "expression": "(function () {\n  return {\n    lit_reviews: [...$.lit_reviews, $.new_lit_review],\n  };\n})();",
+                    "evaluatorType": "graaljs",
+                    "lit_reviews": "${workflow.variables.lit_reviews}",
+                    "new_lit_review": "${lit_review_task_ref.output.result}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "add_lit_review_task",
+                  "taskReferenceName": "add_lit_review_task_ref",
+                  "inputParameters": {
+                    "lit_reviews": "${concat_lit_review_task_ref.output.result.lit_reviews}"
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "value-param",
+            "expression": "taskDecision",
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "evaluatorType": "graaljs",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "compile_subtopics_response",
+        "taskReferenceName": "compile_subtopics_response_ref",
+        "inputParameters": {
+          "llmProvider": "AnthropicClaude",
+          "model": "claude-3-7-sonnet-20250219",
+          "promptName": "compile_subtopic_responses",
+          "promptVariables": {
+            "research_gaps": "${workflow.variables.research_gaps}",
+            "lit_reviews": "${workflow.variables.lit_reviews}",
+            "original_question": "${workflow.variables.query}"
+          },
+          "maxTokens": 16384
+        },
+        "type": "LLM_TEXT_COMPLETE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "strip_new_lines",
+        "taskReferenceName": "strip_new_lines_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  return $.answer.replace(/\\n/g, '');\n})();",
+          "evaluatorType": "graaljs",
+          "answer": "${compile_subtopics_response_ref.output.result}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "set_output",
+        "taskReferenceName": "set_output_ref",
+        "inputParameters": {
+          "answer": "${strip_new_lines_ref.output.result}"
+        },
+        "type": "SET_VARIABLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "save_pdf",
+        "taskReferenceName": "save_pdf_ref",
+        "inputParameters": {
+          "input_data": "${workflow.variables.answer}",
+          "filename": "${workflow.input.filename}"
+        },
+        "type": "SIMPLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "question",
+      "filename"
+    ],
+    "outputParameters": {
+      "answer": "${workflow.variables.answer}"
+    },
+    "failureWorkflow": "",
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "karl.goeltner@orkes.io",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true,
+    "metadata": {
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/workers/install.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md"
+    }
+  }
+]
