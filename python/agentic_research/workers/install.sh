@@ -45,7 +45,7 @@ main() {
 
         # Clone repository
         print_status "$GREEN" "Cloning repository..."
-        git clone https://github.com/Sudakatux/awesome-conductor-apps
+        git clone https://github.com/conductor-oss/awesome-conductor-apps
         cd awesome-conductor-apps/python/agentic_research/workers
 
         # Build Docker image
@@ -70,7 +70,7 @@ main() {
 
         # Clone repository
         print_status "$GREEN" "Cloning repository..."
-        git clone https://github.com/Sudakatux/awesome-conductor-apps
+        git clone https://github.com/conductor-oss/awesome-conductor-apps
         cd awesome-conductor-apps/python/agentic_research/workers
 
         # Make run.sh executable and run it with credentials
