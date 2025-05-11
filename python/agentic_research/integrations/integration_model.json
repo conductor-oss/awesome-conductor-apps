@@ -10,7 +10,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": "Please enter your OpenAI API key"
+                "api_key": ""
             },
             "enabled": true,
             "tags": [],
@@ -54,7 +54,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": "Please enter your Anthropic API key",
+                "api_key": "",
                 "endpoint": "https://api.anthropic.com/v1"
             },
             "enabled": true,
@@ -99,7 +99,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": "Please enter your Perplexity API key"
+                "api_key": ""
             },
             "enabled": true,
             "tags": [],
