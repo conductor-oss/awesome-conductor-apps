@@ -41,9 +41,9 @@
         "promptsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/prompts.json",
         "integrationAndModelsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/integration_model.json",
         "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md",
-        "category": "Processes",
+        "category": "AI",
         "tags": [
-            "Business"
+            "AI"
         ],
         "createdAt": "2023-10-11T00:09:22.978+00:00",
         "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
