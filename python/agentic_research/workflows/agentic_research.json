@@ -1,7 +1,7 @@
 [
   {
-    "createTime": 1745391595856,
-    "updateTime": 1745640991815,
+    "createTime": 1747001533941,
+    "updateTime": 1747002680523,
     "name": "agentic_research",
     "description": "Agentic Research Assistant",
     "version": 2,
@@ -700,11 +700,18 @@
     "schemaVersion": 2,
     "restartable": true,
     "workflowStatusListenerEnabled": false,
-    "ownerEmail": "karl.goeltner@orkes.io",
+    "ownerEmail": "james.stuart@orkes.io",
     "timeoutPolicy": "ALERT_ONLY",
     "timeoutSeconds": 0,
     "variables": {},
     "inputTemplate": {},
+    "inputSchema": {
+      "createTime": 0,
+      "updateTime": 0,
+      "name": "agentic-research-input",
+      "version": 1,
+      "type": "JSON"
+    },
     "enforceSchema": true,
     "metadata": {
       "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/workers/install.sh)\"",
