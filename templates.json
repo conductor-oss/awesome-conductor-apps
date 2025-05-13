@@ -1,5 +1,31 @@
 [
     {
+        "id": "basic_workflow",
+        "title": "Basic Workflow",
+        "description": "Minimal workflow example with a simple SayHello task",
+        "version": 1,
+        "featureLabelAndLinks": {
+            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
+        },
+        "githubProjectLinks": {
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/refs/heads/basic-workflow/typescript/basic"
+        },
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/basic.workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/schemas/schemas.json",
+        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/basic-workflow/typescript/basic/README.md",
+        "category": "Examples",
+        "tags": [
+            "Examples"
+        ],
+        "createdAt": "2023-10-11T00:09:22.978+00:00",
+        "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+        "updatedAt": "2025-01-31T16:46:48.476+00:00",
+        "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+    },
+    {
         "id": "claims_workflow",
         "title": "Claims workflow",
         "description": "This workflow is used to process claims.",

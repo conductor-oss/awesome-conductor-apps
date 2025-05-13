@@ -1,0 +1,27 @@
+{
+  "name": "basic_workers",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "@io-orkes/conductor-javascript": "^2.1.4",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsup": "^8.1.0"
+  },
+  "tsup": {
+    "target": "node18",
+    "sourcemap": true,
+    "format": [
+      "esm",
+      "cjs"
+    ],
+    "dts": true,
+    "clean": true
+  },
+  "scripts": {
+    "build": "tsup index.ts --out-dir dist"
+  }
+}
