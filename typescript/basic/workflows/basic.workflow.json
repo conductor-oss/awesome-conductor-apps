@@ -9,7 +9,6 @@
       {
         "name": "sayHello",
         "taskReferenceName": "sayHello_ref",
-        "description": "Says hello to the user",
         "inputParameters": {
           "firstName": "${workflow.input.firstName}",
           "lastName": "${workflow.input.lastName}"
