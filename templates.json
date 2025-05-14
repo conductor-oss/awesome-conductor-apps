@@ -8,15 +8,15 @@
             "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
         },
         "githubProjectLinks": {
-            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/refs/heads/claims-workflow/typescript/claims-workflow"
+            "TS": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow"
         },
-        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/workflows/claim_workflow.json",
-        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/tasks/tasks.json",
-        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/user_forms/forms.json",
-        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/claims-workflow/typescript/claims-workflow/schemas/schemas.json",
-        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/claims-workflow/typescript/claims-workflow/README.md",
-        "category": "Processes",
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/workflows/claim_workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/schemas/schemas.json",
+        "helpDocumentationLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/README.md",
+        "category": "Business",
         "tags": [
             "Business"
         ],
