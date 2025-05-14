@@ -1,7 +1,7 @@
 [
   {
     "createTime": 1747001533941,
-    "updateTime": 1747002680523,
+    "updateTime": 1747253946924,
     "name": "agentic_research",
     "description": "Agentic Research Assistant",
     "version": 2,
@@ -9,6 +9,7 @@
       {
         "name": "set_global_variables",
         "taskReferenceName": "set_global_variables_ref",
+        "description": "Set global variables that will be used",
         "inputParameters": {
           "answer": " ",
           "query": "${workflow.input.question}",
@@ -31,6 +32,7 @@
       {
         "name": "fork",
         "taskReferenceName": "fork_ref",
+        "description": "",
         "inputParameters": {},
         "type": "FORK_JOIN",
         "decisionCases": {},
@@ -40,6 +42,7 @@
             {
               "name": "break_into_subtopics",
               "taskReferenceName": "break_into_subtopics_ref",
+              "description": "Break a research query into distinct subtopics.",
               "inputParameters": {
                 "llmProvider": "openAI",
                 "model": "gpt-4o",
@@ -86,6 +89,7 @@
             {
               "name": "cast_subtopics_array",
               "taskReferenceName": "cast_subtopics_array_ref",
+              "description": "Cast topics to an array",
               "inputParameters": {
                 "expression": "(function () {\n  const array = JSON.parse($.subtopics);\n  return array;\n})();",
                 "evaluatorType": "graaljs",
@@ -109,6 +113,7 @@
             {
               "name": "determine_research_task",
               "taskReferenceName": "determine_research_task_ref",
+              "description": "Based on the user's query, determine subsequent tasks research-gap, literature-review, both or none.",
               "inputParameters": {
                 "llmProvider": "openAI",
                 "model": "gpt-4o",
@@ -168,6 +173,7 @@
       {
         "name": "set_llm_output",
         "taskReferenceName": "set_llm_output_ref",
+        "description": "Persist subtopics and determination to context",
         "inputParameters": {
           "subtopics": "${cast_subtopics_array_ref.output.result}",
           "decision": "${determine_research_task_ref.output.result}"
@@ -197,6 +203,7 @@
             {
               "name": "set_lit_review_task",
               "taskReferenceName": "set_lit_review_task_ref",
+              "description": "Create dynamic tasks for literature-review",
               "inputParameters": {
                 "dynamicTasks": [
                   {
@@ -233,6 +240,7 @@
             {
               "name": "set_research_gap_task",
               "taskReferenceName": "set_research_gap_task_ref",
+              "description": "Create dynamic tasks for research-gap",
               "inputParameters": {
                 "dynamicTasks": [
                   {
@@ -269,6 +277,7 @@
             {
               "name": "set_both_tasks",
               "taskReferenceName": "set_both_tasks_ref",
+              "description": "Create dynamic tasks for both research-gap and literature review",
               "inputParameters": {
                 "dynamicTasks": [
                   {
@@ -321,6 +330,7 @@
           {
             "name": "terminate",
             "taskReferenceName": "terminate_ref",
+            "description": "Terminating. not a proper research query",
             "inputParameters": {
               "terminationStatus": "COMPLETED",
               "terminationReason": "Not a proper research query"
@@ -604,6 +614,7 @@
       {
         "name": "compile_subtopics_response",
         "taskReferenceName": "compile_subtopics_response_ref",
+        "description": "Compile the report",
         "inputParameters": {
           "llmProvider": "AnthropicClaude",
           "model": "claude-3-7-sonnet-20250219",
@@ -631,6 +642,7 @@
       {
         "name": "strip_new_lines",
         "taskReferenceName": "strip_new_lines_ref",
+        "description": "Get rid of the new line chars",
         "inputParameters": {
           "expression": "(function () {\n  return $.answer.replace(/\\n/g, '');\n})();",
           "evaluatorType": "graaljs",
@@ -671,6 +683,7 @@
       {
         "name": "save_pdf",
         "taskReferenceName": "save_pdf_ref",
+        "description": "Save pdf in given directory",
         "inputParameters": {
           "input_data": "${workflow.variables.answer}",
           "filename": "${workflow.input.filename}"
