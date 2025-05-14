@@ -1,7 +1,7 @@
 [
   {
-    "createTime": 1747001533941,
-    "updateTime": 1747253946924,
+    "createTime": 1747255718592,
+    "updateTime": 1747256349746,
     "name": "agentic_research",
     "description": "Agentic Research Assistant",
     "version": 2,
@@ -9,7 +9,7 @@
       {
         "name": "set_global_variables",
         "taskReferenceName": "set_global_variables_ref",
-        "description": "Set global variables that will be used",
+        "description": "Define global variables that will be used",
         "inputParameters": {
           "answer": " ",
           "query": "${workflow.input.question}",
@@ -173,7 +173,7 @@
       {
         "name": "set_llm_output",
         "taskReferenceName": "set_llm_output_ref",
-        "description": "Persist subtopics and determination to context",
+        "description": "Persist subtopics and determination to context/variables",
         "inputParameters": {
           "subtopics": "${cast_subtopics_array_ref.output.result}",
           "decision": "${determine_research_task_ref.output.result}"
@@ -194,6 +194,7 @@
       {
         "name": "switch",
         "taskReferenceName": "switch_ref",
+        "description": "Build dynamic tasks based on determination",
         "inputParameters": {
           "taskDecision": "${workflow.variables.decision}"
         },
@@ -381,6 +382,7 @@
           {
             "name": "get_current_subtask",
             "taskReferenceName": "get_current_subtask_ref",
+            "description": "Get current subtopic from iteration",
             "inputParameters": {
               "expression": "(function () { \n  const i = $.iteration - 1;\n  return $.subtopics[i];\n})();",
               "evaluatorType": "graaljs",
@@ -403,6 +405,7 @@
           {
             "name": "fork_join_dynamic",
             "taskReferenceName": "fork_join_dynamic_ref",
+            "description": "Run previously built dynamic tasks",
             "inputParameters": {
               "dynamicTasks": "${workflow.variables.dynamicTasks}",
               "dynamicTasksInput": {
@@ -455,6 +458,7 @@
           {
             "name": "switch_1",
             "taskReferenceName": "switch_ref_1",
+            "description": "Categorize prompts response",
             "inputParameters": {
               "taskDecision": "${workflow.variables.decision}"
             },
@@ -488,6 +492,7 @@
                 {
                   "name": "add_both_tasks",
                   "taskReferenceName": "add_both_tasks_ref",
+                  "description": "Persist into context/variables",
                   "inputParameters": {
                     "lit_reviews": "${concat_both_tasks_ref.output.result.lit_reviews}",
                     "research_gaps": "${concat_both_tasks_ref.output.result.research_gaps}"
@@ -532,6 +537,7 @@
                 {
                   "name": "add_research_gap_task",
                   "taskReferenceName": "add_research_gap_task_ref",
+                  "description": "Persist into context/variables",
                   "inputParameters": {
                     "research_gaps": "${concat_research_gap_task_ref.output.result.research_gaps}"
                   },
@@ -575,6 +581,7 @@
                 {
                   "name": "add_lit_review_task",
                   "taskReferenceName": "add_lit_review_task_ref",
+                  "description": "Persist into context/variables",
                   "inputParameters": {
                     "lit_reviews": "${concat_lit_review_task_ref.output.result.lit_reviews}"
                   },
