@@ -10,7 +10,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": ""
+                "api_key": "a"
             },
             "enabled": true,
             "tags": [],
@@ -54,7 +54,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": "",
+                "api_key": "a",
                 "endpoint": "https://api.anthropic.com/v1"
             },
             "enabled": true,
@@ -99,7 +99,7 @@
             "description": "Please remember to set your api key",
             "category": "AI_MODEL",
             "configuration": {
-                "api_key": ""
+                "api_key": "a"
             },
             "enabled": true,
             "tags": [],

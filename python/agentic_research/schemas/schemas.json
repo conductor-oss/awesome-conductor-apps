@@ -4,7 +4,7 @@
         "updateTime": 1744667530479,
         "createdBy": "james.stuart@orkes.io",
         "updatedBy": "james.stuart@orkes.io",
-        "name": "insurance-claims-input",
+        "name": "agentic-research-input",
         "version": 1,
         "type": "JSON",
         "data": {
@@ -14,11 +14,15 @@
             "question": {
               "type": "string",
               "default": "What is the latest updates on cancer research in 2025?"
+            },
+            "filename":{
+              "type": "string",
+              "default": "latest-cancer-research-updates.pdf"
             }
           },
           "required": [
-            "firstName",
-            "lastName"
+            "question",
+            "filename"
           ]
         }
       }

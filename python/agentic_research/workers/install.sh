@@ -43,10 +43,25 @@ main() {
         # Get Orkes credentials
         get_orkes_credentials
 
-        # Clone repository
-        print_status "$GREEN" "Cloning repository..."
-        git clone https://github.com/conductor-oss/awesome-conductor-apps
-        cd awesome-conductor-apps/python/agentic_research/workers
+        # Clone or update repository
+        if [ -d "awesome-conductor-apps" ]; then
+            print_status "$YELLOW" "Repository already exists. Checking for local changes..."
+            cd awesome-conductor-apps
+            if [ -n "$(git status --porcelain)" ]; then
+                print_status "$RED" "You have uncommitted changes in awesome-conductor-apps. Please stash or commit them before proceeding."
+                exit 1
+            else
+                print_status "$GREEN" "No local changes detected. Ensuring correct remote and branch, then pulling latest changes from main..."
+                git remote set-url origin https://github.com/conductor-oss/awesome-conductor-apps
+                git checkout main
+                git pull origin main
+            fi
+            cd python/agentic_research/workers
+        else
+            print_status "$GREEN" "Cloning repository..."
+            git clone https://github.com/conductor-oss/awesome-conductor-apps
+            cd awesome-conductor-apps/python/agentic_research/workers
+        fi
 
         # Build Docker image
         print_status "$GREEN" "Building Docker image..."
@@ -68,10 +83,25 @@ main() {
         # Get Orkes credentials
         get_orkes_credentials
 
-        # Clone repository
-        print_status "$GREEN" "Cloning repository..."
-        git clone https://github.com/conductor-oss/awesome-conductor-apps
-        cd awesome-conductor-apps/python/agentic_research/workers
+        # Clone or update repository
+        if [ -d "awesome-conductor-apps" ]; then
+            print_status "$YELLOW" "Repository already exists. Checking for local changes..."
+            cd awesome-conductor-apps
+            if [ -n "$(git status --porcelain)" ]; then
+                print_status "$RED" "You have uncommitted changes in awesome-conductor-apps. Please stash or commit them before proceeding."
+                exit 1
+            else
+                print_status "$GREEN" "No local changes detected. Ensuring correct remote and branch, then pulling latest changes from main..."
+                git remote set-url origin https://github.com/conductor-oss/awesome-conductor-apps
+                git checkout main
+                git pull origin main
+            fi
+            cd python/agentic_research/workers
+        else
+            print_status "$GREEN" "Cloning repository..."
+            git clone https://github.com/conductor-oss/awesome-conductor-apps
+            cd awesome-conductor-apps/python/agentic_research/workers
+        fi
 
         # Make run.sh executable and run it with credentials
         print_status "$GREEN" "Starting Agentic PDF Worker..."
