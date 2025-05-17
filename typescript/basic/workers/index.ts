@@ -4,6 +4,10 @@ import {
   ConductorClient,
   TaskManager,
 } from "@io-orkes/conductor-javascript";
+import { config } from "dotenv";
+import { resolve } from "path";
+
+config({ path: resolve(__dirname, ".env.local") });
 
 import { sayHello } from "./workers/workers";
 
