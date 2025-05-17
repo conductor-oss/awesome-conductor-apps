@@ -7,7 +7,9 @@ import {
 import { config } from "dotenv";
 import { resolve } from "path";
 
-config({ path: resolve(__dirname, ".env.local") });
+const envPath = resolve(__dirname, "..", ".env.local");
+console.log("Looking for .env.local at:", envPath);
+config({ path: envPath });
 
 import { sayHello } from "./workers/workers";
 
