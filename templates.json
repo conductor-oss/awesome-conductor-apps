@@ -1,6 +1,6 @@
 [
     {
-        "id": "basic_workflow",
+        "id": "basic",
         "title": "Basic Workflow",
         "description": "Minimal workflow example with a simple SayHello task",
         "version": 1,
