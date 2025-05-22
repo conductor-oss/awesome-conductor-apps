@@ -8,7 +8,8 @@
             "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
         },
         "githubProjectLinks": {
-            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/typescript/basic"
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/typescript/basic",
+            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/python/basic"
         },
         "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/execution.gif",
         "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/basic.workflow.json",
