@@ -1,0 +1,167 @@
+{
+  "createTime": 1748368533339,
+  "updateTime": 1748456137441,
+  "name": "HTTP_EndPoint_Monitoring",
+  "description": "This workflow is designed to monitor the health of a specified HTTP endpoint",
+  "version": 1,
+  "tasks": [
+    {
+      "name": "check_endpoint",
+      "taskReferenceName": "check_endpoint_ref",
+      "inputParameters": {
+        "uri": "${workflow.input.URL}",
+        "method": "GET",
+        "accept": "application/json",
+        "contentType": "application/json",
+        "encode": true
+      },
+      "type": "HTTP",
+      "decisionCases": {},
+      "defaultCase": [],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": true,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "onStateChange": {},
+      "permissive": false
+    },
+    {
+      "name": "check_status",
+      "taskReferenceName": "check_status_ref",
+      "inputParameters": {
+        "status_code_input": "${check_endpoint_ref.output.response.statusCode}"
+      },
+      "type": "SWITCH",
+      "decisionCases": {
+        "200": [
+          {
+            "name": "set_success_flag",
+            "taskReferenceName": "set_success_flag_ref",
+            "inputParameters": {
+              "status_code": true
+            },
+            "type": "SET_VARIABLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ]
+      },
+      "defaultCase": [
+        {
+          "name": "send_failure_alert",
+          "taskReferenceName": "send_failure_alert_ref",
+          "inputParameters": {
+            "uri": "https://api.sendgrid.com/v3/mail/send",
+            "method": "POST",
+            "accept": "application/json",
+            "contentType": "application/json",
+            "encode": true,
+            "headers": {
+              "Authorization": "Bearer PLACEHOLDER_API_KEY"
+            },
+            "body": {
+              "personalizations": [
+                {
+                  "to": [
+                    {
+                      "email": "${workflow.input.customer_email}"
+                    }
+                  ]
+                }
+              ],
+              "from": {
+                "email": "${workflow.input.sender_email}"
+              },
+              "subject": "HTTP end point failure",
+              "content": [
+                {
+                  "type": "text/plain",
+                  "value": "invalid URL"
+                }
+              ]
+            }
+          },
+          "type": "HTTP",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        },
+        {
+          "name": "terminate",
+          "taskReferenceName": "terminate_ref",
+          "inputParameters": {
+            "terminationStatus": "TERMINATED",
+            "terminationReason": "did not recieve 200 status code"
+          },
+          "type": "TERMINATE",
+          "decisionCases": {},
+          "defaultCase": [],
+          "forkTasks": [],
+          "startDelay": 0,
+          "joinOn": [],
+          "optional": false,
+          "defaultExclusiveJoinTask": [],
+          "asyncComplete": false,
+          "loopOver": [],
+          "onStateChange": {},
+          "permissive": false
+        }
+      ],
+      "forkTasks": [],
+      "startDelay": 0,
+      "joinOn": [],
+      "optional": false,
+      "defaultExclusiveJoinTask": [],
+      "asyncComplete": false,
+      "loopOver": [],
+      "evaluatorType": "value-param",
+      "expression": "status_code_input",
+      "onStateChange": {},
+      "permissive": false
+    }
+  ],
+  "inputParameters": [
+    "URL",
+    "customer_email",
+    "sender_email"
+  ],
+  "outputParameters": {},
+  "failureWorkflow": "",
+  "schemaVersion": 2,
+  "restartable": true,
+  "workflowStatusListenerEnabled": false,
+  "ownerEmail": "james.jacob@orkes.io",
+  "timeoutPolicy": "ALERT_ONLY",
+  "timeoutSeconds": 0,
+  "variables": {},
+  "inputTemplate": {},
+  "inputSchema": {
+    "createTime": 0,
+    "updateTime": 0,
+    "name": "http-endpoint-validation-input",
+    "version": 1,
+    "type": "JSON"
+  },
+  "enforceSchema": true,
+  "metadata": {}
+}
