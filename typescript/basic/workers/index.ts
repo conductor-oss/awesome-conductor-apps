@@ -8,7 +8,7 @@ import { config } from "dotenv";
 import { resolve } from "path";
 
 const envPath = resolve(__dirname, "..", ".env.local");
-console.log("Looking for .env.local at:", envPath);
+
 config({ path: envPath });
 
 import { sayHello } from "./workers/workers";
@@ -26,8 +26,6 @@ const apiConfig: Partial<OrkesApiConfig> = {
   keySecret: process.env.ORKES_API_KEY_SECRET || "",
   serverUrl: process.env.ORKES_API_URL || "",
 };
-
-console.log(JSON.stringify(apiConfig, null, 2));
 
 async function initateConductorWorkers() {
   const client = await orkesConductorClient(apiConfig);
