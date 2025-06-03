@@ -29,7 +29,7 @@ To use this workflow, you'll need your own **SendGrid API key**. The workflow in
 
 Open the relevant JSON workflow file and locate the following line:
 
-```json
+
 
 "Authorization": "Bearer &lt;PLACEHOLDER_API_KEY>"
 
