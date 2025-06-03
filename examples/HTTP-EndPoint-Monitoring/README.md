@@ -33,15 +33,30 @@ Open the relevant JSON workflow file and locate the following line:
 
 "Authorization": "Bearer &lt;PLACEHOLDER_API_KEY>"
 
-<p><strong>Note:</strong> Replace with your generated API Key wherever applicable in the workflow.</p>
+**Note:** Replace with your generated API Key wherever applicable in the workflow.
 
-## Workflow Steps
 
-| Step | Task Name           | Task Type    | Description                                                                 | Purpose                                                                 |
-|------|---------------------|--------------|-----------------------------------------------------------------------------|-------------------------------------------------------------------------|
-| 1    | check_endpoint      | HTTP         | Sends a GET request to the specified URL (passed as input)                 | Verifies that the target endpoint is reachable and returns a valid HTTP response |
-| 2    | check_status        | SWITCH       | Evaluates the response status from Step 1                                  | Routes the flow based on success or failure of the endpoint check      |
-| 3a   | send_failure_alert  | HTTP         | Sends an alert email via SendGrid if the endpoint is invalid               | Automatically notifies users of failure for troubleshooting             |
-| 3b   | set_success_flag    | SET_VARIABLE | Sets a boolean variable, `status_code`, to true                            | Indicates that the endpoint is healthy for use in downstream tasks     |
-| 4    | terminate_workflow  | TERMINATE    | Stops the workflow after failure                                           | Halts further steps if the check fails                                 |
+## **Workflow Steps**
 
+
+
+* **Step 1: <code>check_endpoint</code></strong>
+    * <strong>Type:</strong> HTTP
+    * <strong>Description:</strong> Sends a GET request to the specified URL (passed as input)
+    * <strong>Purpose:</strong> Verifies that the target endpoint is reachable and returns a valid HTTP response
+* <strong>Step 2: <code>check_status</code></strong>
+    * <strong>Type:</strong> SWITCH
+    * <strong>Description:</strong> Evaluates the response status from Step 1
+    * <strong>Purpose:</strong> Routes the flow based on success or failure of the endpoint check
+* <strong>Step 3a: <code>send_failure_alert</code></strong>
+    * <strong>Type:</strong> HTTP
+    * <strong>Description:</strong> Sends an alert email via SendGrid if the endpoint is invalid
+    * <strong>Purpose:</strong> Automatically notifies users of failure for troubleshooting
+* <strong>Step 3b: <code>set_success_flag</code></strong>
+    * <strong>Type:</strong> SET_VARIABLE
+    * <strong>Description:</strong> Sets a boolean variable, <code>status_code</code>, to `true`
+    * **Purpose:** Indicates that the endpoint is healthy for use in downstream tasks
+* **Step 4: <code>terminate_workflow</code></strong>
+    * <strong>Type:</strong> TERMINATE
+    * <strong>Description:</strong> Stops the workflow after failure
+    * <strong>Purpose:</strong> Halts further steps if the check fails
