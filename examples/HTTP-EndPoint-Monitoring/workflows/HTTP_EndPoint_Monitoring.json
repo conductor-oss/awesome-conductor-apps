@@ -1,6 +1,6 @@
 {
   "createTime": 1748368533339,
-  "updateTime": 1748456137441,
+  "updateTime": 1749071838788,
   "name": "HTTP_EndPoint_Monitoring",
   "description": "This workflow is designed to monitor the health of a specified HTTP endpoint",
   "version": 1,
@@ -60,40 +60,17 @@
       },
       "defaultCase": [
         {
-          "name": "send_failure_alert",
-          "taskReferenceName": "send_failure_alert_ref",
+          "name": "sending_failure_alert",
+          "taskReferenceName": "sending_failure_alert_ref",
           "inputParameters": {
-            "uri": "https://api.sendgrid.com/v3/mail/send",
-            "method": "POST",
-            "accept": "application/json",
-            "contentType": "application/json",
-            "encode": true,
-            "headers": {
-              "Authorization": "Bearer PLACEHOLDER_API_KEY"
-            },
-            "body": {
-              "personalizations": [
-                {
-                  "to": [
-                    {
-                      "email": "${workflow.input.customer_email}"
-                    }
-                  ]
-                }
-              ],
-              "from": {
-                "email": "${workflow.input.sender_email}"
-              },
-              "subject": "HTTP end point failure",
-              "content": [
-                {
-                  "type": "text/plain",
-                  "value": "invalid URL"
-                }
-              ]
-            }
+            "from": "${workflow.input.sender_email}",
+            "to": "${workflow.input.customer_email}",
+            "subject": "HTTP end point failure",
+            "contentType": "text/plain",
+            "content": "This is an automated email to inform you that your HTTP end poit has failed a health check",
+            "sendgridConfiguration": "Bearer PLACEHOLDER_API_KEY"
           },
-          "type": "HTTP",
+          "type": "SENDGRID",
           "decisionCases": {},
           "defaultCase": [],
           "forkTasks": [],
