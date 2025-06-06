@@ -1,4 +1,4 @@
-'use client'; // required for client-side navigation
+'use client';
 
 import { useRouter } from 'next/navigation';
 
@@ -6,25 +6,41 @@ export default function HomePage() {
   const router = useRouter();
 
   const handleClick = () => {
-    router.push('/ask'); // navigate to /ask page
+    router.push('/ask');
   };
 
   return (
-    <main style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Helloooooooo from the App Router</h1>
-      <p>Hello, welcome to our visual rendition of our agent research workflow.</p>
+    <main style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      padding: '2rem',
+      fontFamily: 'sans-serif',
+      backgroundColor: '#f9f9f9'
+    }}>
+      <h1 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '1rem', color: '#333' }}>
+        Welcome to the Agent Research Workflow Visualizer
+      </h1>
+      <p style={{ fontSize: '1.125rem', color: '#555', textAlign: 'center', maxWidth: '600px' }}>
+        Hello, and welcome to our visual rendition of the agent research workflow. Explore how agents operate step-by-step through this interface.
+      </p>
       <button
         onClick={handleClick}
         style={{
-          marginTop: '1rem',
-          padding: '0.5rem 1rem',
+          marginTop: '2rem',
+          padding: '0.75rem 1.5rem',
           fontSize: '1rem',
           backgroundColor: '#0070f3',
           color: 'white',
           border: 'none',
-          borderRadius: '4px',
+          borderRadius: '6px',
           cursor: 'pointer',
+          transition: 'background-color 0.2s ease'
         }}
+        onMouseOver={e => e.currentTarget.style.backgroundColor = '#0059c1'}
+        onMouseOut={e => e.currentTarget.style.backgroundColor = '#0070f3'}
       >
         Ask me a question
       </button>
