@@ -31,7 +31,7 @@ Open the relevant JSON workflow file and locate the following line:
 
 
 
-"Authorization": "Bearer &lt;PLACEHOLDER_API_KEY>"
+"sendgridConfiguration": "Bearer &lt;PLACEHOLDER_API_KEY>"
 
 
 ## Workflow Steps
@@ -52,9 +52,9 @@ Open the relevant JSON workflow file and locate the following line:
 
 
 
-### Step 3a: `send_failure_alert`
+### Step 3a: `sending_failure_alert`
 
-* **Type:** HTTP
+* **Type:** SENDGRID
 * **Description:** Sends an alert email via SendGrid if the endpoint is invalid
 * **Purpose:** Automatically notifies users of failure for troubleshooting
 
