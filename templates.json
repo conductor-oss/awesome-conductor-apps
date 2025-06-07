@@ -1663,7 +1663,7 @@
       {
         "integration": {
           "name": "openAI",
-          "type": "OPENAI",
+          "type": "openai",
           "description": "Please remember to set your api key",
           "category": "AI_MODEL",
           "configuration": {
@@ -1694,7 +1694,7 @@
       {
         "integration": {
           "name": "AnthropicClaude",
-          "type": "ANTHROPIC",
+          "type": "anthropic",
           "description": "Please remember to set your api key",
           "category": "AI_MODEL",
           "configuration": {
@@ -1727,7 +1727,7 @@
       {
         "integration": {
           "name": "perplexity",
-          "type": "PERPLEXITY",
+          "type": "perplexity",
           "description": "Please remember to set your api key",
           "category": "AI_MODEL",
           "configuration": {
@@ -1964,7 +1964,7 @@
     "integrationsWithModels": [{
       "integration": {
         "name": "${{macro:SENDGRID_INTEGRATION_NAME}}",
-        "type": "SENDGRID",
+        "type": "sendgrid",
         "description": "SendGrid integration",
         "category": "EMAIL",
         "configuration": {
