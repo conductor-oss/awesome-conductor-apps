@@ -1,9 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoadPage() {
   const [stepIndex, setStepIndex] = useState(0);
+  const router = useRouter();
 
   const steps = [
     'Validating input...',
@@ -14,6 +16,7 @@ export default function LoadPage() {
   ];
 
   useEffect(() => {
+    // Advance step every 1.5 seconds
     const interval = setInterval(() => {
       setStepIndex((prev) => {
         if (prev < steps.length - 1) {
@@ -23,10 +26,19 @@ export default function LoadPage() {
           return prev;
         }
       });
-    }, 1500); // every 1.5 seconds
+    }, 1500);
 
-    return () => clearInterval(interval);
-  }, []);
+    // Redirect to /response after 20 seconds
+    const timeout = setTimeout(() => {
+      router.push('/response');
+    }, 20000);
+
+    // Cleanup both
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [router]);
 
   return (
     <main style={{
