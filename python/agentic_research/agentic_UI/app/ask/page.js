@@ -16,7 +16,7 @@ export default function AskPage() {
     console.log('PDF Filename:', normalizedFilename);
 
     // Later you'll pass these to Orkes
-    router.push('/load');
+    router.push('/load/loadpage');
   };
 
   return (
