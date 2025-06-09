@@ -44,8 +44,8 @@ export default function ResponsePage() {
             whiteSpace: 'pre-line'
           }}>
             {/* Placeholder text – replace with your actual generated content */}
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. 
-            Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
+            this is a placeholder for the generated response. Once the workflow has been
+            correctly routed to the website this will no longer sho up.
           </p>
         </section>
 
