@@ -5,3 +5,4 @@ python/agentic_trader/agentic_trader/worker/__pycache__/workers.cpython-310.pyc
 python/agentic_rag/agentic_trader/worker/__pycache__/workers.cpython-310.pyc
 /python/agentic_trader_app/worker/__pycache__
 *.pyc
+.vercel

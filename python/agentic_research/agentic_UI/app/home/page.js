@@ -15,7 +15,7 @@ export default function HomePage() {
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100vh',
-      background: 'linear-gradient(to right, #e0eafc, #cfdef3)',
+      background: 'linear-gradient(to left, #e0eafc, #cfdef3)',
       fontFamily: 'system-ui, sans-serif',
     }}>
       <div style={{

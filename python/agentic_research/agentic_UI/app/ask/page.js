@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { runAgenticResearch } from '../../lib/orkesClient'; // Adjust path if needed
 
 export default function AskPage() {
   const router = useRouter();
@@ -9,14 +10,28 @@ export default function AskPage() {
   const [question, setQuestion] = useState('');
   const [filename, setFilename] = useState('');
 
-  const handleClick = () => {
-    // Add .pdf if not already included
-    const normalizedFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
-    console.log('Research Question:', question);
-    console.log('PDF Filename:', normalizedFilename);
+  const handleClick = async () => {
+    try {
+      const normalizedFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
-    // Later you'll pass these to Orkes
-    router.push('/load/');
+      console.log('Research Question:', question);
+      console.log('PDF Filename:', normalizedFilename);
+
+      // Start your workflow by calling the function directly
+      const workflowId = await runAgenticResearch(
+          question,
+          normalizedFilename,
+       );
+
+      console.log('Workflow started with ID:', workflowId);
+
+      // Pass workflowId as a query param so you can fetch results later
+      router.push(`/load?workflowId=${workflowId}`);
+
+    } catch (error) {
+      console.error('Error starting workflow:', error);
+      alert('Failed to start the workflow. Please try again.');
+    }
   };
 
   return (

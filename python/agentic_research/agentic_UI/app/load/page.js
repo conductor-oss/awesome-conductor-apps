@@ -1,11 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { getWorkflowStatus } from '../../lib/orkesClient'; // Adjust path if needed
 
 export default function LoadPage() {
   const [stepIndex, setStepIndex] = useState(0);
+  const [workflowId, setWorkflowId] = useState(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const steps = [
     'Validating input...',
@@ -16,29 +19,97 @@ export default function LoadPage() {
   ];
 
   useEffect(() => {
-    // Advance step every 1.5 seconds
-    const interval = setInterval(() => {
-      setStepIndex((prev) => {
-        if (prev < steps.length - 1) {
-          return prev + 1;
-        } else {
-          clearInterval(interval);
-          return prev;
+    const id = searchParams.get('workflowId');
+
+    console.log('workflowId:', id);
+
+    if (!id) {
+      alert('Missing workflow ID.');
+      router.push('/ask');
+      return;
+    }
+
+    setWorkflowId(id);
+
+    let pollInterval;
+    let timeoutHandle;
+
+    // const pollWorkflowStatus = async () => {
+    //   try {
+    //     const status = await getWorkflowStatus(id);
+    //     console.log('Polling status:', status);
+
+    //     if (status === 'COMPLETED') {
+    //       clearInterval(pollInterval);
+    //       clearTimeout(timeoutHandle);
+    //       router.push(`/response?workflowId=${id}`);
+    //     } else if (status === 'FAILED' || status === 'TERMINATED') {
+    //       clearInterval(pollInterval);
+    //       clearTimeout(timeoutHandle);
+    //       alert('Workflow failed. Please try again.');
+    //       router.push('/ask');
+    //     }
+    //   } catch (error) {
+    //     console.error('Error polling workflow status:', error);
+    //     clearInterval(pollInterval);
+    //     clearTimeout(timeoutHandle);
+    //     alert('Error occurred while checking workflow status.');
+    //     router.push('/ask');
+    //   }
+    // };
+
+    const pollWorkflowStatus = async () => {
+      try {
+        const res = await fetch(`/api/status?workflowId=${id}`);
+        const data = await res.json();
+    
+        console.log('Polling status:', data.status);
+    
+        if (data.status === 'COMPLETED') {
+          clearInterval(pollInterval);
+          clearTimeout(timeoutHandle);
+          router.push(`/response?workflowId=${id}`);
+        } else if (data.status === 'FAILED' || data.status === 'TERMINATED') {
+          clearInterval(pollInterval);
+          clearTimeout(timeoutHandle);
+          alert('Workflow failed. Please try again.');
+          router.push('/ask');
         }
-      });
+      } catch (error) {
+        console.error('Error polling workflow status:', error);
+        clearInterval(pollInterval);
+        clearTimeout(timeoutHandle);
+        alert('Error occurred while checking workflow status.');
+        router.push('/ask');
+      }
+    };
+    
+    
+
+    // Start polling every 5 seconds
+    pollInterval = setInterval(pollWorkflowStatus, 5000);
+    // Also poll immediately on mount
+    pollWorkflowStatus();
+
+    // Timeout fallback after 3 minutes
+    timeoutHandle = setTimeout(() => {
+      console.warn('Workflow timed out, navigating to response anyway...');
+      clearInterval(pollInterval);
+      router.push(`/response?workflowId=${id}`);
+    }, 3 * 60 * 1000); // 180000 ms
+
+    // Simulated step animation (unrelated to polling)
+    const animation = setInterval(() => {
+      setStepIndex((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
     }, 1500);
 
-    // Redirect to /response after 20 seconds
-    const timeout = setTimeout(() => {
-      router.push('/response');
-    }, 20000);
-
-    // Cleanup both
+    // Cleanup timers on unmount
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+      clearInterval(animation);
+      clearInterval(pollInterval);
+      clearTimeout(timeoutHandle);
     };
-  }, [router]);
+  }, [router, searchParams]);
 
   return (
     <main style={{
@@ -76,7 +147,6 @@ export default function LoadPage() {
           margin: '0 auto 1.5rem auto'
         }} />
 
-        {/* Optional progress bar */}
         <div style={{
           height: '10px',
           width: '100%',
