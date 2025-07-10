@@ -1,42 +1,49 @@
-'use client'; // Enables client-side interactivity in Next.js (needed for useEffect, useState)
+'use client'; // Enables client-side interactivity in Next.js
 
-import { useEffect, useState } from 'react'; // React hooks for side effects and local state
-import { useSearchParams } from 'next/navigation'; // For accessing query params like ?workflowId=...
-import { getTaskResultByRefName } from '../../lib/orkesClient'; // Custom helper to fetch task output from Orkes
+import { useEffect, useState, useRef } from 'react'; // React hooks
+import { useSearchParams } from 'next/navigation'; // For accessing query params
+import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes task fetcher
+import html2pdf from 'html2pdf.js'; // Library to generate PDFs from HTML
 
 export default function ResponsePage() {
-  // Local state to hold the output of the task (defaults to 'Loading...')
-  const [output, setOutput] = useState('Loading...');
+  const [output, setOutput] = useState('Loading...'); // Output HTML state
+  const searchParams = useSearchParams(); // Get URL params
+  const contentRef = useRef(null); // Reference to the HTML section to convert to PDF
 
-  // Access the query parameters in the URL
-  const searchParams = useSearchParams();
-
-  // Runs after the component mounts
   useEffect(() => {
-    // Extract workflowId from the URL query string
-    const workflowId = searchParams.get('workflowId');
+    const workflowId = searchParams.get('workflowId'); // Read workflowId from URL
 
-    // Handle missing workflow ID
     if (!workflowId) {
       setOutput('Missing workflow ID.');
       return;
     }
 
-    // Call backend to fetch result of task named 'compile_subtopics_response_ref'
+    // Fetch output from Orkes
     getTaskResultByRefName(workflowId, 'compile_subtopics_response_ref')
       .then((result) => {
-        // If result is valid, set it; otherwise, show fallback
         setOutput(result || 'No result found.');
       })
       .catch((error) => {
-        // Log and display error message
         console.error('Error fetching task result:', error);
         setOutput('Failed to retrieve response.');
       });
+  }, [searchParams]);
 
-  }, [searchParams]); // Re-run this effect if the URL query changes
+  // Handles PDF download
+  const handleDownloadPDF = () => {
+    if (!contentRef.current) return;
 
-  // Render the UI
+    const opt = {
+      margin: 0.5,
+      filename: 'response.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(contentRef.current).set(opt).save();
+  };
+
   return (
     <main style={{
       display: 'flex',
@@ -65,7 +72,7 @@ export default function ResponsePage() {
           Your Results
         </h1>
 
-        {/* Section to display the fetched task output */}
+        {/* Generated Response Section */}
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.5rem',
@@ -74,8 +81,8 @@ export default function ResponsePage() {
           }}>
             Generated Response
           </h2>
-          {/* Render the HTML output properly using dangerouslySetInnerHTML */}
           <div
+            ref={contentRef} // Referenced for PDF
             style={{
               fontSize: '1.1rem',
               color: '#4a5568',
@@ -85,7 +92,7 @@ export default function ResponsePage() {
           />
         </section>
 
-        {/* Section for downloadable PDF (not functional yet) */}
+        {/* PDF Download Section */}
         <section>
           <h2 style={{
             fontSize: '1.5rem',
@@ -96,7 +103,10 @@ export default function ResponsePage() {
           </h2>
           <a
             href="#"
-            onClick={(e) => e.preventDefault()} // Prevent navigation for now
+            onClick={(e) => {
+              e.preventDefault();
+              handleDownloadPDF();
+            }}
             style={{
               color: '#3182ce',
               textDecoration: 'underline',
