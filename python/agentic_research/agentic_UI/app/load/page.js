@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { getWorkflowStatus } from '../../lib/orkesClient'; // Adjust path if needed
+import { getWorkflowStatus } from '../../lib/orkesClient';
 
 export default function LoadPage() {
   const [stepIndex, setStepIndex] = useState(0);
@@ -15,13 +15,11 @@ export default function LoadPage() {
     'Retrieving PDF content...',
     'Running agentic analysis...',
     'Summarizing key findings...',
-    'Finalizing response...'
+    'Finalizing response...',
   ];
 
   useEffect(() => {
     const id = searchParams.get('workflowId');
-
-    console.log('workflowId:', id);
 
     if (!id) {
       alert('Missing workflow ID.');
@@ -34,42 +32,17 @@ export default function LoadPage() {
     let pollInterval;
     let timeoutHandle;
 
-    // const pollWorkflowStatus = async () => {
-    //   try {
-    //     const status = await getWorkflowStatus(id);
-    //     console.log('Polling status:', status);
-
-    //     if (status === 'COMPLETED') {
-    //       clearInterval(pollInterval);
-    //       clearTimeout(timeoutHandle);
-    //       router.push(`/response?workflowId=${id}`);
-    //     } else if (status === 'FAILED' || status === 'TERMINATED') {
-    //       clearInterval(pollInterval);
-    //       clearTimeout(timeoutHandle);
-    //       alert('Workflow failed. Please try again.');
-    //       router.push('/ask');
-    //     }
-    //   } catch (error) {
-    //     console.error('Error polling workflow status:', error);
-    //     clearInterval(pollInterval);
-    //     clearTimeout(timeoutHandle);
-    //     alert('Error occurred while checking workflow status.');
-    //     router.push('/ask');
-    //   }
-    // };
-
+    // Poll Orkes for workflow status
     const pollWorkflowStatus = async () => {
       try {
-        const res = await fetch(`/api/status?workflowId=${id}`);
-        const data = await res.json();
-    
-        console.log('Polling status:', data.status);
-    
-        if (data.status === 'COMPLETED') {
+        const status = await getWorkflowStatus(id);
+        console.log('Polling status:', status);
+
+        if (status === 'COMPLETED') {
           clearInterval(pollInterval);
           clearTimeout(timeoutHandle);
           router.push(`/response?workflowId=${id}`);
-        } else if (data.status === 'FAILED' || data.status === 'TERMINATED') {
+        } else if (status === 'FAILED' || status === 'TERMINATED') {
           clearInterval(pollInterval);
           clearTimeout(timeoutHandle);
           alert('Workflow failed. Please try again.');
@@ -83,22 +56,19 @@ export default function LoadPage() {
         router.push('/ask');
       }
     };
-    
-    
 
     // Start polling every 5 seconds
     pollInterval = setInterval(pollWorkflowStatus, 5000);
-    // Also poll immediately on mount
-    pollWorkflowStatus();
+    pollWorkflowStatus(); // initial poll
 
-    // Timeout fallback after 3 minutes
+    // Fallback: force navigation after 3 minutes if stuck
     timeoutHandle = setTimeout(() => {
       console.warn('Workflow timed out, navigating to response anyway...');
       clearInterval(pollInterval);
       router.push(`/response?workflowId=${id}`);
-    }, 3 * 60 * 1000); // 180000 ms
+    }, 180000);
 
-    // Simulated step animation (unrelated to polling)
+    // Simulate visual progress through UI steps
     const animation = setInterval(() => {
       setStepIndex((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
     }, 1500);
@@ -137,6 +107,7 @@ export default function LoadPage() {
           {steps[stepIndex]}
         </p>
 
+        {/* Spinner */}
         <div style={{
           border: '6px solid #e2e8f0',
           borderTop: '6px solid #3182ce',
@@ -147,6 +118,7 @@ export default function LoadPage() {
           margin: '0 auto 1.5rem auto'
         }} />
 
+        {/* Progress bar */}
         <div style={{
           height: '10px',
           width: '100%',
@@ -162,6 +134,7 @@ export default function LoadPage() {
           }} />
         </div>
 
+        {/* Spinner animation keyframes */}
         <style jsx>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }

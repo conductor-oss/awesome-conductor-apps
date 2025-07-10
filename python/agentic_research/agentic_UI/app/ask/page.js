@@ -2,32 +2,31 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { runAgenticResearch } from '../../lib/orkesClient'; // Adjust path if needed
+import { runAgenticResearch } from '../../lib/orkesClient'; 
 
 export default function AskPage() {
   const router = useRouter();
 
+  // Form state: research question and filename
   const [question, setQuestion] = useState('');
   const [filename, setFilename] = useState('');
 
+  // Handle form submission
   const handleClick = async () => {
     try {
+      // Ensure the filename ends with `.pdf`
       const normalizedFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
 
       console.log('Research Question:', question);
       console.log('PDF Filename:', normalizedFilename);
 
-      // Start your workflow by calling the function directly
-      const workflowId = await runAgenticResearch(
-          question,
-          normalizedFilename,
-       );
+      // Start the agentic_research workflow
+      const workflowId = await runAgenticResearch(question, normalizedFilename);
 
       console.log('Workflow started with ID:', workflowId);
 
-      // Pass workflowId as a query param so you can fetch results later
+      // Navigate to the load page with workflow ID as query param
       router.push(`/load?workflowId=${workflowId}`);
-
     } catch (error) {
       console.error('Error starting workflow:', error);
       alert('Failed to start the workflow. Please try again.');
@@ -57,6 +56,7 @@ export default function AskPage() {
           Ask a Research Question
         </h1>
 
+        {/* Research question input */}
         <div style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
           <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem' }}>
             Please type in a research question:
@@ -76,6 +76,7 @@ export default function AskPage() {
           />
         </div>
 
+        {/* PDF filename input */}
         <div style={{ marginBottom: '2rem', textAlign: 'left' }}>
           <label style={{ fontWeight: '500', display: 'block', marginBottom: '0.5rem' }}>
             PDF file name:
@@ -95,6 +96,7 @@ export default function AskPage() {
           />
         </div>
 
+        {/* Submit button */}
         <button
           onClick={handleClick}
           style={{

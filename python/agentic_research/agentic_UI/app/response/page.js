@@ -1,6 +1,42 @@
-'use client';
+'use client'; // Enables client-side interactivity in Next.js (needed for useEffect, useState)
+
+import { useEffect, useState } from 'react'; // React hooks for side effects and local state
+import { useSearchParams } from 'next/navigation'; // For accessing query params like ?workflowId=...
+import { getTaskResultByRefName } from '../../lib/orkesClient'; // Custom helper to fetch task output from Orkes
 
 export default function ResponsePage() {
+  // Local state to hold the output of the task (defaults to 'Loading...')
+  const [output, setOutput] = useState('Loading...');
+
+  // Access the query parameters in the URL
+  const searchParams = useSearchParams();
+
+  // Runs after the component mounts
+  useEffect(() => {
+    // Extract workflowId from the URL query string
+    const workflowId = searchParams.get('workflowId');
+
+    // Handle missing workflow ID
+    if (!workflowId) {
+      setOutput('Missing workflow ID.');
+      return;
+    }
+
+    // Call backend to fetch result of task named 'compile_subtopics_response_ref'
+    getTaskResultByRefName(workflowId, 'compile_subtopics_response_ref')
+      .then((result) => {
+        // If result is valid, set it; otherwise, show fallback
+        setOutput(result || 'No result found.');
+      })
+      .catch((error) => {
+        // Log and display error message
+        console.error('Error fetching task result:', error);
+        setOutput('Failed to retrieve response.');
+      });
+
+  }, [searchParams]); // Re-run this effect if the URL query changes
+
+  // Render the UI
   return (
     <main style={{
       display: 'flex',
@@ -29,6 +65,7 @@ export default function ResponsePage() {
           Your Results
         </h1>
 
+        {/* Section to display the fetched task output */}
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.5rem',
@@ -37,18 +74,18 @@ export default function ResponsePage() {
           }}>
             Generated Response
           </h2>
-          <p style={{
-            fontSize: '1.1rem',
-            color: '#4a5568',
-            lineHeight: '1.6',
-            whiteSpace: 'pre-line'
-          }}>
-            {/* Placeholder text – replace with your actual generated content */}
-            this is a placeholder for the generated response. Once the workflow has been
-            correctly routed to the website this will no longer sho up.
-          </p>
+          {/* Render the HTML output properly using dangerouslySetInnerHTML */}
+          <div
+            style={{
+              fontSize: '1.1rem',
+              color: '#4a5568',
+              lineHeight: '1.6'
+            }}
+            dangerouslySetInnerHTML={{ __html: output }}
+          />
         </section>
 
+        {/* Section for downloadable PDF (not functional yet) */}
         <section>
           <h2 style={{
             fontSize: '1.5rem',
@@ -59,7 +96,7 @@ export default function ResponsePage() {
           </h2>
           <a
             href="#"
-            onClick={(e) => e.preventDefault()} // Remove this when real link is added
+            onClick={(e) => e.preventDefault()} // Prevent navigation for now
             style={{
               color: '#3182ce',
               textDecoration: 'underline',
