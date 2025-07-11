@@ -4,7 +4,7 @@
 
 // Import necessary React hooks and libraries
 import { useEffect, useState, useRef } from 'react';
-import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
+// import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
 import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes API helper
 // import html2pdf from 'html2pdf.js'; // Library to convert HTML content to downloadable PDF
 
@@ -16,7 +16,8 @@ export default function ResponsePage() {
   const [filename, setFilename] = useState('response.pdf');
 
   // Hook to read URL search parameters (e.g., workflowId, filename)
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
+
 
   // Ref to reference the HTML content for PDF generation
   const contentRef = useRef(null);
@@ -24,8 +25,12 @@ export default function ResponsePage() {
   // Effect to fetch data from Orkes once URL parameters are available
   useEffect(() => {
     // Extract query parameters
-    const workflowId = searchParams.get('workflowId');
-    const rawFilename = searchParams.get('filename');
+    // const workflowId = searchParams.get('workflowId');
+    // const rawFilename = searchParams.get('filename');
+
+    const params = new URLSearchParams(window.location.search);
+    const workflowId = params.get('workflowId');
+    const rawFilename = params.get('filename') || 'response.pdf';
 
     // If no workflow ID is present, display error and exit
     if (!workflowId) {
@@ -51,7 +56,7 @@ export default function ResponsePage() {
         console.error('Error fetching task result:', error);
         setOutput('Failed to retrieve response.'); // Handle fetch failure
       });
-  }, [searchParams]); // Re-run this effect if searchParams change
+  }, [/*searchParams*/]); // Re-run this effect if searchParams change
 
   // Function to download the displayed HTML content as a PDF
   // const handleDownloadPDF = () => {
