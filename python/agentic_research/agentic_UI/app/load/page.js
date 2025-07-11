@@ -1,16 +1,16 @@
 'use client';
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
-import { useEffect, useState, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useRouter/*, useSearchParams */} from 'next/navigation';
 import { getWorkflowStatus } from '../../lib/orkesClient';
 
 export default function LoadPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [workflowId, setWorkflowId] = useState(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
   const steps = [
     'Validating input...',
@@ -21,8 +21,13 @@ export default function LoadPage() {
   ];
 
   useEffect(() => {
-    const id = searchParams.get('workflowId');
-    const normalizedFilename = searchParams.get('filename') || 'response.pdf';
+    // const id = searchParams.get('workflowId');
+    // const normalizedFilename = searchParams.get('filename') || 'response.pdf';
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('workflowId');
+    const normalizedFilename = params.get('filename') || 'response.pdf';
+  
 
     if (!id) {
       alert('Missing workflow ID.');
@@ -84,7 +89,7 @@ export default function LoadPage() {
       clearInterval(pollInterval);
       clearTimeout(timeoutHandle);
     };
-  }, [router, searchParams]);
+  }, [router/*, searchParams*/]);
 
   return (
     <main style={{
