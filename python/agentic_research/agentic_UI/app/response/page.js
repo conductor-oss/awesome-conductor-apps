@@ -1,49 +1,74 @@
-'use client'; // Enables client-side interactivity in Next.js
+'use client'; // Enables client-side rendering in Next.js
 
-import { useEffect, useState, useRef } from 'react'; // React hooks
-import { useSearchParams } from 'next/navigation'; // For accessing query params
-import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes task fetcher
-import html2pdf from 'html2pdf.js'; // Library to generate PDFs from HTML
+// Import necessary React hooks and libraries
+import { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
+import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes API helper
+import html2pdf from 'html2pdf.js'; // Library to convert HTML content to downloadable PDF
 
 export default function ResponsePage() {
-  const [output, setOutput] = useState('Loading...'); // Output HTML state
-  const searchParams = useSearchParams(); // Get URL params
-  const contentRef = useRef(null); // Reference to the HTML section to convert to PDF
+  // State to hold the fetched HTML response
+  const [output, setOutput] = useState('Loading...');
 
+  // State to hold the filename for the downloadable PDF
+  const [filename, setFilename] = useState('response.pdf');
+
+  // Hook to read URL search parameters (e.g., workflowId, filename)
+  const searchParams = useSearchParams();
+
+  // Ref to reference the HTML content for PDF generation
+  const contentRef = useRef(null);
+
+  // Effect to fetch data from Orkes once URL parameters are available
   useEffect(() => {
-    const workflowId = searchParams.get('workflowId'); // Read workflowId from URL
+    // Extract query parameters
+    const workflowId = searchParams.get('workflowId');
+    const rawFilename = searchParams.get('filename');
 
+    // If no workflow ID is present, display error and exit
     if (!workflowId) {
       setOutput('Missing workflow ID.');
       return;
     }
 
-    // Fetch output from Orkes
+    // Normalize and sanitize the filename from query param
+    const finalFilename =
+      rawFilename && rawFilename.trim() !== ''
+        ? rawFilename.endsWith('.pdf') // If already ends with .pdf, keep as is
+          ? rawFilename
+          : `${rawFilename}.pdf` // Otherwise, append .pdf
+        : 'response.pdf'; // Fallback if no filename is provided
+    setFilename(finalFilename);
+
+    // Fetch the task result from Orkes using reference name
     getTaskResultByRefName(workflowId, 'compile_subtopics_response_ref')
       .then((result) => {
-        setOutput(result || 'No result found.');
+        setOutput(result || 'No result found.'); // Update UI with result or fallback
       })
       .catch((error) => {
         console.error('Error fetching task result:', error);
-        setOutput('Failed to retrieve response.');
+        setOutput('Failed to retrieve response.'); // Handle fetch failure
       });
-  }, [searchParams]);
+  }, [searchParams]); // Re-run this effect if searchParams change
 
-  // Handles PDF download
+  // Function to download the displayed HTML content as a PDF
   const handleDownloadPDF = () => {
     if (!contentRef.current) return;
 
+    // PDF generation configuration options
     const opt = {
       margin: 0.5,
-      filename: 'response.pdf',
+      filename: filename,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
 
+    // Generate and save the PDF
     html2pdf().from(contentRef.current).set(opt).save();
   };
 
+  // JSX for the page layout
   return (
     <main style={{
       display: 'flex',
@@ -63,6 +88,7 @@ export default function ResponsePage() {
         maxWidth: '800px',
         backdropFilter: 'blur(10px)',
       }}>
+        {/* Page Header */}
         <h1 style={{
           fontSize: '2rem',
           marginBottom: '2rem',
@@ -72,7 +98,7 @@ export default function ResponsePage() {
           Your Results
         </h1>
 
-        {/* Generated Response Section */}
+        {/* Section: Generated HTML response from Orkes */}
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.5rem',
@@ -81,8 +107,10 @@ export default function ResponsePage() {
           }}>
             Generated Response
           </h2>
+
+          {/* HTML output rendered with innerHTML and marked for PDF export */}
           <div
-            ref={contentRef} // Referenced for PDF
+            ref={contentRef}
             style={{
               fontSize: '1.1rem',
               color: '#4a5568',
@@ -92,7 +120,7 @@ export default function ResponsePage() {
           />
         </section>
 
-        {/* PDF Download Section */}
+        {/* Section: PDF download link */}
         <section>
           <h2 style={{
             fontSize: '1.5rem',
@@ -104,8 +132,8 @@ export default function ResponsePage() {
           <a
             href="#"
             onClick={(e) => {
-              e.preventDefault();
-              handleDownloadPDF();
+              e.preventDefault(); // Prevent default link behavior
+              handleDownloadPDF(); // Trigger PDF download
             }}
             style={{
               color: '#3182ce',
@@ -113,7 +141,7 @@ export default function ResponsePage() {
               fontSize: '1.1rem'
             }}
           >
-            Click here to download the PDF
+            Click here to download <strong>{filename}</strong>
           </a>
         </section>
       </div>

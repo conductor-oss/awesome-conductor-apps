@@ -20,6 +20,7 @@ export default function LoadPage() {
 
   useEffect(() => {
     const id = searchParams.get('workflowId');
+    const normalizedFilename = searchParams.get('filename') || 'response.pdf';
 
     if (!id) {
       alert('Missing workflow ID.');
@@ -41,7 +42,7 @@ export default function LoadPage() {
         if (status === 'COMPLETED') {
           clearInterval(pollInterval);
           clearTimeout(timeoutHandle);
-          router.push(`/response?workflowId=${id}`);
+          router.push(`/response?workflowId=${id}&filename=${encodeURIComponent(normalizedFilename)}`);
         } else if (status === 'FAILED' || status === 'TERMINATED') {
           clearInterval(pollInterval);
           clearTimeout(timeoutHandle);
@@ -66,6 +67,8 @@ export default function LoadPage() {
       console.warn('Workflow timed out, navigating to response anyway...');
       clearInterval(pollInterval);
       router.push(`/response?workflowId=${id}`);
+      
+
     }, 180000);
 
     // Simulate visual progress through UI steps
@@ -118,21 +121,6 @@ export default function LoadPage() {
           margin: '0 auto 1.5rem auto'
         }} />
 
-        {/* Progress bar */}
-        <div style={{
-          height: '10px',
-          width: '100%',
-          backgroundColor: '#e2e8f0',
-          borderRadius: '6px',
-          overflow: 'hidden',
-        }}>
-          <div style={{
-            height: '100%',
-            width: `${((stepIndex + 1) / steps.length) * 100}%`,
-            backgroundColor: '#3182ce',
-            transition: 'width 1s ease',
-          }} />
-        </div>
 
         {/* Spinner animation keyframes */}
         <style jsx>{`

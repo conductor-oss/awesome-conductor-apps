@@ -26,7 +26,7 @@ export default function AskPage() {
       console.log('Workflow started with ID:', workflowId);
 
       // Navigate to the load page with workflow ID as query param
-      router.push(`/load?workflowId=${workflowId}`);
+      router.push(`/load?workflowId=${workflowId}&filename=${encodeURIComponent(normalizedFilename)}`);
     } catch (error) {
       console.error('Error starting workflow:', error);
       alert('Failed to start the workflow. Please try again.');
