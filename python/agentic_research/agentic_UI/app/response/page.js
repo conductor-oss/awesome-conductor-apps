@@ -1,12 +1,12 @@
 'use client'; // Enables client-side rendering in Next.js
 
-export const dynamic = 'force-dynamic';
+// export const dynamic = 'force-dynamic';
 
 // Import necessary React hooks and libraries
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
 import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes API helper
-import html2pdf from 'html2pdf.js'; // Library to convert HTML content to downloadable PDF
+// import html2pdf from 'html2pdf.js'; // Library to convert HTML content to downloadable PDF
 
 export default function ResponsePage() {
   // State to hold the fetched HTML response
@@ -54,19 +54,14 @@ export default function ResponsePage() {
   }, [searchParams]); // Re-run this effect if searchParams change
 
   // Function to download the displayed HTML content as a PDF
-  const handleDownloadPDF = () => {
-    if (!contentRef.current) return;
-
   // const handleDownloadPDF = () => {
-  //   if (typeof window === 'undefined') return; // Ensure this runs only on the client
-  
-  //   import('html2pdf.js').then((html2pdf) => {
-  //     html2pdf.default().from(contentRef.current).set(opt).save();
-  //   });
-  // };
-  
+  //   if (!contentRef.current) return;
 
-    // PDF generation configuration options
+  const handleDownloadPDF = async () => {
+    if (typeof window === 'undefined') return;
+  
+    const html2pdf = (await import('html2pdf.js')).default;
+  
     const opt = {
       margin: 0.5,
       filename: filename,
@@ -74,10 +69,23 @@ export default function ResponsePage() {
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-
-    // Generate and save the PDF
+  
     html2pdf().from(contentRef.current).set(opt).save();
   };
+  
+
+  //   // PDF generation configuration options
+  //   const opt = {
+  //     margin: 0.5,
+  //     filename: filename,
+  //     image: { type: 'jpeg', quality: 0.98 },
+  //     html2canvas: { scale: 2 },
+  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  //   };
+
+  //   // Generate and save the PDF
+  //   html2pdf().from(contentRef.current).set(opt).save();
+  // };
 
   // JSX for the page layout
   return (
