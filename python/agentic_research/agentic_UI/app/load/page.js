@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getWorkflowStatus } from '../../lib/orkesClient';
@@ -93,7 +95,6 @@ export default function LoadPage() {
       background: 'linear-gradient(to right, #f9f9f9, #e2e8f0)',
       fontFamily: 'system-ui, sans-serif',
     }}>
-      <Suspense fallback={<p>Loading...</p>}>
       <div style={{
         backgroundColor: 'rgba(255, 255, 255, 0.85)',
         padding: '3rem',
@@ -131,7 +132,6 @@ export default function LoadPage() {
           }
         `}</style>
       </div>
-      </Suspense>
     </main>
   );
 }

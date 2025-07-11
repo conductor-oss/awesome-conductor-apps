@@ -1,5 +1,7 @@
 'use client'; // Enables client-side rendering in Next.js
 
+export const dynamic = 'force-dynamic';
+
 // Import necessary React hooks and libraries
 import { useEffect, useState, useRef } from 'react';
 import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
@@ -54,6 +56,15 @@ export default function ResponsePage() {
   // Function to download the displayed HTML content as a PDF
   const handleDownloadPDF = () => {
     if (!contentRef.current) return;
+
+  // const handleDownloadPDF = () => {
+  //   if (typeof window === 'undefined') return; // Ensure this runs only on the client
+  
+  //   import('html2pdf.js').then((html2pdf) => {
+  //     html2pdf.default().from(contentRef.current).set(opt).save();
+  //   });
+  // };
+  
 
     // PDF generation configuration options
     const opt = {
