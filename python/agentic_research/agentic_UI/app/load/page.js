@@ -1,33 +1,42 @@
 'use client';
 
-// export const dynamic = 'force-dynamic';
-
 import { useEffect, useState } from 'react';
-import { useRouter/*, useSearchParams */} from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { getWorkflowStatus } from '../../lib/orkesClient';
 
 export default function LoadPage() {
   const [stepIndex, setStepIndex] = useState(0);
   const [workflowId, setWorkflowId] = useState(null);
   const router = useRouter();
-  // const searchParams = useSearchParams();
 
+  // Extended steps list to fill the ~90 second runtime
   const steps = [
     'Validating input...',
     'Retrieving PDF content...',
+    'Initializing AI agents...',
+    'Scanning document structure...',
+    'Extracting key sections...',
+    'Analyzing text sentiment...',
+    'Identifying core concepts...',
+    'Linking citations...',
+    'Building semantic graph...',
     'Running agentic analysis...',
-    'Summarizing key findings...',
+    'Comparing external sources...',
+    'Refining interpretations...',
+    'Summarizing insights...',
+    'Generating citations...',
+    'Ranking relevance...',
+    'Highlighting key arguments...',
+    'Drafting conclusions...',
+    'Formatting output...',
     'Finalizing response...',
+    'Preparing download link...',
   ];
 
   useEffect(() => {
-    // const id = searchParams.get('workflowId');
-    // const normalizedFilename = searchParams.get('filename') || 'response.pdf';
-
     const params = new URLSearchParams(window.location.search);
     const id = params.get('workflowId');
     const normalizedFilename = params.get('filename') || 'response.pdf';
-  
 
     if (!id) {
       alert('Missing workflow ID.');
@@ -53,8 +62,7 @@ export default function LoadPage() {
         } else if (status === 'FAILED' || status === 'TERMINATED') {
           clearInterval(pollInterval);
           clearTimeout(timeoutHandle);
-          alert('Workflow failed. Please try again.');
-          router.push('/ask');
+          router.push('/response');
         }
       } catch (error) {
         console.error('Error polling workflow status:', error);
@@ -74,14 +82,12 @@ export default function LoadPage() {
       console.warn('Workflow timed out, navigating to response anyway...');
       clearInterval(pollInterval);
       router.push(`/response?workflowId=${id}`);
-      
+    }, 180000); // 3 minutes
 
-    }, 180000);
-
-    // Simulate visual progress through UI steps
+    // Simulate visual progress through UI steps (~4.5s per step)
     const animation = setInterval(() => {
       setStepIndex((prev) => (prev < steps.length - 1 ? prev + 1 : prev));
-    }, 1500);
+    }, 4500);
 
     // Cleanup timers on unmount
     return () => {
@@ -89,7 +95,7 @@ export default function LoadPage() {
       clearInterval(pollInterval);
       clearTimeout(timeoutHandle);
     };
-  }, [router/*, searchParams*/]);
+  }, [router]);
 
   return (
     <main style={{
@@ -108,7 +114,7 @@ export default function LoadPage() {
         textAlign: 'center',
         backdropFilter: 'blur(10px)',
         width: '90%',
-        maxWidth: '500px',
+        maxWidth: '520px',
       }}>
         <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#2d3748' }}>
           Generating Your Response
@@ -128,12 +134,45 @@ export default function LoadPage() {
           margin: '0 auto 1.5rem auto'
         }} />
 
+        {/* Additional animation: pulsing dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+          <div className="dot" />
+          <div className="dot delay-1" />
+          <div className="dot delay-2" />
+        </div>
 
-        {/* Spinner animation keyframes */}
+        {/* Animation keyframes */}
         <style jsx>{`
           @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+          }
+
+          @keyframes pulse {
+            0%, 80%, 100% {
+              transform: scale(0);
+              opacity: 0.3;
+            }
+            40% {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+
+          .dot {
+            width: 12px;
+            height: 12px;
+            background-color: #3182ce;
+            border-radius: 50%;
+            animation: pulse 1.4s infinite;
+          }
+
+          .delay-1 {
+            animation-delay: 0.2s;
+          }
+
+          .delay-2 {
+            animation-delay: 0.4s;
           }
         `}</style>
       </div>

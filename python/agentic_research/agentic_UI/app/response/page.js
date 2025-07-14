@@ -1,12 +1,9 @@
 'use client'; // Enables client-side rendering in Next.js
 
-// export const dynamic = 'force-dynamic';
 
 // Import necessary React hooks and libraries
 import { useEffect, useState, useRef } from 'react';
-// import { useSearchParams } from 'next/navigation'; // To access query parameters from URL
 import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes API helper
-// import html2pdf from 'html2pdf.js'; // Library to convert HTML content to downloadable PDF
 
 export default function ResponsePage() {
   // State to hold the fetched HTML response
@@ -15,19 +12,12 @@ export default function ResponsePage() {
   // State to hold the filename for the downloadable PDF
   const [filename, setFilename] = useState('response.pdf');
 
-  // Hook to read URL search parameters (e.g., workflowId, filename)
-  // const searchParams = useSearchParams();
-
-
+  
   // Ref to reference the HTML content for PDF generation
   const contentRef = useRef(null);
 
   // Effect to fetch data from Orkes once URL parameters are available
   useEffect(() => {
-    // Extract query parameters
-    // const workflowId = searchParams.get('workflowId');
-    // const rawFilename = searchParams.get('filename');
-
     const params = new URLSearchParams(window.location.search);
     const workflowId = params.get('workflowId');
     const rawFilename = params.get('filename') || 'response.pdf';
@@ -50,18 +40,14 @@ export default function ResponsePage() {
     // Fetch the task result from Orkes using reference name
     getTaskResultByRefName(workflowId, 'compile_subtopics_response_ref')
       .then((result) => {
-        setOutput(result || 'No result found.'); // Update UI with result or fallback
+        setOutput(result || 'Bad input, ask an actual research question'); // Update UI with result or fallback
       })
       .catch((error) => {
         console.error('Error fetching task result:', error);
         setOutput('Failed to retrieve response.'); // Handle fetch failure
       });
-  }, [/*searchParams*/]); // Re-run this effect if searchParams change
-
-  // Function to download the displayed HTML content as a PDF
-  // const handleDownloadPDF = () => {
-  //   if (!contentRef.current) return;
-
+  }, []); 
+  
   const handleDownloadPDF = async () => {
     if (typeof window === 'undefined') return;
   
@@ -79,18 +65,7 @@ export default function ResponsePage() {
   };
   
 
-  //   // PDF generation configuration options
-  //   const opt = {
-  //     margin: 0.5,
-  //     filename: filename,
-  //     image: { type: 'jpeg', quality: 0.98 },
-  //     html2canvas: { scale: 2 },
-  //     jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-  //   };
-
-  //   // Generate and save the PDF
-  //   html2pdf().from(contentRef.current).set(opt).save();
-  // };
+ 
 
   // JSX for the page layout
   return (

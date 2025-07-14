@@ -39,7 +39,7 @@ export default function HomePage() {
           color: '#4a5568',
           lineHeight: '1.6',
         }}>
-          Welcome to our visual interface for exploring agent research workflows. Click below to begin asking questions and navigating the process.
+          Welcome to our agentic research web application where we utilize the power of the Orkes Conductor to answer your queries!
         </p>
         <button
           onClick={handleClick}
