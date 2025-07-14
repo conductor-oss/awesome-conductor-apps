@@ -1,8 +1,8 @@
 'use client'; // Enables client-side rendering in Next.js
 
-
 // Import necessary React hooks and libraries
 import { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation'; // Added to handle navigation
 import { getTaskResultByRefName } from '../../lib/orkesClient'; // Orkes API helper
 
 export default function ResponsePage() {
@@ -12,9 +12,11 @@ export default function ResponsePage() {
   // State to hold the filename for the downloadable PDF
   const [filename, setFilename] = useState('response.pdf');
 
-  
   // Ref to reference the HTML content for PDF generation
   const contentRef = useRef(null);
+
+  // Initialize router for client-side navigation
+  const router = useRouter();
 
   // Effect to fetch data from Orkes once URL parameters are available
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function ResponsePage() {
 
     // If no workflow ID is present, display error and exit
     if (!workflowId) {
-      setOutput('Missing workflow ID.');
+      setOutput('Could not generate a response due to invalid query. Please try again.');
       return;
     }
 
@@ -46,13 +48,13 @@ export default function ResponsePage() {
         console.error('Error fetching task result:', error);
         setOutput('Failed to retrieve response.'); // Handle fetch failure
       });
-  }, []); 
-  
+  }, []);
+
   const handleDownloadPDF = async () => {
     if (typeof window === 'undefined') return;
-  
+
     const html2pdf = (await import('html2pdf.js')).default;
-  
+
     const opt = {
       margin: 0.5,
       filename: filename,
@@ -60,12 +62,9 @@ export default function ResponsePage() {
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-  
+
     html2pdf().from(contentRef.current).set(opt).save();
   };
-  
-
- 
 
   // JSX for the page layout
   return (
@@ -120,7 +119,7 @@ export default function ResponsePage() {
         </section>
 
         {/* Section: PDF download link */}
-        <section>
+        <section style={{ marginBottom: '2rem' }}>
           <h2 style={{
             fontSize: '1.5rem',
             color: '#2b6cb0',
@@ -143,6 +142,28 @@ export default function ResponsePage() {
             Click here to download <strong>{filename}</strong>
           </a>
         </section>
+
+        {/* Ask another question button */}
+        <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
+          <button
+            onClick={() => router.push('/ask')} // Navigate to /ask page
+            style={{
+              backgroundColor: '#3182ce',
+              color: '#ffffff',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+              transition: 'background-color 0.3s ease',
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.backgroundColor = '#2b6cb0')}
+            onMouseOut={(e) => (e.currentTarget.style.backgroundColor = '#3182ce')}
+          >
+            Ask another question!
+          </button>
+        </div>
       </div>
     </main>
   );
