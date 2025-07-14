@@ -50,6 +50,7 @@ export default function ResponsePage() {
       });
   }, []);
 
+  // Handle PDF generation and download
   const handleDownloadPDF = async () => {
     if (typeof window === 'undefined') return;
 
@@ -65,6 +66,12 @@ export default function ResponsePage() {
 
     html2pdf().from(contentRef.current).set(opt).save();
   };
+
+  // Determine if the current output indicates a failure
+  const isFailure =
+    output === 'Failed to retrieve response.' ||
+    output === 'Bad input, ask an actual research question' ||
+    output === 'Could not generate a response due to invalid query. Please try again.';
 
   // JSX for the page layout
   return (
@@ -118,30 +125,32 @@ export default function ResponsePage() {
           />
         </section>
 
-        {/* Section: PDF download link */}
-        <section style={{ marginBottom: '2rem' }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            color: '#2b6cb0',
-            marginBottom: '1rem'
-          }}>
-            Downloadable PDF
-          </h2>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault(); // Prevent default link behavior
-              handleDownloadPDF(); // Trigger PDF download
-            }}
-            style={{
-              color: '#3182ce',
-              textDecoration: 'underline',
-              fontSize: '1.1rem'
-            }}
-          >
-            Click here to download <strong>{filename}</strong>
-          </a>
-        </section>
+        {/* Section: PDF download link - only shown if no errors */}
+        {!isFailure && (
+          <section style={{ marginBottom: '2rem' }}>
+            <h2 style={{
+              fontSize: '1.5rem',
+              color: '#2b6cb0',
+              marginBottom: '1rem'
+            }}>
+              Downloadable PDF
+            </h2>
+            <a
+              href="#"
+              onClick={(e) => {
+                e.preventDefault(); // Prevent default link behavior
+                handleDownloadPDF(); // Trigger PDF download
+              }}
+              style={{
+                color: '#3182ce',
+                textDecoration: 'underline',
+                fontSize: '1.1rem'
+              }}
+            >
+              Click here to download <strong>{filename}</strong>
+            </a>
+          </section>
+        )}
 
         {/* Ask another question button */}
         <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
