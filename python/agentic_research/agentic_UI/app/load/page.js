@@ -11,27 +11,27 @@ export default function LoadPage() {
 
   // Extended steps list to fill the ~90 second runtime
   const steps = [
-    'Validating input...',
+    'Validating your input...',
+    'Initializing workflow variables...',
+    'Breaking down question into subtopics...',
+    'Classifying research intent...',
+    'Preparing dynamic subtasks...',
     'Retrieving PDF content...',
-    'Initializing AI agents...',
-    'Scanning document structure...',
-    'Extracting key sections...',
-    'Analyzing text sentiment...',
-    'Identifying core concepts...',
-    'Linking citations...',
-    'Building semantic graph...',
-    'Running agentic analysis...',
-    'Comparing external sources...',
-    'Refining interpretations...',
-    'Summarizing insights...',
-    'Generating citations...',
-    'Ranking relevance...',
-    'Highlighting key arguments...',
-    'Drafting conclusions...',
-    'Formatting output...',
-    'Finalizing response...',
-    'Preparing download link...',
+    'Analyzing subtopic 1...',
+    'Analyzing subtopic 2...',
+    'Analyzing subtopic 3...',
+    'Extracting literature insights...',
+    'Identifying research gaps...',
+    'Merging results across subtopics...',
+    'Compiling structured response...',
+    'Refining output with AI...',
+    'Cleaning up formatting...',
+    'Generating final HTML response...',
+    'Saving output to workflow...',
+    'Preparing response for display...',
+    'Finalizing download link...',
   ];
+  
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
