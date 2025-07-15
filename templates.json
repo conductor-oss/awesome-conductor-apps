@@ -28,7 +28,7 @@
     {
         "id": "agentic_research",
         "title": "Agentic Research",
-        "description": "Automate AI-powered research workflows that gather, analyze, and synthesize information from multiple sources.",
+        "description": "Automate AI-powered research workflows that gather, analyze, and synthesize information from multiple sources",
         "version": 1,
         "featureLabelAndLinks": {
             "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
