@@ -847,6 +847,7 @@
     "githubProjectLinks": {
       "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python"
     },
+    "helpDocumentationLink": "https://orkes.io/content/templates/agentic-research",
     "thumbnailUrl":
       "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/agentic_research.gif",
     "workflowDefinitions": [
