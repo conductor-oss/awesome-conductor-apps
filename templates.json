@@ -3,7 +3,7 @@
     "id": "claims_workflow",
     "title": "Claims Workflow",
     "description":
-      "A business process automation workflow designed to handle the insurance claims process.\nIt leverages Netflix Conductor to automate and manage the steps in processing a claim, including finding customer policy details, performing policy validations, collecting claims information, and determining the eligibility for coverage",
+      "A business process automation workflow designed to handle the insurance claims process. It leverages Netflix Conductor to automate and manage the steps in processing a claim, including finding customer policy details, performing policy validations, collecting claims information, and determining the eligibility for coverage",
     "version": 2,
     "featureLabelAndLinks": {},
     "githubProjectLinks": {
@@ -839,7 +839,7 @@
   {
     "id": "agentic_research",
     "title": "Agentic Research",
-    "description": "Agentic Research Assistant",
+    "description": "Automate AI-powered research workflows that gather, analyze, and synthesize information from multiple sources",
     "version": 2,
     "featureLabelAndLinks": {
       "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
