@@ -5,7 +5,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"basic/worker"
+	"basic/workers"
 
 	"github.com/conductor-sdk/conductor-go/sdk/client"
 )
@@ -14,7 +14,7 @@ func main() {
 	apiClient := client.NewAPIClientFromEnv()
 
 	// Start the workers
-	worker.RegisterAndStartWorkers(apiClient)
+	workers.RegisterAndStartWorkers(apiClient)
 
 	// Wait for termination signal
 	sigChan := make(chan os.Signal, 1)
