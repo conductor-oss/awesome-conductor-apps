@@ -9,7 +9,8 @@
         },
         "githubProjectLinks": {
             "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/typescript/basic",
-            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/python/basic"
+            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/python/basic",
+            "Go": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/go/basic"
         },
         "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/execution.gif",
         "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/basic.workflow.json",
