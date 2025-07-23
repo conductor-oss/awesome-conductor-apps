@@ -7,7 +7,7 @@ import {
 import { config } from "dotenv";
 import { resolve } from "path";
 
-const envPath = resolve(__dirname, "..", ".env.local");
+const envPath = resolve(__dirname, "../..", ".env.local");
 
 config({ path: envPath });
 
