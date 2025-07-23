@@ -1,11 +1,12 @@
 package io.orkes.conductor.taskrunner;
 
 import com.netflix.conductor.client.automator.TaskRunnerConfigurer;
-import com.netflix.conductor.client.http.ConductorClient;
 import com.netflix.conductor.client.http.TaskClient;
 import com.netflix.conductor.client.worker.Worker;
 import com.netflix.conductor.common.metadata.tasks.Task;
 import com.netflix.conductor.common.metadata.tasks.TaskResult;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.orkes.conductor.client.ApiClient;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -16,13 +17,16 @@ import java.util.List;
 
 public class TaskRunner {
 
-  private static final String CONDUCTOR_SERVER = "https://play.orkes.io/api";
-  private static final String KEY = "_CHANGE_ME_";
-  private static final String SECRET = "_CHANGE_ME_";
-
   public static void main(String[] args) throws ExecutionException, InterruptedException, TimeoutException {
-    var client = new ConductorClient(CONDUCTOR_SERVER);
-    var taskClient = new TaskClient(client);
+    Dotenv dotenv = Dotenv.configure()
+        .filename(".env.local")
+        .load();
+
+    var apiClient = new ApiClient(
+        dotenv.get("CONDUCTOR_SERVER"),
+        dotenv.get("CONDUCTOR_KEY"),
+        dotenv.get("CONDUCTOR_SECRET"));
+    var taskClient = new TaskClient(apiClient);
     var runnerConfigurer = new TaskRunnerConfigurer.Builder(taskClient, List.of(new SayHelloWorker()))
         .withThreadCount(10)
         .build();
