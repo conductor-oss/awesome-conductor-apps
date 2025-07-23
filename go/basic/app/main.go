@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"runtime"
 	"syscall"
 
 	"basic/workers"
@@ -13,8 +14,12 @@ import (
 )
 
 func main() {
-	// Load environment variables from .env.local
-	envPath := filepath.Join("..", "..", ".env.local")
+	// Get the directory where main.go is located
+	_, filename, _, _ := runtime.Caller(0)
+	currentDir := filepath.Dir(filename)
+	// Load environment variables from .env.local in the parent directory
+	envPath := filepath.Join(filepath.Dir(currentDir), ".env.local")
+
 	if err := godotenv.Load(envPath); err != nil {
 		// Continue even if .env.local is not found
 	}
