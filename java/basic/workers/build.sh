@@ -14,6 +14,8 @@ if [ ! -f ".env.local" ]; then
     echo "Created .env.local file. Please fill in your Orkes API credentials."
 fi
 
+gradle wrapper
+
 # Build the project
 ./gradlew clean build
 
