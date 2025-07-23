@@ -1,0 +1,26 @@
+plugins {
+    id 'java'
+    id 'application'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.conductoross:conductor-client:4.0.0'
+    implementation 'org.conductoross:java-sdk:4.0.0'
+    implementation 'io.orkes.conductor:orkes-conductor-client:4.0.0'
+    runtimeOnly 'org.slf4j:slf4j-simple:2.0.9'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+application {
+    mainClass.set("io.orkes.conductor.taskrunner.TaskRunner")
+}
