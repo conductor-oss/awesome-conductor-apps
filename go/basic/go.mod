@@ -2,7 +2,10 @@ module basic
 
 go 1.19
 
-require github.com/conductor-sdk/conductor-go v1.4.2
+require (
+	github.com/conductor-sdk/conductor-go v1.4.2
+	github.com/joho/godotenv v1.5.1
+)
 
 require (
 	github.com/antihax/optional v1.0.0 // indirect
