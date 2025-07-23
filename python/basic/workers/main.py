@@ -5,7 +5,7 @@ from worker import *
 from dotenv import load_dotenv
 import os
 
-load_dotenv('.env.local')
+load_dotenv('../.env.local')
 
 def main():
     configuration = Configuration(base_url=os.getenv('ORKES_API_URL'),
