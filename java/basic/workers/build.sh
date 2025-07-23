@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Navigate to project root
-cd ..
+# Get the directory where the script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+
+# Navigate to project root (parent directory of the script's location)
+cd "${SCRIPT_DIR}/.."
 
 # Create .env.local if it doesn't exist
 if [ ! -f ".env.local" ]; then
@@ -10,9 +13,6 @@ if [ ! -f ".env.local" ]; then
     echo "ORKES_API_KEY_SECRET=" >> .env.local
     echo "Created .env.local file. Please fill in your Orkes API credentials."
 fi
-
-# Make gradlew executable
-chmod +x gradlew
 
 # Build the project
 ./gradlew clean build
