@@ -13,9 +13,9 @@ pip install -r requirements.txt
 
 # Create .env.local if it doesn't exist
 if [ ! -f "../.env.local" ]; then
-    echo "ORKES_API_URL=" > ../.env.local
-    echo "ORKES_API_KEY_ID=" >> ../.env.local
-    echo "ORKES_API_KEY_SECRET=" >> ../.env.local
+    echo "CONDUCTOR_SERVER_URL=" > ../.env.local
+    echo "CONDUCTOR_AUTH_KEY=" >> ../.env.local
+    echo "CONDUCTOR_AUTH_SECRET=" >> ../.env.local
     echo "Created .env.local file. Please fill in your Orkes API credentials."
 fi
 

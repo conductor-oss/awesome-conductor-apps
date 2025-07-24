@@ -22,9 +22,9 @@ export function createTaskRunner(conductorClient: ConductorClient) {
 }
 
 const apiConfig: Partial<OrkesApiConfig> = {
-  keyId: process.env.ORKES_API_KEY_ID || "",
-  keySecret: process.env.ORKES_API_KEY_SECRET || "",
-  serverUrl: process.env.ORKES_API_URL || "",
+  keyId: process.env.CONDUCTOR_AUTH_KEY || "",
+  keySecret: process.env.CONDUCTOR_AUTH_SECRET || "",
+  serverUrl: process.env.CONDUCTOR_SERVER_URL || "",
 };
 
 async function initateConductorWorkers() {

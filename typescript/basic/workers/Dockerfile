@@ -24,11 +24,11 @@ RUN yarn build
 RUN chmod +x run.sh
 
 # Set default environment variables
-ENV ORKES_API_KEY_ID=""
-ENV ORKES_API_KEY_SECRET=""
-ENV ORKES_API_URL=""
+ENV CONDUCTOR_AUTH_KEY=""
+ENV CONDUCTOR_AUTH_SECRET=""
+ENV CONDUCTOR_SERVER_URL=""
 
 # Use the run.sh script as entrypoint
 ENTRYPOINT ["./run.sh"]
 # Pass environment variables as default CMD arguments
-CMD ["${ORKES_API_KEY_ID}", "${ORKES_API_KEY_SECRET}", "${ORKES_API_URL}"] 
+CMD ["${CONDUCTOR_AUTH_KEY}", "${CONDUCTOR_AUTH_SECRET}", "${CONDUCTOR_SERVER_URL}"] 

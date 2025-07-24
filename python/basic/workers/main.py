@@ -8,9 +8,9 @@ import os
 load_dotenv('../.env.local')
 
 def main():
-    configuration = Configuration(base_url=os.getenv('ORKES_API_URL'),
-                                  authentication_settings=AuthenticationSettings(key_id=os.getenv('ORKES_API_KEY_ID'),
-                                                                                 key_secret=os.getenv('ORKES_API_KEY_SECRET')))
+    configuration = Configuration(base_url=os.getenv('CONDUCTOR_SERVER_URL'),
+                                  authentication_settings=AuthenticationSettings(key_id=os.getenv('CONDUCTOR_AUTH_KEY'),
+                                                                                 key_secret=os.getenv('CONDUCTOR_AUTH_SECRET')))
 
     task_handler = TaskHandler(
         configuration=configuration,

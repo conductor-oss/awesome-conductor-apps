@@ -12,9 +12,9 @@ This is a basic example of using the Conductor Java SDK to create a simple workf
 1. Create a `.env.local` file in the root directory with your Orkes Conductor credentials:
 
 ```env
-ORKES_API_URL=https://play.orkes.io/api
-ORKES_API_KEY_ID=your_key_id
-ORKES_API_KEY_SECRET=your_key_secret
+CONDUCTOR_SERVER_URL=https://play.orkes.io/api
+CONDUCTOR_AUTH_KEY=your_key_id
+CONDUCTOR_AUTH_SECRET=your_key_secret
 ```
 
 ## Running the Example

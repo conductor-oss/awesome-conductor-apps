@@ -23,9 +23,9 @@ public class TaskRunner {
         .load();
 
     var apiClient = new ApiClient(
-        dotenv.get("ORKES_API_URL"),
-        dotenv.get("ORKES_API_KEY_ID"),
-        dotenv.get("ORKES_API_KEY_SECRET"));
+        dotenv.get("CONDUCTOR_SERVER_URL"),
+        dotenv.get("CONDUCTOR_AUTH_KEY"),
+        dotenv.get("CONDUCTOR_AUTH_SECRET"));
     var taskClient = new TaskClient(apiClient);
     var runnerConfigurer = new TaskRunnerConfigurer.Builder(taskClient, List.of(new SayHelloWorker()))
         .withThreadCount(10)
