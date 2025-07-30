@@ -8,7 +8,7 @@ import os
 load_dotenv('../.env.local')
 
 def main():
-    configuration = Configuration(server_url=os.getenv('CONDUCTOR_SERVER_URL'),
+    configuration = Configuration(server_api_url=os.getenv('CONDUCTOR_SERVER_URL'),
                                   authentication_settings=AuthenticationSettings(key_id=os.getenv('CONDUCTOR_AUTH_KEY'),
                                                                                  key_secret=os.getenv('CONDUCTOR_AUTH_SECRET')))
 
