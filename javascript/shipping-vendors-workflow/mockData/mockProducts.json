@@ -1,0 +1,81 @@
+[
+    {
+      "sku": "BARBIE-DOLL-001",
+      "name": "Barbie",
+      "dimensions_cm": {
+        "length": 30,
+        "width": 10,
+        "height": 5
+      },
+      "weight_kg": 0.8,
+      "category": "dolls",
+      "packaging": "box",
+      "fragile": true
+    },
+    {
+      "sku": "HOTWHEELS-TRACK-202",
+      "name": "Hot Wheels Mega Track Set",
+      "dimensions_cm": {
+        "length": 80,
+        "width": 20,
+        "height": 10
+      },
+      "weight_kg": 2.5,
+      "category": "vehicles",
+      "packaging": "box",
+      "fragile": false
+    },
+    {
+      "sku": "UNO-CARDS-010",
+      "name": "UNO Classic Card Game",
+      "dimensions_cm": {
+        "length": 9,
+        "width": 6,
+        "height": 2
+      },
+      "weight_kg": 0.2,
+      "category": "games",
+      "packaging": "blister pack",
+      "fragile": false
+    },
+    {
+      "sku": "FISHER-PRICE-STACK-320",
+      "name": "Fisher-Price Rock-a-Stack",
+      "dimensions_cm": {
+        "length": 15,
+        "width": 15,
+        "height": 25
+      },
+      "weight_kg": 0.6,
+      "category": "baby toys",
+      "packaging": "box",
+      "fragile": false
+    },
+    {
+      "sku": "MEGA-BLOKS-STARTER-500",
+      "name": "Mega Bloks First Builders Set",
+      "dimensions_cm": {
+        "length": 35,
+        "width": 25,
+        "height": 12
+      },
+      "weight_kg": 1.4,
+      "category": "building sets",
+      "packaging": "plastic bag",
+      "fragile": false
+    },
+    {
+      "sku": "POLLY-POCKET-DELUXE-701",
+      "name": "Polly Pocket Deluxe Compact",
+      "dimensions_cm": {
+        "length": 12,
+        "width": 10,
+        "height": 4
+      },
+      "weight_kg": 0.3,
+      "category": "mini dolls",
+      "packaging": "blister pack",
+      "fragile": true
+    }
+  ]
+  

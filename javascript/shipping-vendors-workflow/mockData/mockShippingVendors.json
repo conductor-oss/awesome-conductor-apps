@@ -1,0 +1,269 @@
+[
+  {
+    "vendor_name": "Maersk",
+    "origin_ports": ["Shanghai", "Shenzhen", "Ningbo", "Singapore"],
+    "destination_ports": ["Los Angeles", "Long Beach", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.8,
+    "price_factor": 1.00,
+    "speed_factor": 1.00
+  },
+  {
+    "vendor_name": "COSCO",
+    "origin_ports": ["Shanghai", "Busan", "Qingdao", "Ningbo"],
+    "destination_ports": ["Los Angeles", "Oakland", "Long Beach"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.4,
+    "price_factor": 0.95,
+    "speed_factor": 1.05
+  },
+  {
+    "vendor_name": "Evergreen Marine",
+    "origin_ports": ["Shenzhen", "Tokyo", "Kaohsiung"],
+    "destination_ports": ["Oakland", "Long Beach", "Los Angeles"],
+    "container_types": [
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.2,
+    "price_factor": 1.10,
+    "speed_factor": 1.00
+  },
+  {
+    "vendor_name": "Hapag-Lloyd",
+    "origin_ports": ["Busan", "Shanghai", "Singapore", "Manila"],
+    "destination_ports": ["Los Angeles", "Oakland", "Long Beach"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.6,
+    "price_factor": 1.05,
+    "speed_factor": 0.95
+  },
+  {
+    "vendor_name": "ONE Line",
+    "origin_ports": ["Tokyo", "Qingdao", "Singapore"],
+    "destination_ports": ["Long Beach", "Oakland", "Los Angeles"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.3,
+    "price_factor": 1.20,
+    "speed_factor": 1.15
+  },
+  {
+    "vendor_name": "Yang Ming",
+    "origin_ports": ["Qingdao", "Shenzhen", "Kaohsiung"],
+    "destination_ports": ["Los Angeles", "Oakland", "Long Beach"],
+    "container_types": [
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.0,
+    "price_factor": 0.90,
+    "speed_factor": 1.10
+  },
+  {
+    "vendor_name": "ZIM Integrated",
+    "origin_ports": ["Shanghai", "Tokyo", "Ningbo"],
+    "destination_ports": ["Long Beach", "Los Angeles", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 },
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.7,
+    "price_factor": 1.15,
+    "speed_factor": 0.90
+  },
+  {
+    "vendor_name": "MSC",
+    "origin_ports": ["Shenzhen", "Busan", "Singapore"],
+    "destination_ports": ["Oakland", "Los Angeles", "Long Beach"],
+    "container_types": [
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.5,
+    "price_factor": 1.00,
+    "speed_factor": 1.00
+  },
+
+  {
+    "vendor_name": "Pacific Star Lines",
+    "origin_ports": ["Kaohsiung", "Shanghai", "Ningbo"],
+    "destination_ports": ["Los Angeles", "Long Beach", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.1,
+    "price_factor": 1.05,
+    "speed_factor": 1.00
+  },
+  {
+    "vendor_name": "OceanBlue Logistics",
+    "origin_ports": ["Singapore", "Shenzhen", "Ho Chi Minh City"],
+    "destination_ports": ["Oakland", "Los Angeles", "Long Beach"],
+    "container_types": [
+      { "size": "20ft", "type": "Reefer", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": false,
+    "reliability_score": 4.3,
+    "price_factor": 0.98,
+    "speed_factor": 1.10
+  },
+  {
+    "vendor_name": "Eastern Horizon Shipping",
+    "origin_ports": ["Ningbo", "Ho Chi Minh City", "Busan"],
+    "destination_ports": ["Long Beach", "Los Angeles", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 3.9,
+    "price_factor": 0.92,
+    "speed_factor": 1.05
+  },
+  {
+    "vendor_name": "Silver Wave Cargo",
+    "origin_ports": ["Jakarta", "Manila", "Singapore"],
+    "destination_ports": ["Oakland", "Long Beach", "Los Angeles"],
+    "container_types": [
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": false,
+    "reliability_score": 4.0,
+    "price_factor": 1.10,
+    "speed_factor": 0.95
+  },
+  {
+    "vendor_name": "Blue Horizon Lines",
+    "origin_ports": ["Kaohsiung", "Shanghai", "Qingdao"],
+    "destination_ports": ["Long Beach", "Oakland", "Los Angeles"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.6,
+    "price_factor": 1.00,
+    "speed_factor": 1.00
+  },
+  {
+    "vendor_name": "TransPacific Marine",
+    "origin_ports": ["Ho Chi Minh City", "Singapore", "Shenzhen"],
+    "destination_ports": ["Los Angeles", "Oakland", "Long Beach"],
+    "container_types": [
+      { "size": "20ft", "type": "Reefer", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Reefer", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.4,
+    "price_factor": 1.08,
+    "speed_factor": 1.05
+  },
+  {
+    "vendor_name": "GlobalFreight Co.",
+    "origin_ports": ["Manila", "Jakarta", "Busan"],
+    "destination_ports": ["Long Beach", "Kaohsiung", "Los Angeles"],
+    "container_types": [
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": false,
+    "reliability_score": 3.8,
+    "price_factor": 0.90,
+    "speed_factor": 1.10
+  },
+  {
+    "vendor_name": "Seaco Express",
+    "origin_ports": ["Singapore", "Qingdao", "Shanghai"],
+    "destination_ports": ["Oakland", "Ningbo", "Long Beach"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.1,
+    "price_factor": 1.12,
+    "speed_factor": 1.00
+  },
+  {
+    "vendor_name": "Aurora Shipping",
+    "origin_ports": ["Tokyo", "Busan", "Ningbo"],
+    "destination_ports": ["Los Angeles", "Long Beach", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Reefer", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.5,
+    "price_factor": 1.07,
+    "speed_factor": 1.02
+  },
+  {
+    "vendor_name": "Nexus Maritime",
+    "origin_ports": ["Jakarta", "Singapore", "Kaohsiung"],
+    "destination_ports": ["Oakland", "Los Angeles", "Long Beach"],
+    "container_types": [
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": false,
+    "reliability_score": 4.2,
+    "price_factor": 0.97,
+    "speed_factor": 1.08
+  },
+  {
+    "vendor_name": "Pacific Bridge Lines",
+    "origin_ports": ["Ho Chi Minh City", "Manila", "Shanghai"],
+    "destination_ports": ["Long Beach", "Los Angeles", "Oakland"],
+    "container_types": [
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 },
+      { "size": "40ft", "type": "Dry", "volume_ft3": 2390 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 3.9,
+    "price_factor": 0.93,
+    "speed_factor": 1.12
+  },
+  {
+    "vendor_name": "Starlink Cargo",
+    "origin_ports": ["Qingdao", "Tokyo", "Shenzhen"],
+    "destination_ports": ["Oakland", "Long Beach", "Los Angeles"],
+    "container_types": [
+      { "size": "40ft_highcube", "type": "Dry", "volume_ft3": 2690 },
+      { "size": "20ft", "type": "Dry", "volume_ft3": 1170 }
+    ],
+    "door_to_door_supported": true,
+    "reliability_score": 4.3,
+    "price_factor": 1.03,
+    "speed_factor": 1.06
+  }
+]
