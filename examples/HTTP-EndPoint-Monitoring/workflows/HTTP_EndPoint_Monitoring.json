@@ -1,6 +1,6 @@
 {
   "createTime": 1748368533339,
-  "updateTime": 1749071838788,
+  "updateTime": 1749249464863,
   "name": "HTTP_EndPoint_Monitoring",
   "description": "This workflow is designed to monitor the health of a specified HTTP endpoint",
   "version": 1,
@@ -61,7 +61,7 @@
       "defaultCase": [
         {
           "name": "sending_failure_alert",
-          "taskReferenceName": "sending_failure_alert_ref",
+          "taskReferenceName": "åsending_failure_alert_ref",
           "inputParameters": {
             "from": "${workflow.input.sender_email}",
             "to": "${workflow.input.customer_email}",
