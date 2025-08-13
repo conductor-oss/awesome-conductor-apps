@@ -1,0 +1,8 @@
+{
+  "type": "module",
+  "dependencies": {
+    "@io-orkes/conductor-javascript": "^2.1.4",
+    "dotenv": "^17.2.1",
+    "pdfkit": "^0.17.1"
+  }
+}
