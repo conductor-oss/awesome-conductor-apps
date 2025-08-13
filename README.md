@@ -1,6 +1,8 @@
 # Library of AWEsome Conductor sample applications
 This repository showcases sample applications built using Orkes Conductor, a powerful orchestration engine designed for microservices orchestration. These examples serve as practical guides for developers looking to implement complex workflows. 
 
+!["A illustrated banner for Conductor's Awesome Apps Readme file"](./AWE-Conductor_Banner_v2.jpg)
+
 ## Sample applications
 * [Payment processing SAGA with Conductor and Go](https://github.com/conductor-oss/conductor-apps/tree/main/go/saga)
 * [How to rate limit workflow executions with Conductor](https://github.com/conductor-oss/conductor-apps/java/rate_limit_application)
@@ -18,6 +20,8 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 
 ## Getting started
 ### Using Orkes Conductor Developer Edition
+
+!["A screenshot of the Conductor Developer Edition"](./AWE-Conductor_Screenshot_v2.png)
 
 1. Browse to https://developer.orkescloud.com/
 2. On the left menu select **Access Control** > [**Applications**](https://developer.orkescloud.com/applicationManagement/applications)
