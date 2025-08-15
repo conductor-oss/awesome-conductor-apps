@@ -1,0 +1,583 @@
+{
+    "createTime": 1754500725642,
+    "updateTime": 1755288255188,
+    "name": "ShippingVendorWorkflow",
+    "description": "workflow used to determine what vendor to go with when moving product",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "getProductDetails",
+        "taskReferenceName": "getProductDetails_ref",
+        "inputParameters": {
+          "SKU": "${workflow.input.SKU}",
+          "Units": "${workflow.input.Units}"
+        },
+        "type": "SIMPLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "cacheConfig": {
+          "key": "${totalVolume}",
+          "ttlInSecond": 10
+        },
+        "permissive": false
+      },
+      {
+        "name": "switch",
+        "taskReferenceName": "switch_ref",
+        "inputParameters": {
+          "isValidProduct": "${getProductDetails_ref.output.isValidProduct}"
+        },
+        "type": "SWITCH",
+        "decisionCases": {
+          "true": [
+            {
+              "name": "matchVendors",
+              "taskReferenceName": "matchVendors_ref",
+              "inputParameters": {
+                "Origin_Port": "${workflow.input.Origin_Port}",
+                "Destination_Port": "${workflow.input.Destination_Port}",
+                "Total_Volume": "${getProductDetails_ref.output.totalVolume}",
+                "Priority": "${workflow.input.Priority_Level}"
+              },
+              "type": "SIMPLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        },
+        "defaultCase": [
+          {
+            "name": "terminate",
+            "taskReferenceName": "terminate_ref",
+            "inputParameters": {
+              "terminationStatus": "COMPLETED",
+              "terminationReason": "${getProductDetails_ref.output.error}"
+            },
+            "type": "TERMINATE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "evaluatorType": "value-param",
+        "expression": "isValidProduct",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "topOptions",
+        "taskReferenceName": "topOptions_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  const vendors = $.vendors;\n\n  if (!Array.isArray(vendors) || vendors.length === 0) {\n    return { error: \"No vendors provided\" };\n  }\n\n  const cheapest = vendors.reduce((prev, curr) =>\n    curr.price < prev.price ? curr : prev\n  );\n\n  const fastest = vendors.reduce((prev, curr) =>\n    curr.deliveryTime < prev.deliveryTime ? curr : prev\n  );\n\n  const optimal = vendors.reduce((prev, curr) =>\n    curr.optimalScore < prev.optimalScore ? curr : prev\n  );\n\n  var timestamp = new Date().toISOString();\n\n  return {\n    fastest,\n    cheapest,\n    optimal,\n    audit: \"Narrowed down to fastest, cheapest, and most optimal options at \" + timestamp + \" UTC\"\n  };\n})();\n",
+          "evaluatorType": "graaljs",
+          "vendors": "${matchVendors_ref.output.matchedVendors}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "trimData",
+        "taskReferenceName": "trimData_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  var data = $.options; // { cheapest, fastest, optimal }\n\n  // USD formatter\n  var fmtUSD = function (n) {\n    try { return new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: \"USD\" }).format(n); }\n    catch (e) { return \"$\" + Number(n).toFixed(2); }\n  };\n\n  var cheapest = data.cheapest;\n  var fastest  = data.fastest;\n  var optimal  = data.optimal;\n\n  var cheapestText = \"Cheapest: \" + cheapest.vendorName +\n    \" | Size: \" + cheapest.containerSize +\n    \" | Delivery Time: \" + cheapest.deliveryTime + \" days\" +\n    \" | Price: \" + fmtUSD(cheapest.price);\n\n  var fastestText = \"Fastest: \" + fastest.vendorName +\n    \" | Size: \" + fastest.containerSize +\n    \" | Delivery Time: \" + fastest.deliveryTime + \" days\" +\n    \" | Price: \" + fmtUSD(fastest.price);\n\n  var optimalText = \"Optimal: \" + optimal.vendorName +\n    \" | Size: \" + optimal.containerSize +\n    \" | Delivery Time: \" + optimal.deliveryTime + \" days\" +\n    \" | Price: \" + fmtUSD(optimal.price);\n\n  // Count distinct vendor names across the three\n  var seen = {};\n  if (cheapest.vendorName) seen[cheapest.vendorName] = true;\n  if (fastest.vendorName)  seen[fastest.vendorName]  = true;\n  if (optimal.vendorName)  seen[optimal.vendorName]  = true;\n\n  var timestamp = new Date().toISOString();\n\n  return {\n    cheapestText: cheapestText,\n    fastestText: fastestText,\n    optimalText: optimalText,\n    distinctOptions: Object.keys(seen).length,\n    audit: \"trimmed vendor options to display the most relevant information at \" + timestamp + \" UTC\"\n  };\n})();\n",
+          "evaluatorType": "graaljs",
+          "options": "${topOptions_ref.output.result}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "vendorChoices",
+        "taskReferenceName": "vendorChoices_ref",
+        "inputParameters": {
+          "options": "${trimData_ref.output.result.distinctOptions}"
+        },
+        "type": "SWITCH",
+        "decisionCases": {
+          "1": [
+            {
+              "name": "human_1",
+              "taskReferenceName": "human_ref_1",
+              "inputParameters": {
+                "__humanTaskDefinition": {
+                  "assignmentCompletionStrategy": "LEAVE_OPEN",
+                  "assignments": [],
+                  "userFormTemplate": {
+                    "name": "customerOptions1",
+                    "version": 1
+                  },
+                  "displayName": "test-human3"
+                },
+                "optimal": "${trimData_ref.output.result.optimalText}",
+                "none": "None of the above"
+              },
+              "type": "HUMAN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "set_variable_1",
+              "taskReferenceName": "set_variable_1_ref",
+              "inputParameters": {
+                "chosenVendor": "${human_ref_1.output.chosenVendor}"
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "2": [
+            {
+              "name": "human_2",
+              "taskReferenceName": "human_ref_2",
+              "inputParameters": {
+                "__humanTaskDefinition": {
+                  "assignmentCompletionStrategy": "LEAVE_OPEN",
+                  "assignments": [],
+                  "displayName": "test-options2",
+                  "userFormTemplate": {
+                    "name": "customerOptions2",
+                    "version": 1
+                  }
+                },
+                "fastest": "${trimData_ref.output.result.fastestText}",
+                "cheapest": "${trimData_ref.output.result.cheapestText}",
+                "none": "None of the above"
+              },
+              "type": "HUMAN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "set_variable_2",
+              "taskReferenceName": "set_variable_2_ref",
+              "inputParameters": {
+                "chosenVendor": "${human_ref_2.output.chosenVendor}"
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "3": [
+            {
+              "name": "human_3",
+              "taskReferenceName": "human_ref_3",
+              "inputParameters": {
+                "__humanTaskDefinition": {
+                  "assignmentCompletionStrategy": "LEAVE_OPEN",
+                  "assignments": [],
+                  "userFormTemplate": {
+                    "name": "customerOptions3",
+                    "version": 1
+                  },
+                  "displayName": "test-options"
+                },
+                "optimal": "${trimData_ref.output.result.optimalText}",
+                "fastest": "${trimData_ref.output.result.fastestText}",
+                "cheapest": "${trimData_ref.output.result.cheapestText}",
+                "none": "None of the above"
+              },
+              "type": "HUMAN",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "set_variable_3",
+              "taskReferenceName": "set_variable_3_ref",
+              "inputParameters": {
+                "chosenVendor": "${human_ref_3.output.chosenVendor}"
+              },
+              "type": "SET_VARIABLE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        },
+        "defaultCase": [
+          {
+            "name": "noVendors",
+            "taskReferenceName": "noVendors_ref",
+            "inputParameters": {
+              "terminationStatus": "COMPLETED"
+            },
+            "type": "TERMINATE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "evaluatorType": "value-param",
+        "expression": "options",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "finalizedVendor",
+        "taskReferenceName": "finalizedVendor_ref",
+        "inputParameters": {
+          "chosenVendor": "${workflow.variables.chosenVendor}"
+        },
+        "type": "SWITCH",
+        "decisionCases": {
+          "None of the above": [
+            {
+              "name": "choseNone",
+              "taskReferenceName": "choseNone_ref",
+              "inputParameters": {
+                "terminationStatus": "COMPLETED",
+                "terminationReason": "Decided to choose no vendors"
+              },
+              "type": "TERMINATE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        },
+        "defaultCase": [
+          {
+            "name": "booking",
+            "taskReferenceName": "booking_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  // Example $.vendor input:\n  // \"Fastest: Maersk | Size: 20ft | Delivery Time: 13 days | Price: $10,263.56\"\n  var s = $.vendor || \"\";\n\n  // Extract vendor name\n  var colon = s.indexOf(\": \");\n  var after = colon !== -1 ? s.substring(colon + 2) : s;\n  var bar = after.indexOf(\" |\");\n  var vendorName = bar !== -1 ? after.substring(0, bar).trim() : after.trim();\n\n  // Extract container size\n  var sizeMatch = s.match(/Size:\\s*([^|]+)/);\n  var containerSize = sizeMatch ? sizeMatch[1].trim() : \"\";\n\n  // Extract delivery time\n  var deliveryMatch = s.match(/Delivery\\s*Time:\\s*([^|]+)/);\n  var deliveryTime = deliveryMatch ? deliveryMatch[1].trim() : \"\";\n\n  // Extract price\n  var priceMatch = s.match(/Price:\\s*(.+)$/);\n  var price = priceMatch ? priceMatch[1].trim() : \"\";\n\n  // Mock booking ID and timestamp\n  var bookingId = \"BK-\" + Date.now();\n  var timestamp = new Date().toISOString();\n\n  return {\n    bookingId: bookingId,\n    bookingMessage: \"Booking for \" + vendorName + \" successful!\",\n    vendor: vendorName,\n    containerSize: containerSize,\n    deliveryTime: deliveryTime,\n    price: price,\n    bookingTimestamp: timestamp,\n    audit: \"Booking for \" + vendorName + \" was successful at \" + timestamp + \" UTC!\"\n  };\n})();\n",
+              "evaluatorType": "graaljs",
+              "vendor": "${workflow.variables.chosenVendor}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "pdfGeneration",
+            "taskReferenceName": "pdfGeneration_ref",
+            "inputParameters": {
+              "vendor": "${booking_ref.output.result}",
+              "SKU": "${workflow.input.SKU}",
+              "units": "${workflow.input.Units}",
+              "origin": "${workflow.input.Origin_Port}",
+              "destination": "${workflow.input.Destination_Port}"
+            },
+            "type": "SIMPLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "evaluatorType": "value-param",
+        "expression": "chosenVendor",
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "fork",
+        "taskReferenceName": "fork_ref",
+        "inputParameters": {},
+        "type": "FORK_JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [
+          [
+            {
+              "name": "auditLogBuilder",
+              "taskReferenceName": "auditLogBuilder_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  return [\n    $.aud1,\n    $.aud2,\n    $.aud3,\n    $.aud4,\n    $.aud5,\n    $.aud6\n  ];\n})();\n",
+                "evaluatorType": "graaljs",
+                "aud1": "${getProductDetails_ref.output.audit}",
+                "aud2": "${matchVendors_ref.output.audit}",
+                "aud3": "${topOptions_ref.output.result.audit}",
+                "aud4": "${trimData_ref.output.result.audit}",
+                "aud5": "${booking_ref.output.result}",
+                "aud6": "${pdfGeneration_ref.output.audit}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          [
+            {
+              "name": "savingPDF",
+              "taskReferenceName": "savingPDF_ref",
+              "inputParameters": {
+                "expression": "(function () {  \n  var timestamp = new Date().toISOString();\n  return {\n    audit: \"PDF successfully saved as\" + $.filename + \" to \" + $.filepath +  \" at \" + timestamp + \" UTC\",\n    filename: $.filename,\n    filepath: $.filepath\n  };\n})();",
+                "evaluatorType": "graaljs",
+                "filename": "${pdfGeneration_ref.output.pdf.filename}",
+                "filepath": "${pdfGeneration_ref.output.pdf.filePath}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ]
+        ],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "join",
+        "taskReferenceName": "join_ref",
+        "inputParameters": {},
+        "type": "JOIN",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [
+          "auditLogBuilder_ref",
+          "savingPDF_ref"
+        ],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "email",
+        "taskReferenceName": "email_ref",
+        "inputParameters": {
+          "expression": "(function () {\n  var nowUtc = new Date().toISOString().replace(\"Z\", \"Z UTC\");\n  return (\n    \"Your shipping order has been successfully processed. \" +\n    \"The booking has been confirmed with all details recorded in our system, \" +\n    \"and your shipment is now scheduled for delivery. \" +\n    \"Thank you for choosing our service — we look forward to serving you again.\\n\\n\" +\n    \"Log:\\n\" + $.Log +\n    \"\\n\\nTimestamp: \" + nowUtc\n  );\n})();\n",
+          "evaluatorType": "graaljs",
+          "Log": "${auditLogBuilder_ref.output.result}"
+        },
+        "type": "INLINE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      },
+      {
+        "name": "confirmation",
+        "taskReferenceName": "confirmation_ref",
+        "inputParameters": {
+          "from": "${workflow.input.Sender_Email}",
+          "to": "${workflow.input.Customer_Email}",
+          "subject": "Confirmation of Order for Product Shipment",
+          "contentType": "text/plain",
+          "content": "${email_ref.output.result}",
+          "sendgridConfiguration": "MySendGrid"
+        },
+        "type": "SENDGRID",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "SKU",
+      "Units",
+      "Origin_Port",
+      "Destination_Port",
+      "Priority_Level",
+      "Customer_Email",
+      "Sender_Email"
+    ],
+    "outputParameters": {},
+    "failureWorkflow": "",
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "james.jacob@orkes.io",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "enforceSchema": true,
+    "metadata": {},
+    "maskedFields": []
+  }
