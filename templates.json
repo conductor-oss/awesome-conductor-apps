@@ -1,54 +1,2036 @@
 [
-    {
-        "id": "claims_workflow",
-        "title": "Claims workflow",
-        "description": "This workflow is used to process claims.",
-        "version": 1,
-        "featureLabelAndLinks": {
-            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
-        },
-        "githubProjectLinks": {
-            "TS": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow"
-        },
-        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/workflows/claim_workflow.json",
-        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/tasks/tasks.json",
-        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/user_forms/forms.json",
-        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/schemas/schemas.json",
-        "helpDocumentationLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/README.md",
-        "category": "Business",
-        "tags": [
-            "Business"
-        ],
-        "createdAt": "2023-10-11T00:09:22.978+00:00",
-        "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
-        "updatedAt": "2025-01-31T16:46:48.476+00:00",
-        "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+  {
+    "id": "claims_workflow",
+    "title": "Claims Workflow",
+    "description":
+      "A business process automation workflow designed to handle the insurance claims process. It leverages Netflix Conductor to automate.",
+    "version": 2,
+    "featureLabelAndLinks": {},
+    "githubProjectLinks": {
+      "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python"
     },
-    {
-        "id": "agentic_research",
-        "title": "Agentic Research",
-        "description": "Agentic Research Assistant",
+    "thumbnailUrl":
+      "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/agentic_research.gif",
+    "taskDefinitions": [
+      {
+        "createTime": 1745271034223,
+        "updateTime": 1745271050337,
+        "createdBy": "james.stuart@orkes.io",
+        "updatedBy": "james.stuart@orkes.io",
+        "name": "findPolicyForCustomer",
+        "description": "Finds the policy for a customer by name last name",
+        "retryCount": 0,
+        "timeoutSeconds": 3600,
+        "inputKeys": [],
+        "outputKeys": [],
+        "timeoutPolicy": "TIME_OUT_WF",
+        "retryLogic": "FIXED",
+        "retryDelaySeconds": 60,
+        "responseTimeoutSeconds": 600,
+        "concurrentExecLimit": 0,
+        "inputTemplate": {},
+        "rateLimitPerFrequency": 0,
+        "rateLimitFrequencyInSeconds": 1,
+        "ownerEmail": "james.stuart@orkes.io",
+        "pollTimeoutSeconds": 3600,
+        "backoffScaleFactor": 1,
+        "totalTimeoutSeconds": 0,
+        "enforceSchema": false
+      }
+    ],
+    "workflowDefinitions": [
+      {
+        "createTime": 1745270377565,
+        "updateTime": 1745272214972,
+        "name": "insurance_claim",
+        "description": "Business Process Automation -> Claims processing",
         "version": 1,
-        "featureLabelAndLinks": {
-            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
-        },
-        "githubProjectLinks": {
-            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python"
-        },
-        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/agentic_research.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/workflows/agentic_research.json",
-        "promptsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/prompts.json",
-        "integrationAndModelsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/integrations/integration_model.json",
-        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md",
-        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/schemas/schemas.json",
-        "category": "AI",
-        "tags": [
-            "AI"
+        "tasks": [
+          {
+            "name": "findPolicyForCustomer",
+            "taskReferenceName": "findPolicyForCustomer_ref",
+            "description": "Finds customer policy by first name and last name",
+            "inputParameters": {
+              "firstName": "${workflow.input.firstName}",
+              "lastName": "${workflow.input.lastName}"
+            },
+            "type": "SIMPLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "map_policies_to_menu_items",
+            "taskReferenceName": "map_policies_to_menu_items_ref",
+            "description": "Prepares data for human task",
+            "inputParameters": {
+              "expression": "(function () {\n  return $.policies.map(p => ({\n    \"const\": p.policy_number,\n    title: p.policy_type\n  }));\n})();",
+              "evaluatorType": "graaljs",
+              "policies": "${findPolicyForCustomer_ref.output.policies}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "human",
+            "taskReferenceName": "take_claim_ref",
+            "description": "Form to take claims information",
+            "inputParameters": {
+              "__humanTaskDefinition": {
+                "assignmentCompletionStrategy": "LEAVE_OPEN",
+                "assignments": [],
+                "userFormTemplate": {
+                  "name": "claimant_locator_form",
+                  "version": 1
+                }
+              },
+              "policyValues": "${map_policies_to_menu_items_ref.output.result}"
+            },
+            "type": "HUMAN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "policy_valid",
+            "taskReferenceName": "policy_valid_ref",
+            "description": "Determines if the policy is valid given the claim",
+            "inputParameters": {
+              "claim_details": "${take_claim_ref.output}",
+              "policyTypes": "${map_policies_to_menu_items_ref.output.result}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "yes": [
+                {
+                  "name": "createClaimForPolicy",
+                  "taskReferenceName": "createClaimForPolicy_ref",
+                  "description":
+                    "Persists the claim in the database for the given policy",
+                  "inputParameters": {
+                    "policyId": "${take_claim_ref.output.policy_picker}",
+                    "description":
+                      "${take_claim_ref.output.incident_description}"
+                  },
+                  "type": "SIMPLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "human",
+                  "taskReferenceName": "assesor_findings_ref",
+                  "description":
+                    "Asessor fills in finding from the place of the event",
+                  "inputParameters": {
+                    "__humanTaskDefinition": {
+                      "assignmentCompletionStrategy": "LEAVE_OPEN",
+                      "assignments": [],
+                      "userFormTemplate": {
+                        "name": "assesor_report",
+                        "version": 1
+                      }
+                    },
+                    "visible_assesments": []
+                  },
+                  "type": "HUMAN",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "incident_covered_by_policy",
+                  "taskReferenceName": "incident_covered_by_policy_ref",
+                  "description":
+                    "Determine if the incident is covered by the policy",
+                  "inputParameters": {
+                    "overall_coverage":
+                      "${assesor_findings_ref.output.overall_coverage}"
+                  },
+                  "type": "SWITCH",
+                  "decisionCases": {
+                    "yes": [
+                      {
+                        "name": "determine_price_of_damage",
+                        "taskReferenceName": "determine_price_of_damage_ref",
+                        "description": "Calculate the price of the damage",
+                        "inputParameters": {
+                          "expression": "(function () {\n  const costMap = {\n    \"Side collision Damage\": 2500,\n    \"Minor front door damage\": 500,\n    \"Windshield Damage\": 1000\n  }\n\n  const items = $.assesor_findings.map(va => {\n    //\n    const estimated_cost = costMap[va.get(\"damage_type\")]\n    return ({\n      description: va.get(\"damage_type\"),\n      estimated_cost,\n      coverage: va.get(\"coverage_determination\"),\n      covered_percentage: va.get(\"coverage_score\")\n    })\n  });\n\n  const totalCost = items.reduce((acc, { estimated_cost, coverage,covered_percentage }) => {\n    const total_damage_cost = acc.total_damage_cost + estimated_cost;\n    if (coverage === \"Not covered\") {\n      const total_non_covered_cost = acc.total_non_covered_cost + estimated_cost\n      return ({\n        total_covered_cost: acc.total_covered_cost,\n        total_non_covered_cost,\n        total_damage_cost\n      })\n\n    }\n    const vaPercent = Number(covered_percentage) / 100;\n    const totalToPay = estimated_cost * vaPercent;\n    const total_covered_cost = acc.total_covered_cost + totalToPay;\n\n\n    return ({\n      total_covered_cost,\n      total_non_covered_cost: acc.total_non_covered_cost,\n      total_damage_cost\n    })\n  }, { total_covered_cost: 0, total_non_covered_cost: 0, total_damage_cost: 0 });\n\n  return {\n    \"damage_estimation\": {\n      \"total_damage_cost\": totalCost.total_damage_cost,\n      \"items\": items\n    },\n    \"coverage_calculation\": {\n      \"total_covered_cost\": totalCost.total_covered_cost,\n      \"total_non_covered_cost\": totalCost.total_non_covered_cost,\n      \"explanation\": $.asessor_rationale\n    }\n  }\n\n})();",
+                          "evaluatorType": "graaljs",
+                          "assesor_findings":
+                            "${assesor_findings_ref.output.visible_assesments}",
+                          "asessor_rationale":
+                            "${assesor_findings_ref.output.rationale}"
+                        },
+                        "type": "INLINE",
+                        "decisionCases": {},
+                        "defaultCase": [],
+                        "forkTasks": [],
+                        "startDelay": 0,
+                        "joinOn": [],
+                        "optional": false,
+                        "defaultExclusiveJoinTask": [],
+                        "asyncComplete": false,
+                        "loopOver": [],
+                        "onStateChange": {},
+                        "permissive": false
+                      },
+                      {
+                        "name": "exceed_cost",
+                        "taskReferenceName": "exceed_cost_ref",
+                        "description": "Does the damage exceed a suspicious cost",
+                        "inputParameters": {
+                          "totalCost":
+                            "${determine_price_of_damage_ref.output.result.coverage_calculation.total_covered_cost}"
+                        },
+                        "type": "SWITCH",
+                        "decisionCases": {
+                          "yes": [
+                            {
+                              "name": "human",
+                              "taskReferenceName": "investigation_human_ref",
+                              "description":
+                                "Form for an additional investigation",
+                              "inputParameters": {
+                                "__humanTaskDefinition": {
+                                  "assignmentCompletionStrategy": "LEAVE_OPEN",
+                                  "assignments": [],
+                                  "userFormTemplate": {
+                                    "name": "on_site_investigation",
+                                    "version": 1
+                                  }
+                                },
+                                "investigation_city":
+                                  "${assesor_findings_ref.output.incident_city}",
+                                "investigation_street":
+                                  "${assesor_findings_ref.output.incident_street}",
+                                "investigation_state":
+                                  "${assesor_findings_ref.output.incident_state}",
+                                "witness_statements": []
+                              },
+                              "type": "HUMAN",
+                              "decisionCases": {},
+                              "defaultCase": [],
+                              "forkTasks": [],
+                              "startDelay": 0,
+                              "joinOn": [],
+                              "optional": false,
+                              "defaultExclusiveJoinTask": [],
+                              "asyncComplete": false,
+                              "loopOver": [],
+                              "onStateChange": {},
+                              "permissive": false
+                            },
+                            {
+                              "name": "after_investigation_is_it_covered",
+                              "taskReferenceName":
+                                "after_investigation_is_it_covered_ref",
+                              "description":
+                                "Given the new findings is the claim really covered",
+                              "inputParameters": {
+                                "switchCaseValue":
+                                  "${incident_covered_by_policy_ref.output.covered}"
+                              },
+                              "type": "SWITCH",
+                              "decisionCases": {
+                                "yes": []
+                              },
+                              "defaultCase": [
+                                {
+                                  "name": "terminate",
+                                  "taskReferenceName": "terminate_ref",
+                                  "description":
+                                    "Terminated after investigation.Incident not covered",
+                                  "inputParameters": {
+                                    "terminationStatus": "TERMINATED",
+                                    "terminationReason":
+                                      "Terminated after investigation.Incident not covered"
+                                  },
+                                  "type": "TERMINATE",
+                                  "decisionCases": {},
+                                  "defaultCase": [],
+                                  "forkTasks": [],
+                                  "startDelay": 0,
+                                  "joinOn": [],
+                                  "optional": false,
+                                  "defaultExclusiveJoinTask": [],
+                                  "asyncComplete": false,
+                                  "loopOver": [],
+                                  "onStateChange": {},
+                                  "permissive": false
+                                }
+                              ],
+                              "forkTasks": [],
+                              "startDelay": 0,
+                              "joinOn": [],
+                              "optional": false,
+                              "defaultExclusiveJoinTask": [],
+                              "asyncComplete": false,
+                              "loopOver": [],
+                              "evaluatorType": "graaljs",
+                              "expression": "(function () {\n    if ($.switchCaseValue) {\n     return \"yes\"\n    }\n  }())",
+                              "onStateChange": {},
+                              "permissive": false
+                            }
+                          ]
+                        },
+                        "defaultCase": [],
+                        "forkTasks": [],
+                        "startDelay": 0,
+                        "joinOn": [],
+                        "optional": false,
+                        "defaultExclusiveJoinTask": [],
+                        "asyncComplete": false,
+                        "loopOver": [],
+                        "evaluatorType": "graaljs",
+                        "expression": "(function () {\n   if($.totalCost>100){\n    return \"yes\"\n   }\n  }())",
+                        "onStateChange": {},
+                        "permissive": false
+                      },
+                      {
+                        "name": "terminate_2",
+                        "taskReferenceName": "terminate_ref_2",
+                        "description":
+                          "Terminated send the payment to the client",
+                        "inputParameters": {
+                          "terminationStatus": "COMPLETED",
+                          "terminationReason": "Send Payment to client"
+                        },
+                        "type": "TERMINATE",
+                        "decisionCases": {},
+                        "defaultCase": [],
+                        "forkTasks": [],
+                        "startDelay": 0,
+                        "joinOn": [],
+                        "optional": false,
+                        "defaultExclusiveJoinTask": [],
+                        "asyncComplete": false,
+                        "loopOver": [],
+                        "onStateChange": {},
+                        "permissive": false
+                      }
+                    ]
+                  },
+                  "defaultCase": [
+                    {
+                      "name": "terminate_1",
+                      "taskReferenceName": "terminate_ref_1",
+                      "description":
+                        "Terminated because the policy does not cover the incident",
+                      "inputParameters": {
+                        "terminationStatus": "TERMINATED",
+                        "terminationReason": "Policy does not cover incident"
+                      },
+                      "type": "TERMINATE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "evaluatorType": "graaljs",
+                  "expression": "(function () {\n  if($.overall_coverage!=\"Not Covered\"){\n    return \"yes\"\n  }\n   \n  }())",
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "terminate_by_invalid_policy",
+                "taskReferenceName": "terminate_by_invalid_policy_ref",
+                "description": "Terminated because of invalid policy",
+                "inputParameters": {
+                  "terminationStatus": "TERMINATED",
+                  "terminationReason": "Terminated because of invalid policy",
+                  "workflowOutput": {
+                    "error":
+                      "Invalid policy ${${take_claim_ref.output.policy_picker}"
+                  }
+                },
+                "type": "TERMINATE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "graaljs",
+            "expression": "(function () {\n  const claimDetails = $.claim_details;\n  if (claimDetails.get(\"policy_picker\")) {\n    const policyType = $.policyTypes.find(p => p[\"const\"] === claimDetails.get(\"policy_picker\"))\n    return policyType?.title === \"AUTO\" ? \"yes\" : \"policy-not-valid\";\n  }\n\n  return \"policy-not-valid\"\n\n}())",
+            "onStateChange": {},
+            "permissive": false
+          }
         ],
-        "createdAt": "2023-10-11T00:09:22.978+00:00",
-        "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
-        "updatedAt": "2025-01-31T16:46:48.476+00:00",
-        "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
-    }
+        "inputParameters": ["firstName", "lastName"],
+        "outputParameters": {},
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "james.stuart@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "inputSchema": {
+          "createTime": 0,
+          "updateTime": 0,
+          "name": "insurance-claims-input",
+          "version": 1,
+          "type": "JSON"
+        },
+        "enforceSchema": true,
+        "metadata": {
+          "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/main/typescript/claims-workflow/workers/install.sh)\"",
+          "readme":
+            "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/typescript/claims-workflow"
+        }
+      }
+    ],
+    "prompts": [],
+    "integrationsWithModels": [],
+    "secrets": [],
+    "environmentVariables": [],
+    "schedules": [],
+    "webhooks": [],
+    "remoteServices": [],
+    "userForms": [
+      {
+        "createTime": 1742230294084,
+        "updateTime": 1742230715069,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "assesor_report",
+        "version": 1,
+        "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "visible_assesments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "damage_visible": {
+                    "type": "boolean"
+                  },
+                  "damage_type": {
+                    "type": "string",
+                    "enum": [
+                      "Side collision Damage",
+                      "Minor front door damage",
+                      "Windshield Damage"
+                    ]
+                  },
+                  "coverage_determination": {
+                    "type": "string",
+                    "enum": ["Covered", "Not Covered"]
+                  },
+                  "coverage_score": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "field_description_text_luo5agk13g": {
+              "type": "string"
+            },
+            "overall_coverage": {
+              "type": "string",
+              "enum": ["Partially Covered", "Full Coverage", "Not Covered"]
+            },
+            "rationale": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/visible_assesments"
+            },
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/field_description_text_luo5agk13g",
+                  "label": "Overall Determination",
+                  "options": {
+                    "multi": true,
+                    "readonly": true,
+                    "display": "description-text"
+                  }
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/overall_coverage",
+                  "label": "Overall Coverage",
+                  "options": {}
+                },
+                {
+                  "type": "Control",
+                  "scope": "#/properties/rationale",
+                  "label": "Rationale"
+                }
+              ]
+            },
+            {
+              "type": "VerticalLayout",
+              "elements": [
+                {
+                  "type": "Control",
+                  "scope": "#/properties/notes",
+                  "label": "Notes",
+                  "options": {
+                    "multi": true
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "createTime": 1741979242314,
+        "updateTime": 1742219514084,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "claimant_locator_form",
+        "version": 1,
+        "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "incident_city": {
+              "type": "string"
+            },
+            "incident_street": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string",
+              "enum": ["CA", "MIA", "NY"]
+            },
+            "policy_picker": {
+              "type": "string",
+              "oneOf": "${policyValues}"
+            },
+            "incident_description": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "HorizontalLayout",
+              "elements": [
+                {
+                  "type": "VerticalLayout",
+                  "elements": [
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/incident_city",
+                      "label": "City"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/incident_street",
+                      "label": "Street"
+                    },
+                    {
+                      "type": "Control",
+                      "scope": "#/properties/state",
+                      "label": "State",
+                      "options": {}
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/policy_picker",
+              "label": "Policy Picker",
+              "options": {
+                "autocomplete": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/incident_description",
+              "label": "Description",
+              "options": {
+                "multi": true
+              }
+            }
+          ]
+        }
+      },
+      {
+        "createTime": 1742419368052,
+        "updateTime": 1742421336980,
+        "createdBy": "USER:james.stuart@orkes.io",
+        "updatedBy": "USER:james.stuart@orkes.io",
+        "name": "on_site_investigation",
+        "version": 1,
+        "jsonSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "investiagation_city": {
+              "type": "string"
+            },
+            "investigation_city": {
+              "type": "string"
+            },
+            "investigation_street": {
+              "type": "string"
+            },
+            "investigation_state": {
+              "type": "string",
+              "enum": ["CA", "MIA", "NY"]
+            },
+            "investigation_description": {
+              "type": "string"
+            },
+            "field_description_text_kb72ahmysg": {
+              "type": "string"
+            },
+            "inestigation_weather_conditions": {
+              "type": "string"
+            },
+            "investigation_context": {
+              "type": "string"
+            },
+            "field_description_text_558wyek6v": {
+              "type": "string"
+            },
+            "investigation_structural_damage": {
+              "type": "string"
+            },
+            "witness_statements": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        },
+        "templateUI": {
+          "type": "VerticalLayout",
+          "elements": [
+            {
+              "type": "Control",
+              "scope": "#/properties/investiagation_city",
+              "label": "Location",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_city",
+              "label": "City"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_street",
+              "label": "Street"
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_state",
+              "label": "State",
+              "options": {}
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_description",
+              "label": "Description",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/field_description_text_kb72ahmysg",
+              "label": "Weather Conditions",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/inestigation_weather_conditions",
+              "label": "Weather Conditions",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_context",
+              "label": "Incident Context",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/field_description_text_558wyek6v",
+              "label": "Inspection Findings",
+              "options": {
+                "multi": true,
+                "readonly": true,
+                "display": "description-text"
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/investigation_structural_damage",
+              "label": "Structural Damage",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/witness_statements",
+              "label": "Witness statements",
+              "options": {
+                "multi": true
+              }
+            },
+            {
+              "type": "Control",
+              "scope": "#/properties/notes",
+              "label": "Notes",
+              "options": {
+                "multi": true
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "schemas": [
+      {
+        "createTime": 1745262876598,
+        "updateTime": 1745262876598,
+        "createdBy": "james.stuart@orkes.io",
+        "updatedBy": "james.stuart@orkes.io",
+        "name": "insurance-claims-input",
+        "version": 1,
+        "type": "JSON",
+        "data": {
+          "type": "object",
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "firstName": {
+              "type": "string",
+              "default": "John"
+            },
+            "lastName": {
+              "type": "string",
+              "default": "Doe"
+            }
+          },
+          "required": ["firstName", "lastName"]
+        }
+      }
+    ],
+    "placeholders": [
+      {
+        "key": "OPEN_AI_INTEGRATION_NAME",
+        "value": "openai_a"
+      }
+    ],
+    "helpDocumentationLink":
+      "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md",
+    "category": "Business",
+    "tags": ["Business"],
+    "createdAt": "2023-10-11T00:09:22.978+00:00",
+    "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+    "updatedAt": "2025-01-31T16:46:48.476+00:00",
+    "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+  },
+  {
+    "id": "agentic_research",
+    "title": "Agentic Research",
+    "description": "Automate AI-powered research workflows that gather, analyze, and synthesize information from multiple sources.",
+    "version": 2,
+    "featureLabelAndLinks": {
+      "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
+    },
+    "githubProjectLinks": {
+      "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python"
+    },
+    "helpDocumentationLink": "https://orkes.io/content/templates/agentic-research",
+    "thumbnailUrl":
+      "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/agentic_research.gif",
+    "workflowDefinitions": [
+      {
+        "createTime": 1747255718592,
+        "updateTime": 1747256349746,
+        "name": "agentic_research",
+        "description": "Agentic Research Assistant",
+        "version": 2,
+        "tasks": [
+          {
+            "name": "set_global_variables",
+            "taskReferenceName": "set_global_variables_ref",
+            "description": "Define global variables that will be used",
+            "inputParameters": {
+              "answer": " ",
+              "query": "${workflow.input.question}",
+              "lit_reviews": [],
+              "research_gaps": []
+            },
+            "type": "SET_VARIABLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "fork",
+            "taskReferenceName": "fork_ref",
+            "description": "",
+            "inputParameters": {},
+            "type": "FORK_JOIN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [
+              [
+                {
+                  "name": "break_into_subtopics",
+                  "taskReferenceName": "break_into_subtopics_ref",
+                  "description":
+                    "Break a research query into distinct subtopics.",
+                  "inputParameters": {
+                    "llmProvider": "openAI",
+                    "model": "gpt-4o",
+                    "promptName": "break_into_subtopics",
+                    "promptVariables": {
+                      "user-query": "${workflow.variables.query}"
+                    }
+                  },
+                  "type": "LLM_TEXT_COMPLETE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "taskDefinition": {
+                    "createTime": 0,
+                    "updateTime": 0,
+                    "retryCount": 3,
+                    "timeoutSeconds": 0,
+                    "inputKeys": [],
+                    "outputKeys": [],
+                    "timeoutPolicy": "TIME_OUT_WF",
+                    "retryLogic": "FIXED",
+                    "retryDelaySeconds": 60,
+                    "responseTimeoutSeconds": 3600,
+                    "inputTemplate": {},
+                    "rateLimitPerFrequency": 0,
+                    "rateLimitFrequencyInSeconds": 1,
+                    "backoffScaleFactor": 1,
+                    "totalTimeoutSeconds": 0,
+                    "enforceSchema": false
+                  },
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "cacheConfig": {
+                    "key": "${promptVariables}-break_into_subtopics_ref",
+                    "ttlInSecond": 3600
+                  },
+                  "permissive": false
+                },
+                {
+                  "name": "cast_subtopics_array",
+                  "taskReferenceName": "cast_subtopics_array_ref",
+                  "description": "Cast topics to an array",
+                  "inputParameters": {
+                    "expression":
+                      "(function () {\n  const array = JSON.parse($.subtopics);\n  return array;\n})();",
+                    "evaluatorType": "graaljs",
+                    "subtopics": "${break_into_subtopics_ref.output.result}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              [
+                {
+                  "name": "determine_research_task",
+                  "taskReferenceName": "determine_research_task_ref",
+                  "description":
+                    "Based on the user's query, determine subsequent tasks research-gap, literature-review, both or none.",
+                  "inputParameters": {
+                    "llmProvider": "openAI",
+                    "model": "gpt-4o",
+                    "promptName": "query_task_decision",
+                    "promptVariables": {
+                      "user-query": "${workflow.input.question}"
+                    }
+                  },
+                  "type": "LLM_TEXT_COMPLETE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "cacheConfig": {
+                    "key": "${promptVariables}-determine_research_task_ref",
+                    "ttlInSecond": 3600
+                  },
+                  "permissive": false
+                }
+              ]
+            ],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "join",
+            "taskReferenceName": "join_ref",
+            "inputParameters": {},
+            "type": "JOIN",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": ["cast_subtopics_array_ref", "determine_research_task_ref"],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "set_llm_output",
+            "taskReferenceName": "set_llm_output_ref",
+            "description":
+              "Persist subtopics and determination to context/variables",
+            "inputParameters": {
+              "subtopics": "${cast_subtopics_array_ref.output.result}",
+              "decision": "${determine_research_task_ref.output.result}"
+            },
+            "type": "SET_VARIABLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "switch",
+            "taskReferenceName": "switch_ref",
+            "description": "Build dynamic tasks based on determination",
+            "inputParameters": {
+              "taskDecision": "${workflow.variables.decision}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "literature-review": [
+                {
+                  "name": "set_lit_review_task",
+                  "taskReferenceName": "set_lit_review_task_ref",
+                  "description": "Create dynamic tasks for literature-review",
+                  "inputParameters": {
+                    "dynamicTasks": [
+                      {
+                        "name": "lit_review_task",
+                        "taskReferenceName": "lit_review_task_ref",
+                        "inputParameters": {
+                          "llmProvider": "perplexity",
+                          "model": "sonar",
+                          "promptVariables": {
+                            "sub-topic":
+                              "${get_current_subtask_ref.output.result}"
+                          },
+                          "promptName": "literature_review_task",
+                          "maxTokens": 16384
+                        },
+                        "type": "LLM_TEXT_COMPLETE"
+                      }
+                    ]
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "research-gap": [
+                {
+                  "name": "set_research_gap_task",
+                  "taskReferenceName": "set_research_gap_task_ref",
+                  "description": "Create dynamic tasks for research-gap",
+                  "inputParameters": {
+                    "dynamicTasks": [
+                      {
+                        "name": "research_gap_task",
+                        "taskReferenceName": "research_gap_task_ref",
+                        "inputParameters": {
+                          "llmProvider": "perplexity",
+                          "model": "sonar",
+                          "promptVariables": {
+                            "sub-topic":
+                              "${get_current_subtask_ref.output.result}"
+                          },
+                          "promptName": "research_gap_task",
+                          "maxTokens": 16384
+                        },
+                        "type": "LLM_TEXT_COMPLETE"
+                      }
+                    ]
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "both": [
+                {
+                  "name": "set_both_tasks",
+                  "taskReferenceName": "set_both_tasks_ref",
+                  "description":
+                    "Create dynamic tasks for both research-gap and literature review",
+                  "inputParameters": {
+                    "dynamicTasks": [
+                      {
+                        "name": "lit_review_task",
+                        "taskReferenceName": "lit_review_task_ref",
+                        "inputParameters": {
+                          "llmProvider": "perplexity",
+                          "model": "sonar",
+                          "promptVariables": {
+                            "sub-topic":
+                              "${get_current_subtask_ref.output.result}"
+                          },
+                          "promptName": "literature_review_task",
+                          "maxTokens": 16384
+                        },
+                        "type": "LLM_TEXT_COMPLETE",
+                        "maxTokens": 16384
+                      },
+                      {
+                        "name": "research_gap_task",
+                        "taskReferenceName": "research_gap_task_ref",
+                        "inputParameters": {
+                          "llmProvider": "perplexity",
+                          "model": "sonar",
+                          "promptVariables": {
+                            "sub-topic":
+                              "${get_current_subtask_ref.output.result}"
+                          },
+                          "promptName": "research_gap_task"
+                        },
+                        "type": "LLM_TEXT_COMPLETE",
+                        "maxTokens": 16384
+                      }
+                    ]
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "terminate",
+                "taskReferenceName": "terminate_ref",
+                "description": "Terminating. not a proper research query",
+                "inputParameters": {
+                  "terminationStatus": "COMPLETED",
+                  "terminationReason": "Not a proper research query"
+                },
+                "type": "TERMINATE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "value-param",
+            "expression": "taskDecision",
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "do_while",
+            "taskReferenceName": "do_while_ref",
+            "inputParameters": {
+              "subtopics": "${workflow.variables.subtopics}"
+            },
+            "type": "DO_WHILE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopCondition":
+              "(function () {\n  if ($.do_while_ref['iteration'] < $.subtopics.length) {\n    return true;\n  }\n  return false;\n})();",
+            "loopOver": [
+              {
+                "name": "get_current_subtask",
+                "taskReferenceName": "get_current_subtask_ref",
+                "description": "Get current subtopic from iteration",
+                "inputParameters": {
+                  "expression":
+                    "(function () { \n  const i = $.iteration - 1;\n  return $.subtopics[i];\n})();",
+                  "evaluatorType": "graaljs",
+                  "iteration": "${do_while_ref.output.iteration}",
+                  "subtopics": "${workflow.variables.subtopics}"
+                },
+                "type": "INLINE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "fork_join_dynamic",
+                "taskReferenceName": "fork_join_dynamic_ref",
+                "description": "Run previously built dynamic tasks",
+                "inputParameters": {
+                  "dynamicTasks": "${workflow.variables.dynamicTasks}",
+                  "dynamicTasksInput": {
+                    "lit_review_task_ref": {
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "literature_review_task"
+                    },
+                    "research_gap_task_ref": {
+                      "promptVariables": {
+                        "sub-topic": "${get_current_subtask_ref.output.result}"
+                      },
+                      "promptName": "research_gap_task"
+                    }
+                  }
+                },
+                "type": "FORK_JOIN_DYNAMIC",
+                "decisionCases": {},
+                "dynamicForkTasksParam": "dynamicTasks",
+                "dynamicForkTasksInputParamName": "dynamicTasksInput",
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "join_1",
+                "taskReferenceName": "join_1_ref",
+                "inputParameters": {},
+                "type": "JOIN",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "switch_1",
+                "taskReferenceName": "switch_ref_1",
+                "description": "Categorize prompts response",
+                "inputParameters": {
+                  "taskDecision": "${workflow.variables.decision}"
+                },
+                "type": "SWITCH",
+                "decisionCases": {
+                  "both": [
+                    {
+                      "name": "concat_both_tasks",
+                      "taskReferenceName": "concat_both_tasks_ref",
+                      "inputParameters": {
+                        "expression":
+                          "(function () {\n  return {\n    lit_reviews: [...$.lit_reviews, $.new_lit_review],\n    research_gaps: [...$.research_gaps, $.new_research_gap]\n  };\n})();",
+                        "evaluatorType": "graaljs",
+                        "lit_reviews": "${workflow.variables.lit_reviews}",
+                        "new_lit_review": "${lit_review_task_ref.output.result}",
+                        "research_gaps": "${workflow.variables.research_gaps}",
+                        "new_research_gap":
+                          "${research_gap_task_ref.output.result}"
+                      },
+                      "type": "INLINE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    },
+                    {
+                      "name": "add_both_tasks",
+                      "taskReferenceName": "add_both_tasks_ref",
+                      "description": "Persist into context/variables",
+                      "inputParameters": {
+                        "lit_reviews":
+                          "${concat_both_tasks_ref.output.result.lit_reviews}",
+                        "research_gaps":
+                          "${concat_both_tasks_ref.output.result.research_gaps}"
+                      },
+                      "type": "SET_VARIABLE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ],
+                  "research-gap": [
+                    {
+                      "name": "concat_research_gap_task",
+                      "taskReferenceName": "concat_research_gap_task_ref",
+                      "inputParameters": {
+                        "expression":
+                          "(function () {\n  return {\n    research_gaps: [...$.research_gaps, $.new_research_gap]\n  };\n})();",
+                        "evaluatorType": "graaljs",
+                        "research_gaps": "${workflow.variables.research_gaps}",
+                        "new_research_gap":
+                          "${research_gap_task_ref.output.result}"
+                      },
+                      "type": "INLINE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    },
+                    {
+                      "name": "add_research_gap_task",
+                      "taskReferenceName": "add_research_gap_task_ref",
+                      "description": "Persist into context/variables",
+                      "inputParameters": {
+                        "research_gaps":
+                          "${concat_research_gap_task_ref.output.result.research_gaps}"
+                      },
+                      "type": "SET_VARIABLE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ],
+                  "literature-review": [
+                    {
+                      "name": "concat_lit_review_task",
+                      "taskReferenceName": "concat_lit_review_task_ref",
+                      "inputParameters": {
+                        "expression":
+                          "(function () {\n  return {\n    lit_reviews: [...$.lit_reviews, $.new_lit_review],\n  };\n})();",
+                        "evaluatorType": "graaljs",
+                        "lit_reviews": "${workflow.variables.lit_reviews}",
+                        "new_lit_review": "${lit_review_task_ref.output.result}"
+                      },
+                      "type": "INLINE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    },
+                    {
+                      "name": "add_lit_review_task",
+                      "taskReferenceName": "add_lit_review_task_ref",
+                      "description": "Persist into context/variables",
+                      "inputParameters": {
+                        "lit_reviews":
+                          "${concat_lit_review_task_ref.output.result.lit_reviews}"
+                      },
+                      "type": "SET_VARIABLE",
+                      "decisionCases": {},
+                      "defaultCase": [],
+                      "forkTasks": [],
+                      "startDelay": 0,
+                      "joinOn": [],
+                      "optional": false,
+                      "defaultExclusiveJoinTask": [],
+                      "asyncComplete": false,
+                      "loopOver": [],
+                      "onStateChange": {},
+                      "permissive": false
+                    }
+                  ]
+                },
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "evaluatorType": "value-param",
+                "expression": "taskDecision",
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "evaluatorType": "graaljs",
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "compile_subtopics_response",
+            "taskReferenceName": "compile_subtopics_response_ref",
+            "description": "Compile the report",
+            "inputParameters": {
+              "llmProvider": "AnthropicClaude",
+              "model": "claude-3-7-sonnet-20250219",
+              "promptName": "compile_subtopic_responses",
+              "promptVariables": {
+                "research_gaps": "${workflow.variables.research_gaps}",
+                "lit_reviews": "${workflow.variables.lit_reviews}",
+                "original_question": "${workflow.variables.query}"
+              },
+              "maxTokens": 16384
+            },
+            "type": "LLM_TEXT_COMPLETE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "strip_new_lines",
+            "taskReferenceName": "strip_new_lines_ref",
+            "description": "Get rid of the new line chars",
+            "inputParameters": {
+              "expression":
+                "(function () {\n  return $.answer.replace(/\\n/g, '');\n})();",
+              "evaluatorType": "graaljs",
+              "answer": "${compile_subtopics_response_ref.output.result}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "set_output",
+            "taskReferenceName": "set_output_ref",
+            "inputParameters": {
+              "answer": "${strip_new_lines_ref.output.result}"
+            },
+            "type": "SET_VARIABLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "save_pdf",
+            "taskReferenceName": "save_pdf_ref",
+            "description": "Save pdf in given directory",
+            "inputParameters": {
+              "input_data": "${workflow.variables.answer}",
+              "filename": "${workflow.input.filename}"
+            },
+            "type": "SIMPLE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "inputParameters": ["question", "filename"],
+        "outputParameters": {
+          "answer": "${workflow.variables.answer}"
+        },
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "james.stuart@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "inputSchema": {
+          "name": "agentic-research-input",
+          "version": 1,
+          "type": "JSON"
+        },
+        "enforceSchema": true,
+        "metadata": {
+          "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/agent_research_fix_enh/python/agentic_research/workers/install.sh)\"",
+          "readme":
+            "https://github.com/conductor-oss/awesome-conductor-apps/blob/agent_research_fix_enh/python/agentic_research/README.md"
+        }
+      }
+    ],
+    "prompts": [
+      {
+        "name": "break_into_subtopics",
+        "template": "You are an academic research agent. Your task is to identify relevant and specific sub-topics within the field mentioned in the user\"s query:\n\"${user-query}\"\n\nMake sure:\n- If the query is broad, generate a diverse but representative set of sub-topics (up to 5).\n- If the query is narrow or specific, output only the most relevant sub-topics (fewer than 5 is fine).\n- Sub-topics must directly align with the focus of the query—avoid generalities.\n- Only output a JSON-style array of topic strings.\n\nEx. 1\nInput: \"What are the latest findings in child development psychology?\"\nOutput: [\"cognitive development\", \"emotional and social development\", \"language acquisition\", \"attachment and parenting styles\", \"impact of technology on development\"]\n\nEx. 2\nInput: \"What is still unknown about neutron stars?\"\nOutput: [\"interior composition and equation of state\", \"post-merger behavior\", \"magnetic field dynamics\"]\n\nEx. 3\nInput: \"What are the implications of microplastics in drinking water?\"\nOutput: [\"human health impacts of microplastics\", \"microplastic contamination pathways\", \"removal methods in water treatment systems\"]\n\nEx. 4\nInput: \"I want to know what are the current efforts into the taxonomy of Singapore\"s fly species.\"\nOutput: [\"taxonomic classification of Diptera in Southeast Asia\", \"endemic fly species in Singapore\", \"molecular phylogenetics of Singaporean flies\", \"biodiversity surveys and insect sampling methods in urban tropics\"]",
+        "description": "Break a research query into distinct subtopics.",
+        "variables": ["user-query"],
+        "integrations": ["openAI:gpt-4o"]
+      },
+      {
+        "name": "query_task_decision",
+        "template": "You are an academic research agent.\n\nGiven the user\"s request, identify what kind of research task they want to perform:\n\nOptions:\n- literature-review - if they are asking for a summary of existing knowledge\n- research-gap - if they want to identify what is still unknown or under-researched\n- both - if they want both a literature review and to find gaps\n- none - if the query doesn\"t request any research\n\nUser query: \"${user-query}\"\n\nOutput only one of: \"literature-review\", \"research-ga\"], \"both\", or \"none\"\n\nEx. 1\nQuery: What are the latest findings in child development psychology?\nOutput: literature-review\n\nEx. 2\nQuery: What is still unknown about neutron stars?\nOutput: research-ga\"]\nEx. 3\nQuery: What do we know and don\"t know about black holes?\nOutput: both\n\nEx. 4\nQuery: Write me a Haiku!\nOutput: none",
+        "description":
+          "Based on the user's query, determine subsequent tasks research-gap, literature-review, both or none.",
+        "variables": ["user-query"],
+        "integrations": ["openAI:gpt-4o"]
+      },
+      {
+        "name": "literature_review_task",
+        "template": "You are an academic research assistant.\n\nYour task is to write a concise literature review for the following topic:\n\"${sub-topic}\"\n\nFollow these instructions carefully:\n\n🔍 Use Only Verifiable Information\n- Base your summary solely on reliable academic sources.\n- If no credible information is available on a point, do not make assumptions or generalizations. It is better to omit than speculate.\n📚 Ground the Review in Real Citations\n- As much as possible, include author names, publication years, or study titles.\n- If such details are not available, clearly state the lack of citation rather than inventing examples.\n✍️ Tone and Style\n- Write in a concise, academic, and readable tone.\n- Highlight foundational theories, well-known studies, and recent developments in the field.\n- Do not overstate the certainty of findings; reflect the nuance and debate present in the literature.\n🧠 Structure and Focus\n- Focus on summarizing what is well-understood or frequently studied.\n- If relevant, note key gaps or disagreements in the research.\n\nExample Inputs and Expected Outputs:\n\nSub-Topic 1: \"attachment theory\"\nOutput 1: \"Attachment theory, developed by John Bowlby in the mid-20th century, posits that early emotional bonds between children and caregivers are critical for psychological development. Mary Ainsworth\"s \"Strange Situation\" study (1978) identified attachment styles such as secure, avoidant, and anxious. Recent literature explores how attachment patterns persist into adulthood (Mikulincer & Shaver, 2016) and how cultural contexts influence attachment behavior. Neurobiological research has also linked secure attachment to lower stress reactivity in infants.\"\n\nSub-Topic 2: \"neutron star mergers and gravitational waves\"\nOutput 2: \"Neutron star mergers are a key source of gravitational waves, as confirmed by the landmark detection of GW170817 in 2017 by LIGO and Virgo. These events provide insight into the r-process nucleosynthesis responsible for heavy elements like gold and platinum. Literature since 2018 has focused on electromagnetic counterparts (e.g., kilonovae), constraints on the neutron star equation of state, and the role of binary evolution in producing merger progenitors. Current research emphasizes multi-messenger astronomy and refining mass-radius measurements through future observations.\"\n\nSub-Topic 3: \"quantum computing in early childhood education\"\nOutput 3: \"There is currently limited peer-reviewed literature directly addressing the use of quantum computing in early childhood education. While quantum computing is an emerging field in computer science and physics, its application in K–12 education—particularly among early learners—has not been widely explored. Existing studies on quantum education primarily focus on undergraduate and graduate-level curricula (e.g., Singh et al., 2020) or public engagement strategies. Future interdisciplinary research could examine how simplified quantum concepts might be introduced in age-appropriate educational contexts, but as of now, this remains an underexplored area in the academic literature.\"\n\nTips for Strong Literature Review:\n- Be specific about the tone: \"concise,\" \"academic,\" \"grounded in research\"\n- Encourage citations and publication dates to increase trust\n- Prompt for recent and foundational work\n- If using a web-search agent, you can also instruct the model to \"retrieve recent peer-reviewed sources\" before summarizing",
+        "description": "Given a subtopic, conduct a literature review.",
+        "variables": ["sub-topic"],
+        "integrations": [
+          "perplexity:sonar-pro",
+          "perplexity:sonar-deep-research",
+          "perplexity:sonar",
+          "openAI:gpt-4o"
+        ]
+      },
+      {
+        "createdBy": "karl.goeltner@orkes.io",
+        "updatedBy": "karl.goeltner@orkes.io",
+        "name": "research_gap_task",
+        "template": "You are an academic research assistant.\n\nYour task is to identify verifiable research gaps in the following topic:\n\"${sub-topic}\"\n\nCarefully review the existing body of knowledge and pinpoint areas that remain poorly understood, underexplored, or debated. Focus on:\n- Unanswered questions highlighted by recent reviews or studies\n- Methodological limitations (e.g., sample size, bias, study design)\n- Outdated theories or assumptions challenged by newer work\n- Contradictions between major findings or schools of thought\n- Population or context-specific gaps (e.g., non-Western settings, underrepresented groups)\n\nWrite in an academic yet accessible tone. Each gap should be clearly framed to guide future research efforts.\n\n⚠️ If insufficient peer-reviewed literature exists on the topic, explicitly state that the research field is still emerging or underdeveloped.\n\nAs much as possible, reference key authors, study names, or publication years to justify why these gaps persist and why they matter.\n\nExample Inputs and Expected Outputs:\n\nSub-Topic 1: \"attachment theory\"\nOutput 1: \"While attachment theory is well-established, several gaps remain. For example, there is limited understanding of how digital communication platforms (e.g., texting, social media) affect attachment formation during adolescence (see Madigan et al., 2018). Cross-cultural validation is also limited; most empirical studies focus on Western contexts, with relatively little research from collectivist cultures (Mesman et al., 2016). Additionally, longitudinal studies tracking the impact of early attachment on adult psychopathology across diverse populations are scarce, hindering broader generalizability.\"\n\nSub-Topic 2: \"neutron star mergers and gravitational waves\"\nOutput 2: \"Despite the breakthrough observation of GW170817 (Abbott et al., 2017), major research gaps persist. One involves the poorly constrained role of magnetic fields in post-merger dynamics, which remain difficult to simulate accurately. Another is the uncertainty around how much mass is ejected during mergers and its impact on r-process nucleosynthesis. Current theoretical models often diverge from observational estimates, particularly regarding kilonova brightness and decay curves (Metzger, 2019).\"\n\nSub-Topic 3: \"impact of technology on child development\"\nOutput 3: \"While research on screen time is abundant, gaps remain in understanding how different types of digital content—interactive vs. passive—affect cognitive outcomes (Rideout & Robb, 2021). There is also limited research on the influence of AI-generated or algorithmically curated content on children\"s language and emotional development. Furthermore, few large-scale studies explore how socio-economic disparities mediate access, content quality, and parental mediation practices.\"\n\nTips for Strong Research Gap Analysis:\n- Analyze limitations in the current research, not just summarize it.\n- Use cues like underexplored, contradictory, outdated, or not well understood.\n- Encourage it to include why a gap matters (i.e. “this gap impedes X”).\n- Mentioning methodological or population-specific gaps often adds depth.",
+        "description": "Given a subtopic, conduct a research-gap analysis.",
+        "variables": ["sub-topic"],
+        "integrations": [
+          "perplexity:sonar-pro",
+          "perplexity:sonar-deep-research",
+          "perplexity:sonar",
+          "openAI:gpt-4o"
+        ]
+      },
+      {
+        "name": "compile_subtopic_responses",
+        "template": "You are an academic research assistant.\n\nYou are given information on sub-topics within a broader research field. This information may include:\n- A list of literature reviews (summaries of key findings, theories, or recent work)\n- A list of research gaps (open questions, underexplored areas, or suggested future research)\n\nYou may receive one, the other, or both.\n\nYour task is to generate a single, synthesized literature review that addresses the original research question:\n${original_question}\n\nOrganize the report according to the information from the subtopics:\n- Summarize the key points under a \"Literature Review\" section (if provided).\n- List any identified research gaps under a \"Research Gaps\" section (if provided).\n- If only one type of content is available, include just that.\n- Avoid structuring the report by each subtopic, it should be synthesized to the original question.\n\nYour final output should be:\n- A cohesive, academic-style report written in a formal tone using all sub-topics\n- Focused on synthesizing the provided content to give a holistic view of the research landscape related to the original question\n\nEnsure the output is in HTML format and fully wrapped in appropriate <html>, <head>, and <body> tags. Use the following structure:\n1. HTML Structure:\n- Use <h1>, <h2>, <h3> tags for headings.\n- Use <p> tags for paragraphs.\n- Use <ul> and <li> for lists.\n\nHere is the data:\n\nLiterature Reviews:\n${lit_reviews}\n\nResearch Gaps:\n${research_gaps}\n\nGenerate a synthesized academic report accordingly.",
+        "description":
+          "Given a list of literature reviews and/or research gap analysis, compile a report.",
+        "variables": ["original_question", "research_gaps", "lit_reviews"],
+        "integrations": [
+          "AnthropicClaude:claude-3-7-sonnet-20250219",
+          "openAI:gpt-4o",
+          "AnthropicClaude:claude-3-5-sonnet-20240620"
+        ]
+      }
+    ],
+    "integrationsWithModels": [
+      {
+        "integration": {
+          "name": "openAI",
+          "type": "openai",
+          "description": "Please remember to set your api key",
+          "category": "AI_MODEL",
+          "configuration": {
+            "api_key": "a"
+          },
+          "enabled": true,
+          "tags": []
+        },
+        "models": [
+          {
+            "integrationName": "openAI",
+            "api": "chatgpt-4o-latest",
+            "description": "",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          },
+          {
+            "integrationName": "openAI",
+            "api": "gpt-4o",
+            "description": "generic 4o model",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          }
+        ]
+      },
+      {
+        "integration": {
+          "name": "AnthropicClaude",
+          "type": "anthropic",
+          "description": "Please remember to set your api key",
+          "category": "AI_MODEL",
+          "configuration": {
+            "api_key": "a",
+            "endpoint": "https://api.anthropic.com/v1"
+          },
+          "enabled": true,
+          "tags": []
+        },
+        "models": [
+          {
+            "integrationName": "AnthropicClaude",
+            "api": "claude-3-5-sonnet-20240620",
+            "description": "",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          },
+          {
+            "integrationName": "AnthropicClaude",
+            "api": "claude-3-7-sonnet-20250219",
+            "description":
+              "Highest level of intelligence and capability with toggleable extended thinking",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          }
+        ]
+      },
+      {
+        "integration": {
+          "name": "perplexity",
+          "type": "perplexity",
+          "description": "Please remember to set your api key",
+          "category": "AI_MODEL",
+          "configuration": {
+            "api_key": "a"
+          },
+          "enabled": true,
+          "tags": []
+        },
+        "models": [
+          {
+            "integrationName": "perplexity",
+            "api": "sonar",
+            "description":
+              "Lightweight, cost-effective search model with grounding.",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          },
+          {
+            "integrationName": "perplexity",
+            "api": "sonar-pro",
+            "description":
+              "Advanced search offering with grounding, supporting complex queries and follow-ups.",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          },
+          {
+            "integrationName": "perplexity",
+            "api": "sonar-deep-research",
+            "description":
+              "Expert-level research model conducting exhaustive searches and generating comprehensive reports.",
+            "configuration": {},
+            "enabled": true,
+            "tags": []
+          }
+        ]
+      }
+    ],
+    "secrets": [],
+    "environmentVariables": [],
+    "schedules": [],
+    "webhooks": [],
+    "remoteServices": [],
+    "userForms": [],
+    "schemas": [
+      {
+        "name": "agentic-research-input",
+        "version": 1,
+        "type": "JSON",
+        "data": {
+          "type": "object",
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "question": {
+              "type": "string",
+              "default": "What is the latest updates on cancer research in 2025?"
+            },
+            "filename": {
+              "type": "string",
+              "default": "latest-cancer-research-updates.pdf"
+            }
+          },
+          "required": ["question", "filename"]
+        }
+      }
+    ],
+    "taskDefinitions": [],
+    "placeholders": [],
+    "category": "AI",
+    "tags": ["Business"],
+    "createdAt": "2023-10-11T00:09:22.978+00:00",
+    "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+    "updatedAt": "2025-01-31T16:46:48.476+00:00",
+    "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+  },
+  {
+    "id": "http_endpoint_monitoring",
+    "title": "HTTP Endpoint Monitoring",
+    "description": "Checks an HTTP endpoint’s health and sends an email alert if it’s unreachable or returns an error. It is language-agnostic and must run on the Orkes website.",
+    "version": 2,
+    "featureLabelAndLinks": {},
+    "githubProjectLinks": {
+      "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/jamesj-branch/examples/HTTP-EndPoint-Monitoring"
+    },
+    "taskDefinitions": [],
+    "workflowDefinitions": [
+      {
+        "createTime": 1748368533339,
+        "updateTime": 1749071838788,
+        "name": "HTTP_EndPoint_Monitoring",
+        "description": "This workflow is designed to monitor the health of a specified HTTP endpoint",
+        "version": 1,
+        "tasks": [
+          {
+            "name": "check_endpoint",
+            "taskReferenceName": "check_endpoint_ref",
+            "inputParameters": {
+              "uri": "${workflow.input.URL}",
+              "method": "GET",
+              "accept": "application/json",
+              "contentType": "application/json",
+              "encode": true
+            },
+            "type": "HTTP",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": true,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "check_status",
+            "taskReferenceName": "check_status_ref",
+            "inputParameters": {
+              "status_code_input": "${check_endpoint_ref.output.response.statusCode}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "200": [
+                {
+                  "name": "set_success_flag",
+                  "taskReferenceName": "set_success_flag_ref",
+                  "inputParameters": {
+                    "status_code": true
+                  },
+                  "type": "SET_VARIABLE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "sending_failure_alert",
+                "taskReferenceName": "sending_failure_alert_ref",
+                "inputParameters": {
+                  "from": "${workflow.input.sender_email}",
+                  "to": "${workflow.input.customer_email}",
+                  "subject": "HTTP end point failure",
+                  "contentType": "text/plain",
+                  "content": "This is an automated email to inform you that your HTTP end poit has failed a health check",
+                  "sendgridConfiguration": "${{macro:SENDGRID_INTEGRATION_NAME}}"
+                },
+                "type": "SENDGRID",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              },
+              {
+                "name": "terminate",
+                "taskReferenceName": "terminate_ref",
+                "inputParameters": {
+                  "terminationStatus": "TERMINATED",
+                  "terminationReason": "did not recieve 200 status code"
+                },
+                "type": "TERMINATE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "value-param",
+            "expression": "status_code_input",
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "inputParameters": [
+          "URL",
+          "customer_email",
+          "sender_email"
+        ],
+        "outputParameters": {},
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "james.jacob@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "inputSchema": {
+          "createTime": 0,
+          "updateTime": 0,
+          "name": "http-endpoint-validation-input",
+          "version": 1,
+          "type": "JSON"
+        },
+        "enforceSchema": true,
+        "metadata": {}
+      }
+    ],
+    "prompts": [],
+    "integrationsWithModels": [{
+      "integration": {
+        "name": "${{macro:SENDGRID_INTEGRATION_NAME}}",
+        "type": "sendgrid",
+        "description": "SendGrid integration",
+        "category": "EMAIL",
+        "configuration": {
+          "api_key": "a"
+        },
+        "enabled": true,
+        "tags": []
+      },
+      "models": []
+    }],
+    "secrets": [],
+    "environmentVariables": [],
+    "schedules": [],
+    "webhooks": [],
+    "remoteServices": [],
+    "userForms": [],
+    "schemas": [
+      {
+        "createTime": 1748373684316,
+        "updateTime": 1748373684316,
+        "createdBy": "james.jacob@orkes.io",
+        "updatedBy": "james.jacob@orkes.io",
+        "name": "http-endpoint-validation-input",
+        "version": 1,
+        "type": "JSON",
+        "data": {
+          "type": "object",
+          "$schema": "http://json-schema.org/draft-07/schema",
+          "properties": {
+            "URL": {
+              "type": "string",
+              "default": "https://orkes.io/"
+            },
+            "sender_email": {
+              "type": "string",
+              "format": "email",
+              "default": "verified-sender@example.com"
+            },
+            "customer_email": {
+              "type": "string",
+              "format": "email",
+              "default": "alerts@example.com"
+            }
+          },
+          "required": [
+            "URL",
+            "sender_email",
+            "customer_email"
+          ]
+        }
+      }
+    ],
+    "placeholders": [
+      {
+        "key": "SENDGRID_INTEGRATION_NAME",
+        "value": "SendGrid"
+      }
+    ],
+    "helpDocumentationLink":
+      "https://github.com/conductor-oss/awesome-conductor-apps/blob/jamesj-branch/examples/HTTP-EndPoint-Monitoring/README.md",
+    "category": "Business",
+    "tags": ["Business"],
+    "createdAt": "2023-10-11T00:09:22.978+00:00",
+    "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+    "updatedAt": "2025-01-31T16:46:48.476+00:00",
+    "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+  }
 ]
