@@ -1,0 +1,54 @@
+[
+  {
+    "createTime": 1744672697904,
+    "updateTime": 1744673560959,
+    "name": "basic_workflow",
+    "description": "Minimal workflow example with a simple SayHello task",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "sayHello",
+        "taskReferenceName": "sayHello_ref",
+        "description": "Says hello to the user",
+        "inputParameters": {
+          "firstName": "${workflow.input.firstName}",
+          "lastName": "${workflow.input.lastName}"
+        },
+        "type": "SIMPLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "firstName",
+      "lastName"
+    ],
+    "outputParameters": {},
+    "failureWorkflow": "",
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "james.stuart@orkes.io",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "inputSchema": {
+      "createTime": 0,
+      "updateTime": 0,
+      "name": "basic-workflow-input",
+      "version": 1,
+      "type": "JSON"
+    },
+    "enforceSchema": true
+  }
+]
