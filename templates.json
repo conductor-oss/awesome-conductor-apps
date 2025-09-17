@@ -12,11 +12,11 @@
             "C#": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/csharp/basic",
             "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/java/basic"
         },
-        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/basic.workflow.json",
-        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/tasks/tasks.json",
-        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/user_forms/forms.json",
-        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/schemas/schemas.json",
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workflows/basic.workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/schemas/schemas.json",
         "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md",
         "category": "Examples",
         "tags": [
