@@ -6,11 +6,11 @@
         "version": 1,
         "featureLabelAndLinks": {},
         "githubProjectLinks": {
-            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/typescript/basic",
-            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/python/basic",
-            "Go": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/go/basic",
-            "C#": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/csharp/basic",
-            "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/java/basic"
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/basic",
+            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/python/basic",
+            "Go": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/go/basic",
+            "C#": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/csharp/basic",
+            "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/java/basic"
         },
         "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/execution.gif",
         "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/basic-workflow/typescript/basic/workflows/basic.workflow.json",
