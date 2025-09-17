@@ -4,9 +4,7 @@
         "title": "Basic Workflow",
         "description": "Minimal workflow example with a simple SayHello task",
         "version": 1,
-        "featureLabelAndLinks": {
-            "Simple Worker": "https://orkes.io/content/reference-docs/worker-task"
-        },
+        "featureLabelAndLinks": {},
         "githubProjectLinks": {
             "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/typescript/basic",
             "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/add-basic-template/python/basic",
