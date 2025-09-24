@@ -49,6 +49,10 @@
       "version": 1,
       "type": "JSON"
     },
-    "enforceSchema": true
+    "enforceSchema": true,
+    "metadata": {
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workers/build.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md"
+    }
   }
 ]
