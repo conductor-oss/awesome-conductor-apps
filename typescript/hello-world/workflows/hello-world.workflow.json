@@ -1,0 +1,87 @@
+[
+    {
+        "createTime": 1758726033124,
+        "updateTime": 1758726220569,
+        "name": "HelloWorld",
+        "description": "Start here! A simple \"Hello World\" workflow example with no external dependencies.",
+        "version": 1,
+        "tasks": [
+          {
+            "name": "generate_random_number",
+            "taskReferenceName": "generate_random_number_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  const randomNumber = Math.floor(Math.random() * 10) + 1;\n  return randomNumber;\n})();",
+              "evaluatorType": "graaljs"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "english_or_spanish",
+            "taskReferenceName": "english_or_spanish_ref",
+            "inputParameters": {
+              "randomNumber": "${generate_random_number_ref.output}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "switch_case": []
+            },
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "graaljs",
+            "expression": "(function () {\n    // Goes to \"english\" if the\n    // random number from the INLINE task above\n    // is greater than 5\n    if ($.randomNumber > 5) {\n      return \"english\";\n    }\n    // Default Case\n    return \"spanish\";\n  }())",
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "inline",
+            "taskReferenceName": "inline_ref",
+            "inputParameters": {
+              "expression": "(function () {\n  if ($.language === 'english') {\n    return \"Hello, World!\";\n  } else {\n    return \"Hola, Mundo!\";\n  }\n})();",
+              "evaluatorType": "graaljs",
+              "language": "${english_or_spanish_ref.output}"
+            },
+            "type": "INLINE",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "inputParameters": [],
+        "outputParameters": {},
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "pablo.cuadrado@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "enforceSchema": true
+    }
+]
