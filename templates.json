@@ -6,11 +6,11 @@
       "version": 1,
       "featureLabelAndLinks": {},
       "githubProjectLinks": {
-        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/hello-world"
+        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/hello-world"
       },
-      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/hello-world/workflows/execution.gif",
-      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/hello-world/workflows/hello-world.workflow.json",
-      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/hello-world/README.md",
+      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/hello-world/workflows/execution.gif",
+      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/hello-world/workflows/hello-world.workflow.json",
+      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/examples/hello-world/README.md",
       "category": "Getting Started",
       "tags": [
         "Getting Started"
@@ -88,6 +88,159 @@
               "defaultExclusiveJoinTask": [],
               "asyncComplete": false,
               "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "inputParameters": [],
+          "outputParameters": {},
+          "failureWorkflow": "",
+          "schemaVersion": 2,
+          "restartable": true,
+          "workflowStatusListenerEnabled": false,
+          "ownerEmail": "pablo.cuadrado@orkes.io",
+          "timeoutPolicy": "ALERT_ONLY",
+          "timeoutSeconds": 0,
+          "variables": {},
+          "inputTemplate": {},
+          "enforceSchema": true
+        }
+      ]
+    },
+    {
+      "id": "crypto-exchange-ticker",
+      "title": "Crypto Exchange Ticker",
+      "description": "A workflow that fetches the latest price of a crypto currency from an exchange.",
+      "version": 1,
+      "featureLabelAndLinks": {},
+      "githubProjectLinks": {
+        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/crypto-exchange-ticker"
+      },
+      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/workflows/execution.gif",
+      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/workflows/crypto-exchange-ticker.workflow.json",
+      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/README.md",
+      "category": "Getting Started",
+      "tags": [
+        "Getting Started"
+      ],
+      "createdAt": "2023-10-11T00:09:22.978+00:00",
+      "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+      "updatedAt": "2025-01-31T16:46:48.476+00:00",
+      "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d",
+      "workflowDefinitions": [
+        {
+          "createTime": 1758734840013,
+          "updateTime": 1758741159585,
+          "name": "CryptoExchangeTicker",
+          "description": "Crypto Exchange Example",
+          "version": 1,
+          "tasks": [
+            {
+              "name": "get_ticker",
+              "taskReferenceName": "get_ticker_ref",
+              "inputParameters": {
+                "uri": "https://api4.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT",
+                "method": "GET",
+                "accept": "application/json",
+                "contentType": "application/json",
+                "encode": true
+              },
+              "type": "HTTP",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "check_status",
+              "taskReferenceName": "check_status_ref",
+              "inputParameters": {
+                "switchCaseValue": "${get_ticker_ref.output.response.statusCode}"
+              },
+              "type": "SWITCH",
+              "decisionCases": {
+                "success": [
+                  {
+                    "name": "pick_fields",
+                    "taskReferenceName": "pick_fields_ref",
+                    "inputParameters": {
+                      "ticker": "${get_ticker_ref.output.response.body}",
+                      "queryExpression": ".ticker | {symbol, lastPrice, priceChangePercent, volume, openTime, closeTime}\n"
+                    },
+                    "type": "JSON_JQ_TRANSFORM",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  },
+                  {
+                    "name": "inline",
+                    "taskReferenceName": "inline_ref",
+                    "inputParameters": {
+                      "expression": "(function () {\n    // Return values for a web UI showing the difference in price.\n    if ($.priceChange > 0) {\n      return {\n        foregroundColor: \"#ddffdd\",\n        backgroundColor: \"#118811\",\n        caption: \"+\" + $.priceChange\n      }\n    } else {\n      return {\n        foregroundColor: \"#ffdddd\",\n        backgroundColor: \"#881111\",\n        caption: \"-\" + $.priceChange\n      }\n    }\n  }())",
+                      "evaluatorType": "graaljs",
+                      "priceChange": "${pick_fields_ref.output.result.priceChangePercent}"
+                    },
+                    "type": "INLINE",
+                    "decisionCases": {},
+                    "defaultCase": [],
+                    "forkTasks": [],
+                    "startDelay": 0,
+                    "joinOn": [],
+                    "optional": false,
+                    "defaultExclusiveJoinTask": [],
+                    "asyncComplete": false,
+                    "loopOver": [],
+                    "onStateChange": {},
+                    "permissive": false
+                  }
+                ]
+              },
+              "defaultCase": [
+                {
+                  "name": "terminate_1",
+                  "taskReferenceName": "terminate_ref_1",
+                  "inputParameters": {
+                    "terminationStatus": "FAILED",
+                    "terminationReason": "Error getting ticker values."
+                  },
+                  "type": "TERMINATE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "evaluatorType": "graaljs",
+              "expression": "(function () {\n    switch ($.switchCaseValue) {\n      case 200:\n        return \"success\";\n      default:\n        return \"defaultCase\";\n    }\n  }())",
               "onStateChange": {},
               "permissive": false
             }
