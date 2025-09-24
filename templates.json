@@ -261,9 +261,9 @@
       ]
     },
     {
-        "id": "single-worker-example",
-        "title": "Single Worker Example",
-        "description": "Start here to learn local developement. A minimalistic workflow example with a single custom worker.",
+        "id": "custom-worker-example",
+        "title": "Custom Worker Example",
+        "description": "Learn local development with a minimalistic workflow example using a single custom worker.",
         "version": 1,
         "featureLabelAndLinks": {},
         "githubProjectLinks": {
