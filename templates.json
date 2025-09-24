@@ -109,7 +109,7 @@
     },
     {
       "id": "crypto-exchange-ticker",
-      "title": "Crypto Exchange Ticker",
+      "title": "External API Call",
       "description": "A workflow that fetches the latest price of a crypto currency from an exchange.",
       "version": 1,
       "featureLabelAndLinks": {},
