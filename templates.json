@@ -1,8 +1,116 @@
 [
     {
-        "id": "basic",
-        "title": "Basic Workflow",
-        "description": "Minimal workflow example with a simple SayHello task",
+      "id": "hello-world",
+      "title": "Hello World",
+      "description": "Start here! A simple 'Hello, World!' workflow with no external dependencies.",
+      "version": 1,
+      "featureLabelAndLinks": {},
+      "githubProjectLinks": {
+        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/hello-world"
+      },
+      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/hello-world/workflows/execution.gif",
+      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/hello-world/workflows/hello-world.workflow.json",
+      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/hello-world/README.md",
+      "category": "Getting Started",
+      "tags": [
+        "Getting Started"
+      ],
+      "createdAt": "2023-10-11T00:09:22.978+00:00",
+      "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+      "updatedAt": "2025-01-31T16:46:48.476+00:00",
+      "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d",
+      "workflowDefinitions": [
+        {
+          "createTime": 1758726033124,
+          "updateTime": 1758726220569,
+          "name": "HelloWorld",
+          "description": "Start here! A simple \"Hello World\" workflow example with no external dependencies.",
+          "version": 1,
+          "tasks": [
+            {
+              "name": "generate_random_number",
+              "taskReferenceName": "generate_random_number_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  const randomNumber = Math.floor(Math.random() * 10) + 1;\n  return randomNumber;\n})();",
+                "evaluatorType": "graaljs"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "english_or_spanish",
+              "taskReferenceName": "english_or_spanish_ref",
+              "inputParameters": {
+                "randomNumber": "${generate_random_number_ref.output}"
+              },
+              "type": "SWITCH",
+              "decisionCases": {
+                "switch_case": []
+              },
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "evaluatorType": "graaljs",
+              "expression": "(function () {\n    // Goes to \"english\" if the\n    // random number from the INLINE task above\n    // is greater than 5\n    if ($.randomNumber > 5) {\n      return \"english\";\n    }\n    // Default Case\n    return \"spanish\";\n  }())",
+              "onStateChange": {},
+              "permissive": false
+            },
+            {
+              "name": "inline",
+              "taskReferenceName": "inline_ref",
+              "inputParameters": {
+                "expression": "(function () {\n  if ($.language === 'english') {\n    return \"Hello, World!\";\n  } else {\n    return \"Hola, Mundo!\";\n  }\n})();",
+                "evaluatorType": "graaljs",
+                "language": "${english_or_spanish_ref.output}"
+              },
+              "type": "INLINE",
+              "decisionCases": {},
+              "defaultCase": [],
+              "forkTasks": [],
+              "startDelay": 0,
+              "joinOn": [],
+              "optional": false,
+              "defaultExclusiveJoinTask": [],
+              "asyncComplete": false,
+              "loopOver": [],
+              "onStateChange": {},
+              "permissive": false
+            }
+          ],
+          "inputParameters": [],
+          "outputParameters": {},
+          "failureWorkflow": "",
+          "schemaVersion": 2,
+          "restartable": true,
+          "workflowStatusListenerEnabled": false,
+          "ownerEmail": "pablo.cuadrado@orkes.io",
+          "timeoutPolicy": "ALERT_ONLY",
+          "timeoutSeconds": 0,
+          "variables": {},
+          "inputTemplate": {},
+          "enforceSchema": true
+        }
+      ]
+    },
+    {
+        "id": "single-worker-example",
+        "title": "Single Worker Example",
+        "description": "Start here to learn local developement. A minimalistic workflow example with a single custom worker.",
         "version": 1,
         "featureLabelAndLinks": {},
         "githubProjectLinks": {
@@ -18,9 +126,9 @@
         "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/user_forms/forms.json",
         "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/schemas/schemas.json",
         "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md",
-        "category": "Examples",
+        "category": "Getting Started",
         "tags": [
-            "Examples"
+            "Getting Started"
         ],
         "createdAt": "2023-10-11T00:09:22.978+00:00",
         "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
