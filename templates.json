@@ -30,6 +30,7 @@
             {
               "name": "generate_random_number",
               "taskReferenceName": "generate_random_number_ref",
+              "description": "Generates a random number between 1 and 10",
               "inputParameters": {
                 "expression": "(function () {\n  const randomNumber = Math.floor(Math.random() * 10) + 1;\n  return randomNumber;\n})();",
                 "evaluatorType": "graaljs"
@@ -50,6 +51,7 @@
             {
               "name": "english_or_spanish",
               "taskReferenceName": "english_or_spanish_ref",
+              "description": "Evaluates the random number and outputs \"english\" if the randomNumber is greater than 5, else it outputs \"spanish\"",
               "inputParameters": {
                 "randomNumber": "${generate_random_number_ref.output.result}"
               },
@@ -73,6 +75,7 @@
             {
               "name": "inline",
               "taskReferenceName": "inline_ref",
+              "description": "Evaluates the language and outputs \"Hello, World!\" or \"Hola, Mundo!\"",
               "inputParameters": {
                 "expression": "(function () {\n  if ($.language === 'english') {\n    return \"Hello, World!\";\n  } else {\n    return \"Hola, Mundo!\";\n  }\n})();",
                 "evaluatorType": "graaljs",
@@ -340,7 +343,7 @@
             },
             "enforceSchema": true,
             "metadata": {
-              "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workers/build.sh)\"",
+              "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workers/run.sh)\"",
               "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md"
             }
           }
