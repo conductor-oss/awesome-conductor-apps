@@ -29,7 +29,7 @@ export const sayHello: ConductorWorker = {
     const lastName = task.inputData.lastName as string;
 
     const sayHello = (name: string, lastName: string) => {
-      return `Hello from Conductor, ${name} ${lastName}`;
+      return `Hello from your Custom Typescript Worker, ${name} ${lastName}`;
     };
 
     return {
