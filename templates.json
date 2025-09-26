@@ -301,7 +301,7 @@
               {
                 "name": "sayHello",
                 "taskReferenceName": "sayHello_ref",
-                "description": "Says hello to the user",
+                "description": "Says Hello from your Custom Worker. After running the workflow, check the output of this task.",
                 "inputParameters": {
                   "firstName": "${workflow.input.firstName}",
                   "lastName": "${workflow.input.lastName}"
