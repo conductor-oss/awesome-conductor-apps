@@ -113,7 +113,7 @@
     {
       "id": "crypto-exchange-ticker",
       "title": "External API Call",
-      "description": "A workflow that fetches the latest price of a crypto currency from an exchange.",
+      "description": "Simple HTTP Fetch Example to an external API with no credentials.",
       "version": 1,
       "featureLabelAndLinks": {},
       "githubProjectLinks": {

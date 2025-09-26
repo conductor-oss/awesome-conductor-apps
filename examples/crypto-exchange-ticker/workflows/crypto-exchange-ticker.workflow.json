@@ -2,8 +2,8 @@
     {
         "createTime": 1758734840013,
         "updateTime": 1758741159585,
-        "name": "CryptoExchangeTicker",
-        "description": "Crypto Exchange Example",
+        "name": "ExternalAPICall",
+        "description": "Simple HTTP Fetch Example with no credentials.",
         "version": 1,
         "tasks": [
         {
