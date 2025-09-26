@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo -e "\033[34mInstalling Orkes Conductor Workflow Template\033[0m"
+echo -e "\033[96mInstalling Orkes Conductor Workflow Template\033[0m"
 
 echo ""
 
@@ -39,7 +39,7 @@ case $SDK_LANGUAGE in
     ;;
 esac
 
-echo "Using SDK: $SDK"
+echo -e "\033[37mUsing SDK: $SDK\033[0m"
 
 echo ""
 
@@ -52,8 +52,12 @@ cd $FOLDER_NAME
 # Download the repo zip
 curl -fsSL https://github.com/conductor-oss/awesome-conductor-apps/archive/refs/heads/CDX-241-add-basic-templates.zip -o awesome-conductor-apps.zip
 
+echo ""
+
 # Unzip the repo
 unzip awesome-conductor-apps.zip
+
+echo ""
 
 # copy the template folder 
 cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/basic/* .
@@ -68,15 +72,15 @@ cd workers
 # Build the workers
 ./build.sh
 
-echo "Successfully built workers"
+echo ""
+echo -e "\033[90m--------------------------------\033[0m"
+echo ""
+
+echo -e "\033[92mSuccessfully built workers ✓\033[0m"
 
 echo ""
 
-echo "Successfully installed Orkes Conductor Workflow Template in $FOLDER_NAME"
-
-echo ""
-
-echo "Go back to the Orkes Conductor UI to obtain your API credentials."
+echo -e "\033[96mGo back to the Orkes Conductor UI to obtain your API credentials.\033[0m"
 
 echo ""
 
