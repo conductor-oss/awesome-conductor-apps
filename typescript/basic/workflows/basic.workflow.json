@@ -2,7 +2,7 @@
   {
     "createTime": 1744672697904,
     "updateTime": 1744673560959,
-    "name": "basic_workflow",
+    "name": "CustomWorkerExample",
     "description": "Minimal workflow example with a simple SayHello task",
     "version": 1,
     "tasks": [
