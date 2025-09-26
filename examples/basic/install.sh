@@ -76,4 +76,8 @@ echo "Successfully installed Orkes Conductor Workflow Template in $FOLDER_NAME"
 
 echo ""
 
+echo "Go back to the Orkes Conductor UI to obtain your API credentials."
+
+echo ""
+
 ./run.sh -i
