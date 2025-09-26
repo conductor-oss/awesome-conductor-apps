@@ -43,5 +43,15 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Run the workers
-echo "Starting Conductor workers..."
+echo "Starting Conductor Workers..."
+
+echo ""
+
+# Light blue
+echo -e "\033[96mGo back to the Orkes Conductor UI to run your workflow with your custom worker.\033[0m"
+
+echo ""
+
+echo -e "\033[90m--------------------------------\033[0m"
+
 node dist/index.js 

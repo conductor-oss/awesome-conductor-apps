@@ -4,8 +4,8 @@ echo -e "\033[96mInstalling Orkes Conductor Workflow Template\033[0m"
 
 echo ""
 
-read -p "Enter the folder name (default: basic): " FOLDER_NAME
-FOLDER_NAME=${FOLDER_NAME:-basic}
+read -p "Enter the folder name (default: custom-worker-example): " FOLDER_NAME
+FOLDER_NAME=${FOLDER_NAME:-custom-worker-example}
 
 echo -e "\033[37mSelect your preferred SDK language:\033[0m"
 
