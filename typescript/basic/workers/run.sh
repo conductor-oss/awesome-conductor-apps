@@ -16,7 +16,8 @@ if [ -f .env.local ]; then
 fi
 
 # Override with command-line arguments if provided and not empty
-if [ ! -z "$1" ]; then
+# and not "-i"
+if [ ! -z "$1" ] && [ "$1" != "-i" ]; then
   CONDUCTOR_AUTH_KEY=$1
 fi
 
