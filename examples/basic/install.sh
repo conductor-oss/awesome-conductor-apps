@@ -49,7 +49,24 @@ mkdir -p $FOLDER_NAME
 # cd into the folder
 cd $FOLDER_NAME
 
-curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/$SDK/basic/workers/build.sh | bash
+# Download the repo zip
+curl -fsSL https://github.com/conductor-oss/awesome-conductor-apps/archive/refs/heads/CDX-241-add-basic-templates.zip -o awesome-conductor-apps.zip
+
+# Unzip the repo
+unzip awesome-conductor-apps.zip
+
+# copy the template folder 
+cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/basic/* .
+
+rm -rf awesome-conductor-apps.zip
+
+# remove the repo
+rm -rf awesome-conductor-apps-CDX-241-add-basic-templates
+
+cd workers
+
+# Build the workers
+./build.sh
 
 echo "Successfully built workers"
 
@@ -59,4 +76,6 @@ echo "Successfully installed Orkes Conductor Workflow Template in $FOLDER_NAME"
 
 echo ""
 
-echo "You can now start the worker with 'cd $FOLDER_NAME && ./workers/run.sh'"
+cd $FOLDER_NAME
+
+./workers/run.sh -i
