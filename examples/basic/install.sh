@@ -76,6 +76,4 @@ echo "Successfully installed Orkes Conductor Workflow Template in $FOLDER_NAME"
 
 echo ""
 
-cd $FOLDER_NAME
-
-./workers/run.sh -i
+./run.sh -i
