@@ -2,9 +2,9 @@
     {
         "createTime": 1744667530479,
         "updateTime": 1744667530479,
-        "createdBy": "james.stuart@orkes.io",
-        "updatedBy": "james.stuart@orkes.io",
-        "name": "basic-workflow-input",
+        "createdBy": "pablo.cuadrado@orkes.io",
+        "updatedBy": "pablo.cuadrado@orkes.io",
+        "name": "custom-worker-example-input",
         "version": 1,
         "type": "JSON",
         "data": {
