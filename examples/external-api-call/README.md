@@ -1,4 +1,4 @@
-# Crypto Exchange Ticker Example
+# External API Call
 
 This example uses a free API with no credentials to showcase
 the HTTP task type for retrieving data, a JSON_JQ task for filtering,
