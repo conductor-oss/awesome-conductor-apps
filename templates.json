@@ -117,11 +117,11 @@
       "version": 1,
       "featureLabelAndLinks": {},
       "githubProjectLinks": {
-        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/crypto-exchange-ticker"
+        "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/external-api-call"
       },
-      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/workflows/execution.gif",
-      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/workflows/crypto-exchange-ticker.workflow.json",
-      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/examples/crypto-exchange-ticker/README.md",
+      "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/external-api-call/workflows/execution.gif",
+      "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/external-api-call/workflows/external-api-call.workflow.json",
+      "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/examples/external-api-call/README.md",
       "category": "Getting Started",
       "tags": [
         "Getting Started"
