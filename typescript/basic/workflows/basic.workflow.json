@@ -51,7 +51,6 @@
     },
     "enforceSchema": true,
     "metadata": {
-      "deleteMe": "test",
       "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/basic/install.sh)\"",
       "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md"
     }
