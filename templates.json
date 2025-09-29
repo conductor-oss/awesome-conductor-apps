@@ -270,18 +270,18 @@
         "version": 1,
         "featureLabelAndLinks": {},
         "githubProjectLinks": {
-            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/basic",
-            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/python/basic",
-            "Go": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/go/basic",
-            "C#": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/csharp/basic",
-            "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/java/basic"
+            "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/custom-worker-example",
+            "Python": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/python/custom-worker-example",
+            "Go": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/go/custom-worker-example",
+            "C#": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/csharp/custom-worker-example",
+            "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/java/custom-worker-example"
         },
-        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/workflows/basic.workflow.json",
-        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/tasks/tasks.json",
-        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/user_forms/forms.json",
-        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/basic/schemas/schemas.json",
-        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md",
+        "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/workflows/execution.gif",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/workflows/basic.workflow.json",
+        "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/tasks/tasks.json",
+        "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/user_forms/forms.json",
+        "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/schemas/schemas.json",
+        "helpDocumentationLink": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/custom-worker-example/README.md",
         "category": "Getting Started",
         "tags": [
             "Getting Started"
@@ -294,7 +294,7 @@
           {
             "createTime": 1744672697904,
             "updateTime": 1744673560959,
-            "name": "basic_workflow",
+            "name": "custom-worker-example",
             "description": "Minimal workflow example with a simple SayHello task",
             "version": 1,
             "tasks": [
@@ -329,7 +329,7 @@
             "schemaVersion": 2,
             "restartable": true,
             "workflowStatusListenerEnabled": false,
-            "ownerEmail": "james.stuart@orkes.io",
+            "ownerEmail": "pablo.cuadrado@orkes.io",
             "timeoutPolicy": "ALERT_ONLY",
             "timeoutSeconds": 0,
             "variables": {},
@@ -337,7 +337,7 @@
             "inputSchema": {
               "createTime": 0,
               "updateTime": 0,
-              "name": "basic-workflow-input",
+              "name": "custom-worker-example-input",
               "version": 1,
               "type": "JSON"
             },
