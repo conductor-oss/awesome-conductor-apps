@@ -51,8 +51,8 @@
     },
     "enforceSchema": true,
     "metadata": {
-      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/basic/install.sh)\"",
-      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md"
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/custom-worker-example/install.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/custom-worker-example/README.md"
     }
   }
 ]
