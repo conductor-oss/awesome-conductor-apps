@@ -282,7 +282,7 @@
             "Java": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/java/custom-worker-example"
         },
         "thumbnailUrl": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/workflows/execution.gif",
-        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/workflows/basic.workflow.json",
+        "workflowDefinitionGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/workflows/custom-worker-example.workflow.json",
         "taskDefinitionsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/tasks/tasks.json",
         "userFormsGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/user_forms/forms.json",
         "schemasGithubLink": "https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/typescript/custom-worker-example/schemas/schemas.json",
@@ -348,8 +348,8 @@
             },
             "enforceSchema": true,
             "metadata": {
-              "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/basic/install.sh)\"",
-              "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/basic/README.md"
+              "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/custom-worker-example/install.sh)\"",
+              "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/custom-worker-example/README.md"
             }
           }
         ]
