@@ -60,7 +60,7 @@ unzip awesome-conductor-apps.zip
 echo ""
 
 # copy the template folder 
-cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/basic/* .
+cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/custom-worker-example/* .
 
 rm -rf awesome-conductor-apps.zip
 
