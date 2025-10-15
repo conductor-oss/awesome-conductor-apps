@@ -4,8 +4,8 @@ echo -e "\033[96mInstalling Orkes Conductor Workflow Template\033[0m"
 
 echo ""
 
-read -p "Enter the folder name (default: custom-worker-example): " FOLDER_NAME
-FOLDER_NAME=${FOLDER_NAME:-custom-worker-example}
+read -p "Enter the folder name (default: worker-task-example): " FOLDER_NAME
+FOLDER_NAME=${FOLDER_NAME:-worker-task-example}
 
 echo -e "\033[37mSelect your preferred SDK language:\033[0m"
 
@@ -60,7 +60,7 @@ unzip awesome-conductor-apps.zip
 echo ""
 
 # copy the template folder 
-cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/custom-worker-example/* .
+cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/worker-task-example/* .
 
 rm -rf awesome-conductor-apps.zip
 
