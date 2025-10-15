@@ -4,7 +4,7 @@
         "updateTime": 1744667530479,
         "createdBy": "pablo.cuadrado@orkes.io",
         "updatedBy": "pablo.cuadrado@orkes.io",
-        "name": "custom-worker-example-input",
+        "name": "worker-task-example-input",
         "version": 1,
         "type": "JSON",
         "data": {

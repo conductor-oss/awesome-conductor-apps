@@ -2,14 +2,14 @@
   {
     "createTime": 1744672697904,
     "updateTime": 1744673560959,
-    "name": "CustomWorkerExample",
+    "name": "WorkerTaskExample",
     "description": "Minimal workflow example with a simple SayHello task",
     "version": 1,
     "tasks": [
       {
         "name": "sayHello",
         "taskReferenceName": "sayHello_ref",
-        "description": "Says hello from your Custom Worker. After running the workflow, check the output of this task.",
+        "description": "Says hello from your Worker Task. After running the workflow, check the output of this task.",
         "inputParameters": {
           "firstName": "${workflow.input.firstName}",
           "lastName": "${workflow.input.lastName}"
@@ -45,14 +45,14 @@
     "inputSchema": {
       "createTime": 0,
       "updateTime": 0,
-      "name": "custom-worker-example-input",
+      "name": "worker-task-example-input",
       "version": 1,
       "type": "JSON"
     },
     "enforceSchema": true,
     "metadata": {
-      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/custom-worker-example/install.sh)\"",
-      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/custom-worker-example/README.md"
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/worker-task-example/install.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/worker-task-example/README.md"
     }
   }
 ]
