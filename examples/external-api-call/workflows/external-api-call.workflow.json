@@ -66,7 +66,7 @@
                   "taskReferenceName": "inline_ref",
                   "description": "Returns values for a web UI showing the difference in price.",
                   "inputParameters": {
-                    "expression": "(function () {\n    // Return values for a web UI showing the difference in price.\n    if ($.priceChange > 0) {\n      return {\n        foregroundColor: \"#ddffdd\",\n        backgroundColor: \"#118811\",\n        caption: \"+\" + $.priceChange\n      }\n    } else {\n      return {\n        foregroundColor: \"#ffdddd\",\n        backgroundColor: \"#881111\",\n        caption: \"-\" + $.priceChange\n      }\n    }\n  }())",
+                    "expression": "(function () {\n    // Return values for a web UI showing the difference in price.\n    if ($.priceChange > 0) {\n      return {\n        foregroundColor: \"#ddffdd\",\n        backgroundColor: \"#118811\",\n        caption: \"+\" + $.priceChange\n      }\n    } else {\n      return {\n        foregroundColor: \"#ffdddd\",\n        backgroundColor: \"#881111\",\n        caption: \"\" + $.priceChange\n      }\n    }\n  }())",
                     "evaluatorType": "graaljs",
                     "priceChange": "${pick_fields_ref.output.result.priceChangePercent}"
                   },
