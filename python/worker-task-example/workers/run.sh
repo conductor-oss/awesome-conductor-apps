@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Determine if we need python or python3
+if command -v python3 &> /dev/null; then
+    PYTHON=python3
+else
+    PYTHON=python
+fi
+
 if [ "$1" == "-i" ]; then
   read -s -p "Enter your Conductor Auth Key: " CONDUCTOR_AUTH_KEY
   echo ""
@@ -33,4 +40,4 @@ export CONDUCTOR_AUTH_KEY
 export CONDUCTOR_AUTH_SECRET
 export CONDUCTOR_SERVER_URL
 
-python main.py
+$PYTHON main.py
