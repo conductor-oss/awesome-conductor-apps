@@ -13,9 +13,8 @@ echo ""
 
 echo "1. TypeScript"
 echo "2. Python"
-echo "3. Java"
-echo "4. Go"
-echo "5. C#"
+echo "3. Go"
+echo "4. C#"
 
 echo ""
 
@@ -29,12 +28,9 @@ case $SDK_LANGUAGE in
     SDK="python"
     ;;
   3)
-    SDK="java"
-    ;;
-  4)
     SDK="go"
     ;;
-  5)
+  4)
     SDK="csharp"
     ;;
 esac
