@@ -27,10 +27,14 @@ namespace BasicExample
 
     public static void Main(string[] args)
     {
+      var serverUrl = Environment.GetEnvironmentVariable("CONDUCTOR_SERVER_URL") ?? "https://developer.orkescloud.com/api";
+      var authKey = Environment.GetEnvironmentVariable("CONDUCTOR_AUTH_KEY") ?? "";
+      var authSecret = Environment.GetEnvironmentVariable("CONDUCTOR_AUTH_SECRET") ?? "";
+
       var conf = new Configuration
       {
-        BasePath = "https://developer.orkescloud.com/api",
-        AuthenticationSettings = new OrkesAuthenticationSettings("_CHANGE_ME_", "_CHANGE_ME_")
+        BasePath = serverUrl,
+        AuthenticationSettings = new OrkesAuthenticationSettings(authKey, authSecret)
       };
 
       var host = WorkflowTaskHost.CreateWorkerHost(
