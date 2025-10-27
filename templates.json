@@ -828,7 +828,7 @@
       }
     ],
     "helpDocumentationLink":
-      "https://github.com/conductor-oss/awesome-conductor-apps/tree/agent_research_fix_enh/typescript/claims-workflow#readme",
+      "https://orkes.io/content/templates/claims-workflow",
     "category": "Business",
     "tags": ["Business"],
     "createdAt": "2023-10-11T00:09:22.978+00:00",
@@ -2025,7 +2025,7 @@
       }
     ],
     "helpDocumentationLink":
-      "https://github.com/conductor-oss/awesome-conductor-apps/blob/jamesj-branch/examples/HTTP-EndPoint-Monitoring/README.md",
+      "https://orkes.io/content/templates/availability-monitoring-for-http-endpoints",
     "category": "Business",
     "tags": ["Business"],
     "createdAt": "2023-10-11T00:09:22.978+00:00",
