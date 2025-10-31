@@ -2032,5 +2032,118 @@
     "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
     "updatedAt": "2025-01-31T16:46:48.476+00:00",
     "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
+  },
+  {
+    "id": "connect_to_supabase",
+    "title": "Connect To Supabase",
+    "description": "Two tasks together, one gets data from supabase the other one filters it",
+    "version": 1,
+    "featureLabelAndLinks": {},
+    "githubProjectLinks": {},
+    "taskDefinitions": [],
+    "workflowDefinitions": [
+      {
+        "createTime": 0,
+        "updateTime": 0,
+        "name": "ConnectToSupabase",
+        "description": "Two task together, one gets data from supabase the other one filters it",
+        "version": 1,
+        "tasks": [
+          {
+            "name": "getDataFromSupabase",
+            "taskReferenceName": "getDataFromSupabase_ref",
+            "inputParameters": {
+              "integrationName": "supabasetesting",
+              "statement": "SELECT * FROM ${workflow.input.tableName};",
+              "parameters": [],
+              "type": "SELECT"
+            },
+            "type": "JDBC",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "taskDefinition": {
+              "createTime": 0,
+              "updateTime": 0,
+              "retryCount": 3,
+              "timeoutSeconds": 0,
+              "inputKeys": [],
+              "outputKeys": [],
+              "timeoutPolicy": "TIME_OUT_WF",
+              "retryLogic": "FIXED",
+              "retryDelaySeconds": 60,
+              "responseTimeoutSeconds": 3600,
+              "inputTemplate": {},
+              "rateLimitPerFrequency": 0,
+              "rateLimitFrequencyInSeconds": 1,
+              "backoffScaleFactor": 1,
+              "totalTimeoutSeconds": 0,
+              "enforceSchema": false
+            },
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "returnFirstFiveRows",
+            "taskReferenceName": "returnFirstFiveRows_ref",
+            "inputParameters": {
+              "persons": "${getDataFromSupabase_ref.output.result}",
+              "queryExpression": ".persons[:5] | .[]\n"
+            },
+            "type": "JSON_JQ_TRANSFORM",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "inputParameters": [
+          "tableName"
+        ],
+        "outputParameters": {},
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "maria.shimkovska@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "enforceSchema": false,
+        "metadata": {},
+        "maskedFields": []
+      }
+    ],
+    "prompts": [],
+    "integrationsWithModels": [],
+    "secrets": [],
+    "environmentVariables": [],
+    "schedules": [],
+    "webhooks": [],
+    "remoteServices": [],
+    "userForms": [],
+    "schemas": [],
+    "placeholders": [],
+    "helpDocumentationLink": "",
+    "category": "Business",
+    "tags": ["Business"],
+    "createdAt": "2023-10-11T00:09:22.978+00:00",
+    "createdBy": "5a478f1f-d433-4459-b15b-825b7ed3512c",
+    "updatedAt": "2025-01-31T16:46:48.476+00:00",
+    "updatedBy": "d3f7a8fb-26b9-4fee-84ae-fdbeb920b36d"
   }
 ]
