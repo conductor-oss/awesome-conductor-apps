@@ -3,7 +3,7 @@
       "id": "hello-world",
       "title": "Hello World",
       "description": "Start here! A simple 'Hello, World!' workflow with no external dependencies.",
-      "version": 1,
+      "version": 2,
       "featureLabelAndLinks": {},
       "githubProjectLinks": {
         "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/hello-world"
@@ -114,7 +114,7 @@
       "id": "external-api-call",
       "title": "External API Call",
       "description": "Simple HTTP Fetch Example to an external API with no credentials.",
-      "version": 1,
+      "version": 2,
       "featureLabelAndLinks": {},
       "githubProjectLinks": {
         "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/examples/external-api-call"
@@ -272,7 +272,7 @@
         "id": "worker-task-example",
         "title": "Worker Task Example",
         "description": "Learn local development with a minimalistic workflow example using a single worker task.",
-        "version": 1,
+        "version": 2,
         "featureLabelAndLinks": {},
         "githubProjectLinks": {
             "TS": "https://github.com/conductor-oss/awesome-conductor-apps/tree/CDX-241-add-basic-templates/typescript/worker-task-example",
