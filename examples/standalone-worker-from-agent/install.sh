@@ -35,13 +35,17 @@ rm -rf awesome-conductor-apps-CDX-241-add-basic-templates
 
 cd workers
 
-echo -e "\033[37mPaste your worker code here:\033[0m"
+echo -e "\033[37mPaste your worker code into the main.py file and save it.\033[0m"
 
 echo ""
 
-read -p "Enter your worker code: " WORKER_CODE
+# Echo the full path to the main.py file
+echo "main.py file is located at: $(pwd)/main.py"
 
-echo $WORKER_CODE > main.py
+echo ""
+
+# Wait for any key
+read -n 1 -s -r -p "Press any key to continue"
 
 # Build the workers
 ./build.sh
