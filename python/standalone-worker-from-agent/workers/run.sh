@@ -7,6 +7,14 @@ else
     PYTHON=python
 fi
 
+# Activate virtual environment if it exists
+if [ -d "../venv" ]; then
+    source ../venv/bin/activate
+else
+    echo "Warning: Virtual environment not found. Run build.sh first."
+    exit 1
+fi
+
 if [ "$1" == "-i" ]; then
   read -s -p "Enter your Conductor Auth Key: " CONDUCTOR_AUTH_KEY
   echo ""
