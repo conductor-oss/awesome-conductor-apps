@@ -1,7 +1,7 @@
 astor==0.8.1
 certifi==2024.12.14
 charset-normalizer==3.4.0
-conductor-python==1.1.8
+conductor-python==1.2.3
 dacite==1.8.1
 idna==3.10
 prometheus_client==0.21.1
