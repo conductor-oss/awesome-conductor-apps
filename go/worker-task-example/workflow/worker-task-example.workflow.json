@@ -1,0 +1,58 @@
+[
+  {
+    "createTime": 1744672697904,
+    "updateTime": 1744673560959,
+    "name": "WorkerTaskExample",
+    "description": "Minimal workflow example with a simple SayHello task",
+    "version": 1,
+    "tasks": [
+      {
+        "name": "sayHello",
+        "taskReferenceName": "sayHello_ref",
+        "description": "Says hello from your Worker Task. After running the workflow, check the output of this task.",
+        "inputParameters": {
+          "firstName": "${workflow.input.firstName}",
+          "lastName": "${workflow.input.lastName}"
+        },
+        "type": "SIMPLE",
+        "decisionCases": {},
+        "defaultCase": [],
+        "forkTasks": [],
+        "startDelay": 0,
+        "joinOn": [],
+        "optional": false,
+        "defaultExclusiveJoinTask": [],
+        "asyncComplete": false,
+        "loopOver": [],
+        "onStateChange": {},
+        "permissive": false
+      }
+    ],
+    "inputParameters": [
+      "firstName",
+      "lastName"
+    ],
+    "outputParameters": {},
+    "failureWorkflow": "",
+    "schemaVersion": 2,
+    "restartable": true,
+    "workflowStatusListenerEnabled": false,
+    "ownerEmail": "pablo.cuadrado@orkes.io",
+    "timeoutPolicy": "ALERT_ONLY",
+    "timeoutSeconds": 0,
+    "variables": {},
+    "inputTemplate": {},
+    "inputSchema": {
+      "createTime": 0,
+      "updateTime": 0,
+      "name": "worker-task-example-input",
+      "version": 1,
+      "type": "JSON"
+    },
+    "enforceSchema": true,
+    "metadata": {
+      "installScript": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/conductor-oss/awesome-conductor-apps/refs/heads/CDX-241-add-basic-templates/examples/worker-task-example/install.sh)\"",
+      "readme": "https://github.com/conductor-oss/awesome-conductor-apps/blob/CDX-241-add-basic-templates/typescript/worker-task-example/README.md"
+    }
+  }
+]

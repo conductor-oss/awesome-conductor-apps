@@ -1,0 +1,137 @@
+[
+    {
+        "createTime": 1758734840013,
+        "updateTime": 1758741159585,
+        "name": "ExternalAPICall",
+        "description": "External API Call Example",
+        "version": 1,
+        "tasks": [
+          {
+            "name": "get_ticker",
+            "taskReferenceName": "get_ticker_ref",
+            "description": "Obtains a ticker value from the Binance API",
+            "inputParameters": {
+              "uri": "https://api4.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT",
+              "method": "GET",
+              "accept": "application/json",
+              "contentType": "application/json",
+              "encode": true
+            },
+            "type": "HTTP",
+            "decisionCases": {},
+            "defaultCase": [],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "onStateChange": {},
+            "permissive": false
+          },
+          {
+            "name": "check_status",
+            "taskReferenceName": "check_status_ref",
+            "description": "Checks the status code of the HTTP task",
+            "inputParameters": {
+              "switchCaseValue": "${get_ticker_ref.output.response.statusCode}"
+            },
+            "type": "SWITCH",
+            "decisionCases": {
+              "success": [
+                {
+                  "name": "pick_fields",
+                  "taskReferenceName": "pick_fields_ref",
+                  "description": "Filters the fields we want from the response",
+                  "inputParameters": {
+                    "ticker": "${get_ticker_ref.output.response.body}",
+                    "queryExpression": ".ticker | {symbol, lastPrice, priceChangePercent, volume, openTime, closeTime}\n"
+                  },
+                  "type": "JSON_JQ_TRANSFORM",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                },
+                {
+                  "name": "inline",
+                  "taskReferenceName": "inline_ref",
+                  "description": "Returns values for a web UI showing the difference in price.",
+                  "inputParameters": {
+                    "expression": "(function () {\n    // Return values for a web UI showing the difference in price.\n    if ($.priceChange > 0) {\n      return {\n        foregroundColor: \"#ddffdd\",\n        backgroundColor: \"#118811\",\n        caption: \"+\" + $.priceChange\n      }\n    } else {\n      return {\n        foregroundColor: \"#ffdddd\",\n        backgroundColor: \"#881111\",\n        caption: \"\" + $.priceChange\n      }\n    }\n  }())",
+                    "evaluatorType": "graaljs",
+                    "priceChange": "${pick_fields_ref.output.result.priceChangePercent}"
+                  },
+                  "type": "INLINE",
+                  "decisionCases": {},
+                  "defaultCase": [],
+                  "forkTasks": [],
+                  "startDelay": 0,
+                  "joinOn": [],
+                  "optional": false,
+                  "defaultExclusiveJoinTask": [],
+                  "asyncComplete": false,
+                  "loopOver": [],
+                  "onStateChange": {},
+                  "permissive": false
+                }
+              ]
+            },
+            "defaultCase": [
+              {
+                "name": "terminate_1",
+                "taskReferenceName": "terminate_ref_1",
+                "description": "Terminates the workflow if the status code is not 200",
+                "inputParameters": {
+                  "terminationStatus": "FAILED",
+                  "terminationReason": "Error getting ticker values."
+                },
+                "type": "TERMINATE",
+                "decisionCases": {},
+                "defaultCase": [],
+                "forkTasks": [],
+                "startDelay": 0,
+                "joinOn": [],
+                "optional": false,
+                "defaultExclusiveJoinTask": [],
+                "asyncComplete": false,
+                "loopOver": [],
+                "onStateChange": {},
+                "permissive": false
+              }
+            ],
+            "forkTasks": [],
+            "startDelay": 0,
+            "joinOn": [],
+            "optional": false,
+            "defaultExclusiveJoinTask": [],
+            "asyncComplete": false,
+            "loopOver": [],
+            "evaluatorType": "graaljs",
+            "expression": "(function () {\n    switch ($.switchCaseValue) {\n      case 200:\n        return \"success\";\n      default:\n        return \"defaultCase\";\n    }\n  }())",
+            "onStateChange": {},
+            "permissive": false
+          }
+        ],
+        "inputParameters": [],
+        "outputParameters": {},
+        "failureWorkflow": "",
+        "schemaVersion": 2,
+        "restartable": true,
+        "workflowStatusListenerEnabled": false,
+        "ownerEmail": "pablo.cuadrado@orkes.io",
+        "timeoutPolicy": "ALERT_ONLY",
+        "timeoutSeconds": 0,
+        "variables": {},
+        "inputTemplate": {},
+        "enforceSchema": true
+    }
+]
