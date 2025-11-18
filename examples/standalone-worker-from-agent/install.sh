@@ -7,12 +7,6 @@ echo ""
 read -p "Enter the folder name (default: worker-task-example): " FOLDER_NAME
 FOLDER_NAME=${FOLDER_NAME:-worker-task-example}
 
-echo -e "\033[37mSelect your preferred SDK language:\033[0m"
-
-echo ""
-
-echo -e "\033[37mUsing SDK: $SDK\033[0m"
-
 echo ""
 
 # create the folder
@@ -26,13 +20,13 @@ curl -fsSL https://github.com/conductor-oss/awesome-conductor-apps/archive/refs/
 
 echo ""
 
-# Unzip the repo
-unzip awesome-conductor-apps.zip
+# Unzip the repo quietly
+unzip -qq awesome-conductor-apps.zip
 
 echo ""
 
 # copy the template folder 
-cp -r awesome-conductor-apps-CDX-241-add-basic-templates/$SDK/worker-task-example/* .
+cp -r awesome-conductor-apps-CDX-241-add-basic-templates/python/standalone-worker-from-agent/* .
 
 rm -rf awesome-conductor-apps.zip
 
