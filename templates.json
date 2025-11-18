@@ -585,7 +585,7 @@
   {
     "id": "connect_to_supabase",
     "title": "Connect To Supabase",
-    "description": "Two tasks together, one gets data from supabase the other one filters it",
+    "description": "Two tasks together, one gets data from Supabase the other one filters it.",
     "version": 2,
     "featureLabelAndLinks": {},
     "githubProjectLinks": {},
@@ -595,7 +595,7 @@
         "createTime": 0,
         "updateTime": 0,
         "name": "ConnectToSupabase",
-        "description": "Two task together, one gets data from supabase the other one filters it",
+        "description": "Two tasks together, one gets data from Supabase the other one filters it.",
         "version": 1,
         "tasks": [
           {
