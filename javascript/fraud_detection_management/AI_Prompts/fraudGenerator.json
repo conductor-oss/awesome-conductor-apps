@@ -1,0 +1,10 @@
+{
+  "name": "fraudGenerator",
+  "template": "Generate 3 random transaction records across multiple entities for fraud detection analysis. The transactions should include:\ntransaction_id: A unique alphanumeric string.\nuser_id: A unique identifier for the user.\namount: Random values from 0 - 1,000,000\ntransaction_type\nsource: random identifier representing the sender (src)\nfraud_history: yes or no\ndestination: random identifier representing the receiver (dst)\nReturn ONLY a valid JSON array with no explanations or markdown code blocks\n",
+  "description": "Generate 3 random transaction records across multiple entities",
+  "variables": [],
+  "integrations": [
+    "AdTest:gpt-4o-mini-2024-07-18"
+  ],
+  "tags": []
+}
