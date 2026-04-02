@@ -4,18 +4,18 @@ This repository showcases sample applications built using Orkes Conductor, a pow
 !["A illustrated banner for Conductor's Awesome Apps Readme file"](./AWE-Conductor_Banner_v2.jpg)
 
 ## Sample applications
-* [Payment processing SAGA with Conductor and Go](https://github.com/conductor-oss/conductor-apps/tree/main/go/saga)
-* [How to rate limit workflow executions with Conductor](https://github.com/conductor-oss/conductor-apps/java/rate_limit_application)
-* [Workflow example showing various timeout scenarios with Conductor](https://github.com/conductor-oss/conductor-apps/java/timeouts_application)
-* [Agentic stock trading app with Conductor and Python](https://github.com/conductor-oss/conductor-apps/python/agentic_trader_app)
+* [Payment processing SAGA with Conductor and Go](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/go/saga)
+* [How to rate limit workflow executions with Conductor](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/java/rate_limit_application)
+* [Workflow example showing various timeout scenarios with Conductor](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/java/timeouts_application)
+* [Agentic stock trading app with Conductor and Python](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python/agentic_trader_app)
 
 ## Language-specific Worker and Workflow sample projects
-* [Clojure](https://github.com/conductor-oss/conductor-apps/clojure)
-* [Csharp](https://github.com/conductor-oss/conductor-apps/csharp)
-* [Go](https://github.com/conductor-oss/conductor-apps/go) 
-* [Java](https://github.com/conductor-oss/conductor-apps/java)
-* [JavaScript](https://github.com/conductor-oss/conductor-apps/javascript)
-* [Python](https://github.com/conductor-oss/conductor-apps/python)
+* [Clojure](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/clojure)
+* [Csharp](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/csharp)
+* [Go](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/go)
+* [Java](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/java)
+* [JavaScript](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/javascript)
+* [Python](https://github.com/conductor-oss/awesome-conductor-apps/tree/main/python)
 
 
 ## Getting started
