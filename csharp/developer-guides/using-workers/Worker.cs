@@ -18,7 +18,7 @@ namespace example
             var result = task.ToTaskResult();
             result.OutputData = new Dictionary<string, object>
             {
-                ["message"] = "Hello " + inputData.GetValueOrDefault("name", null)
+                ["greeting"] = "Hello, " + inputData.GetValueOrDefault("name", null)
             };
             return result;
         }
@@ -27,7 +27,7 @@ namespace example
         {
             var conf = new Configuration
             {
-                BasePath = "https://developer.orkescloud.com/api",
+                BasePath = "https://your-cluster.orkesconductor.io/api",
                 AuthenticationSettings = new OrkesAuthenticationSettings("_CHANGE_ME_", "_CHANGE_ME_")
             };
 

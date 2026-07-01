@@ -1,25 +1,14 @@
 import {
-  orkesConductorClient,
+  OrkesClients,
   WorkflowExecutor,
   httpTask,
   simpleTask,
   switchTask,
 } from "@io-orkes/conductor-javascript";
 
-// Set up an application in your Orkes Conductor cluster. Sign up for a Developer Edition account at https://developer.orkescloud.com. 
-// - Set your cluster's API URL as the serverUrl (e.g., "https://developer.orkescloud.com/api" for Developer Edition).
-// - Use the application's Key ID and Secret here.
-const config = {
-  serverUrl: "_CHANGE_ME_",
-  keyId: "_CHANGE_ME_",
-  keySecret: "_CHANGE_ME_",
-};
+const clients = await OrkesClients.from();
+const executor = new WorkflowExecutor(clients.getClient());
 
-const client = await orkesConductorClient(config);
-// A WorkflowExecutor instance is used to register and execute workflows.
-const executor = new WorkflowExecutor(client);
-
-// Create the workflow definition.
 const wf = {
   name: "helloWorld",
   version: 1,
@@ -41,10 +30,7 @@ const wf = {
   ],
 };
 
-// Register the workflow with overwrite = true.
 await executor.registerWorkflow(true, wf);
 
-// Start the workflow.
-const id = await executor.startWorkflow({name: wf.name, version: wf.version});
+const id = await executor.startWorkflow({ name: wf.name, version: wf.version });
 console.log(`Started workflow: ${id}`);
-client.stop()

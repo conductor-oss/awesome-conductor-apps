@@ -12,7 +12,7 @@ import (
 )
 
 // Replace with your own credentials
-const API_URL = "https://developer.orkescloud.com/api"
+const API_URL = "https://your-cluster.orkesconductor.io/api"
 const KEY_ID = "_CHANGE_ME_"
 const SECRET = "_CHANGE_ME_"
 
@@ -20,7 +20,7 @@ const TASK_NAME = "myTask"
 
 func myTask(task *model.Task) (any, error) {
 	return map[string]interface{}{
-		"greetings": "Hello " + fmt.Sprintf("%v", task.InputData["name"]),
+		"greeting": "Hello, " + fmt.Sprintf("%v", task.InputData["name"]),
 	}, nil
 }
 

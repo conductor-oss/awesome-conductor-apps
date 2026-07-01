@@ -4,6 +4,6 @@
   "main": "worker.js",
   "type": "module",
   "dependencies": {
-    "@io-orkes/conductor-javascript": "^2.1.3"
+    "@io-orkes/conductor-javascript": "^3.0.3"
   }
 }

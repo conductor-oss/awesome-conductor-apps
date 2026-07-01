@@ -21,12 +21,10 @@ Quickstart Guide is available [HERE](https://orkes.io/content/quickstarts/create
 
 ### Use that access key in `workflow_as_code.js`
 
-```javascript
-const config = {
-  serverUrl: "https://developer.orkescloud.com/api",
-  keyId: "_CHANGE_ME_",
-  keySecret: "_CHANGE_ME_",
-};
+```shell
+export CONDUCTOR_SERVER_URL=https://your-cluster.orkesconductor.io/api
+export CONDUCTOR_AUTH_KEY=<YOUR-KEY-ID>
+export CONDUCTOR_AUTH_SECRET=<YOUR-KEY-SECRET>
 ```
 
 ```shell
