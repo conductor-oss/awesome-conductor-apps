@@ -15,7 +15,7 @@ def register_workflow(workflow_executor: WorkflowExecutor) -> ConductorWorkflow:
             "method": "POST",
             "headers": {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer ${workflow.input.auth_token}""
+                "Authorization": "Bearer ${workflow.input.auth_token}"
             },
             "body": {
                 "orderId": "${workflow.input.orderId}",
