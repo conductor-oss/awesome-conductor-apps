@@ -1,5 +1,6 @@
 .DS_Store
 .idea/
+.vscode/
 
 python/agentic_trader/agentic_trader/worker/__pycache__/workers.cpython-310.pyc
 python/agentic_rag/agentic_trader/worker/__pycache__/workers.cpython-310.pyc
