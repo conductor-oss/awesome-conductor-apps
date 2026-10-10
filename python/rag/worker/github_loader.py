@@ -9,6 +9,8 @@ from langchain.text_splitter import (
 import tempfile
 import os
 
+from worker.web_page_loader import make_doc_id
+
 
 def code_filter(file_path):
     code_extensions = {'.py', '.js', '.java', '.go', '.cpp', '.hpp', '.rs'}
@@ -16,8 +18,7 @@ def code_filter(file_path):
 
 
 @worker_task(task_definition_name='load_github_repo')
-def load_github_repo(repo_url: str) -> List:
-    branch = 'main'
+def load_github_repo(repo_url: str, branch: str = 'main') -> List:
     file_filter = code_filter
     # Create a temporary directory to clone the repo
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -88,11 +89,13 @@ def load_github_repo(repo_url: str) -> List:
             splits = splitter.split_text(content)
 
             # Create new documents with the splits
+            source_url = f"{repo_url.removesuffix('.git')}/blob/{branch}/{file_path}"
             for i, split in enumerate(splits):
                 metadata = doc.metadata.copy()
                 metadata['chunk'] = i
                 split_docs.append({
-                    'content': split,
+                    'doc_id': make_doc_id(source_url, i),
+                    'content': f'File: {file_path}\n\n{split}',
                     'metadata': metadata
                 })
 

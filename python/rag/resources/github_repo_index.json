@@ -1,0 +1,65 @@
+{
+  "name": "github_repo_index",
+  "description": "Clone a GitHub repository, split its code into chunks and index each chunk in the vector database",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "rag-demo@example.com",
+  "inputParameters": ["repo_url", "branch", "vectorDB", "index", "namespace", "embeddingModelProvider", "embeddingModel", "dimensions"],
+  "inputTemplate": {
+    "branch": "main",
+    "vectorDB": "pgvector-local",
+    "index": "code",
+    "namespace": "code",
+    "embeddingModelProvider": "openai",
+    "embeddingModel": "text-embedding-3-small",
+    "dimensions": 1536
+  },
+  "tasks": [
+    {
+      "name": "load_github_repo",
+      "taskReferenceName": "load_repo_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "repo_url": "${workflow.input.repo_url}",
+        "branch": "${workflow.input.branch}"
+      }
+    },
+    {
+      "name": "build_index_tasks",
+      "taskReferenceName": "build_index_tasks_ref",
+      "type": "INLINE",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function () { var chunks = $.chunks || []; var tasks = []; var inputs = {}; for (var i = 0; i < chunks.length; i++) { var ref = 'index_chunk_' + i; tasks.push({ name: 'rag_index_chunk', taskReferenceName: ref, type: 'LLM_INDEX_TEXT' }); inputs[ref] = { vectorDB: $.vectorDB, index: $.index, namespace: $.namespace, docId: chunks[i].doc_id, text: chunks[i].content, metadata: chunks[i].metadata, embeddingModelProvider: $.embeddingModelProvider, embeddingModel: $.embeddingModel, dimensions: $.dimensions }; } return { dynamicTasks: tasks, dynamicTasksInput: inputs, count: chunks.length }; })();",
+        "chunks": "${load_repo_ref.output.result}",
+        "vectorDB": "${workflow.input.vectorDB}",
+        "index": "${workflow.input.index}",
+        "namespace": "${workflow.input.namespace}",
+        "embeddingModelProvider": "${workflow.input.embeddingModelProvider}",
+        "embeddingModel": "${workflow.input.embeddingModel}",
+        "dimensions": "${workflow.input.dimensions}"
+      }
+    },
+    {
+      "name": "index_chunks",
+      "taskReferenceName": "index_chunks_ref",
+      "type": "FORK_JOIN_DYNAMIC",
+      "dynamicForkTasksParam": "dynamicTasks",
+      "dynamicForkTasksInputParamName": "dynamicTasksInput",
+      "inputParameters": {
+        "dynamicTasks": "${build_index_tasks_ref.output.result.dynamicTasks}",
+        "dynamicTasksInput": "${build_index_tasks_ref.output.result.dynamicTasksInput}"
+      }
+    },
+    {
+      "name": "index_chunks_join",
+      "taskReferenceName": "index_chunks_join_ref",
+      "type": "JOIN"
+    }
+  ],
+  "outputParameters": {
+    "repo_url": "${workflow.input.repo_url}",
+    "index": "${workflow.input.index}",
+    "chunks_indexed": "${build_index_tasks_ref.output.result.count}"
+  }
+}

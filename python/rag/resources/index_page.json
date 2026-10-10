@@ -1,0 +1,66 @@
+{
+  "name": "index_page",
+  "description": "Fetch one web page, split its text into chunks and index each chunk in the vector database",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "rag-demo@example.com",
+  "inputParameters": ["url", "chunk_size", "chunk_overlap", "vectorDB", "index", "namespace", "embeddingModelProvider", "embeddingModel", "dimensions"],
+  "inputTemplate": {
+    "chunk_size": 8000,
+    "chunk_overlap": 200,
+    "vectorDB": "pgvector-local",
+    "index": "docs",
+    "namespace": "docs",
+    "embeddingModelProvider": "openai",
+    "embeddingModel": "text-embedding-3-small",
+    "dimensions": 1536
+  },
+  "tasks": [
+    {
+      "name": "load_web_page",
+      "taskReferenceName": "load_page_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "url": "${workflow.input.url}",
+        "chunk_size": "${workflow.input.chunk_size}",
+        "chunk_overlap": "${workflow.input.chunk_overlap}"
+      }
+    },
+    {
+      "name": "build_index_tasks",
+      "taskReferenceName": "build_index_tasks_ref",
+      "type": "INLINE",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function () { var chunks = $.chunks || []; var tasks = []; var inputs = {}; for (var i = 0; i < chunks.length; i++) { var ref = 'index_chunk_' + i; tasks.push({ name: 'rag_index_chunk', taskReferenceName: ref, type: 'LLM_INDEX_TEXT' }); inputs[ref] = { vectorDB: $.vectorDB, index: $.index, namespace: $.namespace, docId: chunks[i].doc_id, text: chunks[i].content, metadata: chunks[i].metadata, embeddingModelProvider: $.embeddingModelProvider, embeddingModel: $.embeddingModel, dimensions: $.dimensions }; } return { dynamicTasks: tasks, dynamicTasksInput: inputs, count: chunks.length }; })();",
+        "chunks": "${load_page_ref.output.result}",
+        "vectorDB": "${workflow.input.vectorDB}",
+        "index": "${workflow.input.index}",
+        "namespace": "${workflow.input.namespace}",
+        "embeddingModelProvider": "${workflow.input.embeddingModelProvider}",
+        "embeddingModel": "${workflow.input.embeddingModel}",
+        "dimensions": "${workflow.input.dimensions}"
+      }
+    },
+    {
+      "name": "index_chunks",
+      "taskReferenceName": "index_chunks_ref",
+      "type": "FORK_JOIN_DYNAMIC",
+      "dynamicForkTasksParam": "dynamicTasks",
+      "dynamicForkTasksInputParamName": "dynamicTasksInput",
+      "inputParameters": {
+        "dynamicTasks": "${build_index_tasks_ref.output.result.dynamicTasks}",
+        "dynamicTasksInput": "${build_index_tasks_ref.output.result.dynamicTasksInput}"
+      }
+    },
+    {
+      "name": "index_chunks_join",
+      "taskReferenceName": "index_chunks_join_ref",
+      "type": "JOIN"
+    }
+  ],
+  "outputParameters": {
+    "url": "${workflow.input.url}",
+    "chunks_indexed": "${build_index_tasks_ref.output.result.count}"
+  }
+}

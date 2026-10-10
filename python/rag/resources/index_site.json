@@ -1,0 +1,65 @@
+{
+  "name": "index_site",
+  "description": "Read a sitemap and index every page it lists, one index_page sub-workflow per page",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "rag-demo@example.com",
+  "inputParameters": ["sitemap_url", "max_pages", "vectorDB", "index", "namespace", "embeddingModelProvider", "embeddingModel", "dimensions"],
+  "inputTemplate": {
+    "max_pages": 150,
+    "vectorDB": "pgvector-local",
+    "index": "docs",
+    "namespace": "docs",
+    "embeddingModelProvider": "openai",
+    "embeddingModel": "text-embedding-3-small",
+    "dimensions": 1536
+  },
+  "tasks": [
+    {
+      "name": "sitemap_urls",
+      "taskReferenceName": "sitemap_ref",
+      "type": "SIMPLE",
+      "inputParameters": {
+        "url": "${workflow.input.sitemap_url}",
+        "max_urls": "${workflow.input.max_pages}"
+      }
+    },
+    {
+      "name": "build_page_tasks",
+      "taskReferenceName": "build_page_tasks_ref",
+      "type": "INLINE",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "expression": "(function () { var urls = $.urls || []; var tasks = []; var inputs = {}; for (var i = 0; i < urls.length; i++) { var ref = 'index_page_' + i; tasks.push({ name: 'index_page', taskReferenceName: ref, type: 'SUB_WORKFLOW', subWorkflowParam: { name: 'index_page', version: 1 }, optional: true }); inputs[ref] = { url: urls[i], vectorDB: $.vectorDB, index: $.index, namespace: $.namespace, embeddingModelProvider: $.embeddingModelProvider, embeddingModel: $.embeddingModel, dimensions: $.dimensions }; } return { dynamicTasks: tasks, dynamicTasksInput: inputs, count: urls.length }; })();",
+        "urls": "${sitemap_ref.output.result}",
+        "vectorDB": "${workflow.input.vectorDB}",
+        "index": "${workflow.input.index}",
+        "namespace": "${workflow.input.namespace}",
+        "embeddingModelProvider": "${workflow.input.embeddingModelProvider}",
+        "embeddingModel": "${workflow.input.embeddingModel}",
+        "dimensions": "${workflow.input.dimensions}"
+      }
+    },
+    {
+      "name": "index_pages",
+      "taskReferenceName": "index_pages_ref",
+      "type": "FORK_JOIN_DYNAMIC",
+      "dynamicForkTasksParam": "dynamicTasks",
+      "dynamicForkTasksInputParamName": "dynamicTasksInput",
+      "inputParameters": {
+        "dynamicTasks": "${build_page_tasks_ref.output.result.dynamicTasks}",
+        "dynamicTasksInput": "${build_page_tasks_ref.output.result.dynamicTasksInput}"
+      }
+    },
+    {
+      "name": "index_pages_join",
+      "taskReferenceName": "index_pages_join_ref",
+      "type": "JOIN"
+    }
+  ],
+  "outputParameters": {
+    "sitemap_url": "${workflow.input.sitemap_url}",
+    "index": "${workflow.input.index}",
+    "pages_found": "${build_page_tasks_ref.output.result.count}"
+  }
+}

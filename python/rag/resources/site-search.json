@@ -1,0 +1,94 @@
+{
+  "name": "site-search",
+  "description": "Answer a question by searching the indexed documentation and code in parallel and generating an answer from the results",
+  "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "rag-demo@example.com",
+  "inputParameters": ["query", "llmProvider", "model", "maxResults", "vectorDB", "docs_index", "code_index", "embeddingModelProvider", "embeddingModel", "dimensions"],
+  "inputTemplate": {
+    "llmProvider": "openai",
+    "model": "gpt-5-nano",
+    "maxResults": 3,
+    "vectorDB": "pgvector-local",
+    "docs_index": "docs",
+    "code_index": "code",
+    "embeddingModelProvider": "openai",
+    "embeddingModel": "text-embedding-3-small",
+    "dimensions": 1536
+  },
+  "tasks": [
+    {
+      "name": "search",
+      "taskReferenceName": "search_ref",
+      "type": "FORK_JOIN",
+      "forkTasks": [
+        [
+          {
+            "name": "search_docs",
+            "taskReferenceName": "search_docs_ref",
+            "type": "LLM_SEARCH_INDEX",
+            "inputParameters": {
+              "vectorDB": "${workflow.input.vectorDB}",
+              "index": "${workflow.input.docs_index}",
+              "namespace": "${workflow.input.docs_index}",
+              "query": "${workflow.input.query}",
+              "embeddingModelProvider": "${workflow.input.embeddingModelProvider}",
+              "embeddingModel": "${workflow.input.embeddingModel}",
+              "dimensions": "${workflow.input.dimensions}",
+              "maxResults": "${workflow.input.maxResults}"
+            }
+          }
+        ],
+        [
+          {
+            "name": "search_code",
+            "taskReferenceName": "search_code_ref",
+            "type": "LLM_SEARCH_INDEX",
+            "inputParameters": {
+              "vectorDB": "${workflow.input.vectorDB}",
+              "index": "${workflow.input.code_index}",
+              "namespace": "${workflow.input.code_index}",
+              "query": "${workflow.input.query}",
+              "embeddingModelProvider": "${workflow.input.embeddingModelProvider}",
+              "embeddingModel": "${workflow.input.embeddingModel}",
+              "dimensions": "${workflow.input.dimensions}",
+              "maxResults": "${workflow.input.maxResults}"
+            }
+          }
+        ]
+      ]
+    },
+    {
+      "name": "search_join",
+      "taskReferenceName": "search_join_ref",
+      "type": "JOIN",
+      "joinOn": ["search_docs_ref", "search_code_ref"]
+    },
+    {
+      "name": "generate_answer",
+      "taskReferenceName": "answer_ref",
+      "type": "LLM_CHAT_COMPLETE",
+      "inputParameters": {
+        "llmProvider": "${workflow.input.llmProvider}",
+        "model": "${workflow.input.model}",
+        "messages": [
+          {
+            "role": "system",
+            "message": "You answer questions about Conductor using only the documentation and code excerpts provided. Ignore excerpts that are not relevant to the question. If the relevant excerpts do not contain the answer, say so instead of guessing. End with a 'Sources' list of the docId URLs you used."
+          },
+          {
+            "role": "user",
+            "message": "Documentation excerpts:\n${search_docs_ref.output.result}\n\nCode excerpts:\n${search_code_ref.output.result}\n\nQuestion: ${workflow.input.query}"
+          }
+        ]
+      }
+    }
+  ],
+  "outputParameters": {
+    "result": "${answer_ref.output.result}",
+    "sources": {
+      "docs": "${search_docs_ref.output.result[*].docId}",
+      "code": "${search_code_ref.output.result[*].docId}"
+    }
+  }
+}
