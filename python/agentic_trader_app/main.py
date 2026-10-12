@@ -26,21 +26,26 @@ def main():
     task_handler.start_processes()
     try:
         request = StartWorkflowRequest(name='agentic_stock_trader_autonomous', version=1, input={
-            'instructions': ' '.join(sys.argv[1:]) or 'purchase 1 share of google',
+            'instructions': ' '.join(sys.argv[1:]) or 'Trade actively to grow the account',
             'model': os.getenv('OPENAI_DEFAULT_MODEL', 'gpt-5-nano'),
         })
         workflow_id = workflow_client.start_workflow(start_workflow_request=request)
         print(f'Track the agent here: {api_config.ui_host}/execution/{workflow_id}')
 
-        last_state = None
-        workflow = workflow_client.get_workflow(workflow_id=workflow_id, include_tasks=False)
-        while workflow.is_running():
-            v = workflow.variables or {}
-            state = (v.get('last_trade'), v.get('balance'), v.get('instructions'))
-            if state != last_state:
-                print(f'Last trade: {state[0]} | balance: {state[1]} | next: {state[2]}')
-                last_state = state
-            time.sleep(5)
+        last_trade = 'None yet'
+        try:
+            workflow = workflow_client.get_workflow(workflow_id=workflow_id, include_tasks=False)
+            while workflow.is_running():
+                v = workflow.variables or {}
+                if v.get('last_trade', last_trade) != last_trade:
+                    last_trade = v['last_trade']
+                    print(f'{last_trade} | cash: {v.get("balance")} | total value: {v.get("total_value")} ({v.get("change_percent")}%)')
+                time.sleep(2)
+                workflow = workflow_client.get_workflow(workflow_id=workflow_id, include_tasks=False)
+        except KeyboardInterrupt:
+            # Ctrl+C: terminate the workflow too, so it isn't left waiting for the stopped workers
+            print('\nStopping the agent...')
+            workflow_client.terminate_workflow(workflow_id=workflow_id, reason='Stopped with Ctrl+C')
             workflow = workflow_client.get_workflow(workflow_id=workflow_id, include_tasks=False)
 
         print(f'Agent {workflow.status}: {json.dumps(workflow.output, indent=2)}')

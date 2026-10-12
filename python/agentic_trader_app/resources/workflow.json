@@ -1,12 +1,12 @@
 {
   "name": "agentic_stock_trader_autonomous",
-  "description": "Autonomous stock trading agent: an LLM picks each trade, workers execute it, and the account lives in workflow variables",
+  "description": "Autonomous stock trading agent: an LLM makes one trading decision per turn, workers execute it, and the market and account live in workflow variables",
   "version": 1,
   "schemaVersion": 2,
   "ownerEmail": "trader-demo@example.com",
   "inputParameters": ["instructions", "initial_balance", "llmProvider", "model"],
   "inputTemplate": {
-    "initial_balance": 3000,
+    "initial_balance": 5000,
     "llmProvider": "openai",
     "model": "gpt-5-nano"
   },
@@ -16,9 +16,9 @@
       "taskReferenceName": "init_account_ref",
       "type": "SET_VARIABLE",
       "inputParameters": {
-        "instructions": "${workflow.input.instructions}",
         "balance": "${workflow.input.initial_balance}",
         "portfolio": {},
+        "prices": {},
         "last_trade": "None yet"
       }
     },
@@ -27,58 +27,73 @@
       "taskReferenceName": "trading_loop_ref",
       "type": "DO_WHILE",
       "inputParameters": {
-        "instructions": "${workflow.variables.instructions}"
+        "change_percent": "${workflow.variables.change_percent}"
       },
-      "loopCondition": "(function () {\n  var next = String($.instructions || '').trim().toUpperCase();\n  return $.trading_loop_ref['iteration'] < 20 && next.indexOf('STOP') !== 0;\n})();",
+      "loopCondition": "(function () {\n  return $.trading_loop_ref['iteration'] < 20 && Math.abs($.change_percent || 0) < 20;\n})();",
       "evaluatorType": "graaljs",
       "loopOver": [
         {
-          "name": "choose_trade",
-          "taskReferenceName": "choose_trade_ref",
+          "name": "update_market",
+          "taskReferenceName": "update_market_ref",
+          "type": "SIMPLE",
+          "inputParameters": {
+            "prices": "${workflow.variables.prices}",
+            "portfolio": "${workflow.variables.portfolio}",
+            "balance": "${workflow.variables.balance}",
+            "starting_balance": "${workflow.input.initial_balance}"
+          }
+        },
+        {
+          "name": "record_market",
+          "taskReferenceName": "record_market_ref",
+          "type": "SET_VARIABLE",
+          "inputParameters": {
+            "prices": "${update_market_ref.output.prices}",
+            "total_value": "${update_market_ref.output.total_value}",
+            "change_percent": "${update_market_ref.output.change_percent}",
+            "allocation": "${update_market_ref.output.allocation}"
+          }
+        },
+        {
+          "name": "decide_trade",
+          "taskReferenceName": "decide_trade_ref",
           "type": "LLM_CHAT_COMPLETE",
           "inputParameters": {
             "llmProvider": "${workflow.input.llmProvider}",
             "model": "${workflow.input.model}",
+            "reasoningEffort": "low",
             "jsonOutput": true,
             "messages": [
               {
                 "role": "system",
-                "message": "You are a stock trading agent. Turn the instruction into exactly one trade. Reply only with JSON in this format: {\"command\": \"buy_stock\" or \"sell_stock\", \"ticker\": \"<NASDAQ ticker symbol>\", \"quantity\": <whole number of shares>}. You can only sell stocks in the portfolio. The current price is looked up for you."
+                "message": "You are an autonomous stock trading agent managing a simulated account. Each turn you see the market prices, your cash and your holdings, and you make one decision to grow the account's total value (cash plus holdings at current prices). You can buy or sell a stock from the market, or hold to wait for better prices. Trade whole shares, only sell shares you hold, and never spend more cash than you have. Take profits, cut losses and spread your money across several stocks: keep at least 10% of the total value in cash, and no more than 40% in any one stock. Trading ends automatically when the change in total value reaches +20% or -20%, or after 20 turns. Reply only with JSON in this format: {\"action\": \"buy\" or \"sell\" or \"hold\", \"ticker\": \"<ticker from the market, or empty>\", \"quantity\": <number of shares, or 0>, \"reason\": \"<one short sentence>\"}"
               },
               {
                 "role": "user",
-                "message": "Instruction: ${workflow.variables.instructions}\nCash balance: ${workflow.variables.balance}\nPortfolio (shares by ticker): ${workflow.variables.portfolio}"
+                "message": "Instructions: ${workflow.input.instructions}\nStarting balance: ${workflow.input.initial_balance}\nCash: ${workflow.variables.balance}\nHoldings (shares by ticker): ${workflow.variables.portfolio}\nAllocation (% of total value): ${workflow.variables.allocation}\nMarket prices: ${workflow.variables.prices}\nTotal value: ${workflow.variables.total_value} (${workflow.variables.change_percent}% change)\nResult of your last decision: ${workflow.variables.last_trade}"
               }
             ]
           }
         },
         {
-          "name": "execute_trade",
-          "taskReferenceName": "execute_trade_ref",
+          "name": "execute_decision",
+          "taskReferenceName": "execute_decision_ref",
           "type": "SWITCH",
           "evaluatorType": "value-param",
-          "expression": "command",
+          "expression": "action",
           "inputParameters": {
-            "command": "${choose_trade_ref.output.result.command}"
+            "action": "${decide_trade_ref.output.result.action}"
           },
           "decisionCases": {
-            "buy_stock": [
-              {
-                "name": "get_stock_price",
-                "taskReferenceName": "buy_price_ref",
-                "type": "SIMPLE",
-                "inputParameters": {
-                  "ticker": "${choose_trade_ref.output.result.ticker}"
-                }
-              },
+            "buy": [
               {
                 "name": "buy_stock",
                 "taskReferenceName": "buy_stock_ref",
                 "type": "SIMPLE",
                 "inputParameters": {
-                  "ticker": "${choose_trade_ref.output.result.ticker}",
-                  "quantity": "${choose_trade_ref.output.result.quantity}",
-                  "price": "${buy_price_ref.output.result}",
+                  "ticker": "${decide_trade_ref.output.result.ticker}",
+                  "quantity": "${decide_trade_ref.output.result.quantity}",
+                  "prices": "${workflow.variables.prices}",
                   "balance": "${workflow.variables.balance}",
                   "portfolio": "${workflow.variables.portfolio}"
                 }
@@ -90,27 +105,19 @@
                 "inputParameters": {
                   "balance": "${buy_stock_ref.output.balance}",
                   "portfolio": "${buy_stock_ref.output.portfolio}",
-                  "last_trade": "${buy_stock_ref.output.message}"
+                  "last_trade": "Turn ${trading_loop_ref.output.iteration}: ${buy_stock_ref.output.message} (${decide_trade_ref.output.result.reason})"
                 }
               }
             ],
-            "sell_stock": [
-              {
-                "name": "get_stock_price",
-                "taskReferenceName": "sell_price_ref",
-                "type": "SIMPLE",
-                "inputParameters": {
-                  "ticker": "${choose_trade_ref.output.result.ticker}"
-                }
-              },
+            "sell": [
               {
                 "name": "sell_stock",
                 "taskReferenceName": "sell_stock_ref",
                 "type": "SIMPLE",
                 "inputParameters": {
-                  "ticker": "${choose_trade_ref.output.result.ticker}",
-                  "quantity": "${choose_trade_ref.output.result.quantity}",
-                  "price": "${sell_price_ref.output.result}",
+                  "ticker": "${decide_trade_ref.output.result.ticker}",
+                  "quantity": "${decide_trade_ref.output.result.quantity}",
+                  "prices": "${workflow.variables.prices}",
                   "balance": "${workflow.variables.balance}",
                   "portfolio": "${workflow.variables.portfolio}"
                 }
@@ -122,57 +129,43 @@
                 "inputParameters": {
                   "balance": "${sell_stock_ref.output.balance}",
                   "portfolio": "${sell_stock_ref.output.portfolio}",
-                  "last_trade": "${sell_stock_ref.output.message}"
+                  "last_trade": "Turn ${trading_loop_ref.output.iteration}: ${sell_stock_ref.output.message} (${decide_trade_ref.output.result.reason})"
+                }
+              }
+            ],
+            "hold": [
+              {
+                "name": "record_hold",
+                "taskReferenceName": "record_hold_ref",
+                "type": "SET_VARIABLE",
+                "inputParameters": {
+                  "last_trade": "Turn ${trading_loop_ref.output.iteration}: Held (${decide_trade_ref.output.result.reason})"
                 }
               }
             ]
           },
           "defaultCase": [
             {
-              "name": "record_no_trade",
-              "taskReferenceName": "record_no_trade_ref",
+              "name": "record_unknown",
+              "taskReferenceName": "record_unknown_ref",
               "type": "SET_VARIABLE",
               "inputParameters": {
-                "last_trade": "No trade made: unknown command ${choose_trade_ref.output.result.command}"
+                "last_trade": "Turn ${trading_loop_ref.output.iteration}: No trade made: unknown action ${decide_trade_ref.output.result.action}"
               }
             }
           ]
-        },
-        {
-          "name": "decide_next_step",
-          "taskReferenceName": "decide_next_step_ref",
-          "type": "LLM_CHAT_COMPLETE",
-          "inputParameters": {
-            "llmProvider": "${workflow.input.llmProvider}",
-            "model": "${workflow.input.model}",
-            "messages": [
-              {
-                "role": "system",
-                "message": "You are an autonomous stock trader managing a simulated account. Based on the account state, either give one short instruction for the next trade (buy one of the NASDAQ-100 stocks, or sell a stock from the portfolio), or respond with the single word STOP. Stop when the cash balance drops close to zero or grows to more than twice the starting balance. Reply with only the instruction or STOP, without explaining your reasoning."
-              },
-              {
-                "role": "user",
-                "message": "Starting balance: ${workflow.input.initial_balance}\nCash balance: ${workflow.variables.balance}\nPortfolio (shares by ticker): ${workflow.variables.portfolio}\nLast trade: ${workflow.variables.last_trade}"
-              }
-            ]
-          }
-        },
-        {
-          "name": "set_next_instructions",
-          "taskReferenceName": "set_next_instructions_ref",
-          "type": "SET_VARIABLE",
-          "inputParameters": {
-            "instructions": "${decide_next_step_ref.output.result}"
-          }
         }
       ]
     }
   ],
   "outputParameters": {
     "iterations": "${trading_loop_ref.output.iteration}",
-    "balance": "${workflow.variables.balance}",
+    "starting_balance": "${workflow.input.initial_balance}",
+    "total_value": "${workflow.variables.total_value}",
+    "change_percent": "${workflow.variables.change_percent}",
+    "cash": "${workflow.variables.balance}",
     "portfolio": "${workflow.variables.portfolio}",
-    "last_trade": "${workflow.variables.last_trade}",
-    "last_instructions": "${workflow.variables.instructions}"
+    "prices": "${workflow.variables.prices}",
+    "last_trade": "${workflow.variables.last_trade}"
   }
 }

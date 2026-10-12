@@ -6,16 +6,16 @@ An LLM agent that trades stocks in a simulated account, built with [Conductor](h
 
 The `agentic_stock_trader_autonomous` workflow ([resources/workflow.json](resources/workflow.json)) runs a `DO_WHILE` loop. In each iteration:
 
-1. `choose_trade` (`LLM_CHAT_COMPLETE`) turns the current instruction into a trade, as JSON.
-2. A `SWITCH` runs the trade: `get_stock_price` looks up the price, then `buy_stock` or `sell_stock` executes it.
-3. `decide_next_step` (`LLM_CHAT_COMPLETE`) reviews the account and gives the next instruction, or `STOP`.
+1. `update_market` moves the simulated market prices and works out the account's total value, its change since the start, and how it's split between cash and stocks.
+2. `decide_trade` (`LLM_CHAT_COMPLETE`) looks at the prices, cash and holdings, and decides to buy, sell or hold, with a one-sentence reason.
+3. A `SWITCH` carries out the decision: `buy_stock` or `sell_stock` makes the trade.
 
-The account balance and portfolio are kept in workflow variables, so the workers are stateless and every step of the agent's reasoning and trading is visible in the Conductor UI. The loop ends when the agent says `STOP` or after 20 iterations.
+The market prices, cash and portfolio are kept in workflow variables, so the workers are stateless and every decision and trade is visible in the Conductor UI. Inside the loop, Conductor also passes the agent's earlier decisions to the LLM as conversation history, so the agent remembers what it has done. The loop ends when the total value is up or down 20%, or after 20 iterations. These limits are enforced by the workflow rather than left to the LLM.
 
 Workers ([worker/workers.py](worker/workers.py)):
 
-* `get_stock_price` returns a simulated price between 100 and 105.
-* `buy_stock` and `sell_stock` take the current balance and portfolio and return their updated values.
+* `update_market` moves each stock's price by up to 5% per turn, and returns the account's total value, percentage change and allocation.
+* `buy_stock` and `sell_stock` take the current prices, cash and portfolio, and return the updated cash and portfolio. `buy_stock` enforces the trading rules: it rejects any buy that would leave less than 10% of the total value in cash, or put more than 40% of it in one stock. Rejections are reported back to the agent on its next turn.
 
 ## Run it locally
 
@@ -37,14 +37,16 @@ Requires Python 3.10+, the [Conductor CLI](https://github.com/conductor-oss/cond
    pip install -r requirements.txt
    ```
 
-3. Run the agent. This registers the workflow, starts the workers and prints each trade as it happens:
+3. Run the agent. This registers the workflow, starts the workers and prints each decision as it happens:
 
    ```shell
    export CONDUCTOR_SERVER_URL=http://localhost:8080/api
    python3 main.py
    ```
 
-   The agent starts from the instruction `purchase 1 share of google`. To give it another one, pass it as an argument, for example `python3 main.py "buy 5 shares of nvidia"`. The model defaults to `gpt-5-nano`. Set `OPENAI_DEFAULT_MODEL` to use another one.
+   The agent starts with $5,000 and the instruction `Trade actively to grow the account`. To give it different instructions, pass them as an argument, for example `python3 main.py "Only trade NVDA and TSLA"`. The model defaults to `gpt-5-nano`. Set `OPENAI_DEFAULT_MODEL` to use another one.
+
+   To stop the agent early, press Ctrl+C. This terminates the workflow and stops the workers.
 
 4. When you're done, stop the server:
 
