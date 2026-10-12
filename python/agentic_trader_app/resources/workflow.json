@@ -1,372 +1,178 @@
 {
   "name": "agentic_stock_trader_autonomous",
-  "description": "Autonomous Stock Trading Workflow",
+  "description": "Autonomous stock trading agent: an LLM picks each trade, workers execute it, and the account lives in workflow variables",
   "version": 1,
+  "schemaVersion": 2,
+  "ownerEmail": "trader-demo@example.com",
+  "inputParameters": ["instructions", "initial_balance", "llmProvider", "model"],
+  "inputTemplate": {
+    "initial_balance": 3000,
+    "llmProvider": "openai",
+    "model": "gpt-5-nano"
+  },
   "tasks": [
     {
-      "name": "set_variable_1",
-      "taskReferenceName": "set_variable_ref_1",
+      "name": "init_account",
+      "taskReferenceName": "init_account_ref",
+      "type": "SET_VARIABLE",
       "inputParameters": {
         "instructions": "${workflow.input.instructions}",
-        "portfolio": []
-      },
-      "type": "SET_VARIABLE",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopOver": [],
-      "onStateChange": {},
-      "permissive": false
+        "balance": "${workflow.input.initial_balance}",
+        "portfolio": {},
+        "last_trade": "None yet"
+      }
     },
     {
-      "name": "do_while",
-      "taskReferenceName": "do_while_ref",
-      "inputParameters": {
-        "number": 5,
-        "stop": "${workflow.variables.instructions}"
-      },
+      "name": "trading_loop",
+      "taskReferenceName": "trading_loop_ref",
       "type": "DO_WHILE",
-      "decisionCases": {},
-      "defaultCase": [],
-      "forkTasks": [],
-      "startDelay": 0,
-      "joinOn": [],
-      "optional": false,
-      "defaultExclusiveJoinTask": [],
-      "asyncComplete": false,
-      "loopCondition": "(function () {\n  if ($.stop == 'STOP') {\n    return false;\n  }\n  return true;\n})();",
+      "inputParameters": {
+        "instructions": "${workflow.variables.instructions}"
+      },
+      "loopCondition": "(function () {\n  var next = String($.instructions || '').trim().toUpperCase();\n  return $.trading_loop_ref['iteration'] < 20 && next.indexOf('STOP') !== 0;\n})();",
+      "evaluatorType": "graaljs",
       "loopOver": [
         {
-          "name": "llm_chat_complete",
-          "taskReferenceName": "llm_chat_complete_ref",
+          "name": "choose_trade",
+          "taskReferenceName": "choose_trade_ref",
+          "type": "LLM_CHAT_COMPLETE",
           "inputParameters": {
+            "llmProvider": "${workflow.input.llmProvider}",
+            "model": "${workflow.input.model}",
             "jsonOutput": true,
-            "llmProvider": "openai_saas",
-            "model": "gpt-4o",
-            "instructions": "stock_agent_instructions",
-            "promptVariables": {},
             "messages": [
               {
+                "role": "system",
+                "message": "You are a stock trading agent. Turn the instruction into exactly one trade. Reply only with JSON in this format: {\"command\": \"buy_stock\" or \"sell_stock\", \"ticker\": \"<NASDAQ ticker symbol>\", \"quantity\": <whole number of shares>}. You can only sell stocks in the portfolio. The current price is looked up for you."
+              },
+              {
                 "role": "user",
-                "message": "${workflow.variables.instructions}"
+                "message": "Instruction: ${workflow.variables.instructions}\nCash balance: ${workflow.variables.balance}\nPortfolio (shares by ticker): ${workflow.variables.portfolio}"
               }
-            ],
-            "maxTokens": 3000,
-            "temperature": 0
-          },
-          "type": "LLM_CHAT_COMPLETE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
+            ]
+          }
         },
         {
-          "name": "switch",
-          "taskReferenceName": "switch_ref",
-          "inputParameters": {
-            "switchCaseValue": "${llm_chat_complete_ref.output.result.command}"
-          },
+          "name": "execute_trade",
+          "taskReferenceName": "execute_trade_ref",
           "type": "SWITCH",
+          "evaluatorType": "value-param",
+          "expression": "command",
+          "inputParameters": {
+            "command": "${choose_trade_ref.output.result.command}"
+          },
           "decisionCases": {
-            "sell_stock": [
-              {
-                "name": "get_stock_price",
-                "taskReferenceName": "get_price_for_sell",
-                "inputParameters": {
-                  "ticker": "${llm_chat_complete_ref.output.result.param.ticker}"
-                },
-                "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              },
-              {
-                "name": "sell_stock",
-                "taskReferenceName": "sell_stock_ref",
-                "inputParameters": {
-                  "ticker": "${llm_chat_complete_ref.output.result.param.ticker}",
-                  "quantity": "${llm_chat_complete_ref.output.result.param.quantity}",
-                  "price": "${get_price_for_sell.output.result}"
-                },
-                "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              },
-              {
-                "name": "set_variable_2",
-                "taskReferenceName": "set_variable_ref_4",
-                "inputParameters": {
-                  "_merge": true,
-                  "portfolio": "${llm_chat_complete_ref.output.result.param.ticker}"
-                },
-                "type": "SET_VARIABLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              }
-            ],
-            "account_balance": [
-              {
-                "name": "check_account_balance",
-                "taskReferenceName": "check_account_balance_ref",
-                "inputParameters": {},
-                "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              },
-              {
-                "name": "set_variable",
-                "taskReferenceName": "set_variable_ref",
-                "inputParameters": {
-                  "account_balance": "${check_account_balance_ref.output.result}"
-                },
-                "type": "SET_VARIABLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              }
-            ],
-            "get_stock_price": [
-              {
-                "name": "get_stock_price",
-                "taskReferenceName": "get_stock_price_ref",
-                "inputParameters": {
-                  "ticker": "${llm_chat_complete_ref.output.result.param.ticker}"
-                },
-                "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
-              }
-            ],
             "buy_stock": [
               {
                 "name": "get_stock_price",
-                "taskReferenceName": "get_stock_price_ref2",
-                "inputParameters": {
-                  "ticker": "${llm_chat_complete_ref.output.result.param.ticker}"
-                },
+                "taskReferenceName": "buy_price_ref",
                 "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
+                "inputParameters": {
+                  "ticker": "${choose_trade_ref.output.result.ticker}"
+                }
               },
               {
                 "name": "buy_stock",
                 "taskReferenceName": "buy_stock_ref",
-                "inputParameters": {
-                  "ticker": "${llm_chat_complete_ref.output.result.param.ticker}",
-                  "quantity": "${llm_chat_complete_ref.output.result.param.quantity}",
-                  "price": "${get_stock_price_ref2.output.result}"
-                },
                 "type": "SIMPLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
+                "inputParameters": {
+                  "ticker": "${choose_trade_ref.output.result.ticker}",
+                  "quantity": "${choose_trade_ref.output.result.quantity}",
+                  "price": "${buy_price_ref.output.result}",
+                  "balance": "${workflow.variables.balance}",
+                  "portfolio": "${workflow.variables.portfolio}"
+                }
               },
               {
-                "name": "set_variable_2",
-                "taskReferenceName": "set_variable_ref_2",
-                "inputParameters": {
-                  "_merge": true,
-                  "portfolio": "${llm_chat_complete_ref.output.result.param.ticker}"
-                },
+                "name": "record_buy",
+                "taskReferenceName": "record_buy_ref",
                 "type": "SET_VARIABLE",
-                "decisionCases": {},
-                "defaultCase": [],
-                "forkTasks": [],
-                "startDelay": 0,
-                "joinOn": [],
-                "optional": false,
-                "defaultExclusiveJoinTask": [],
-                "asyncComplete": false,
-                "loopOver": [],
-                "onStateChange": {},
-                "permissive": false
+                "inputParameters": {
+                  "balance": "${buy_stock_ref.output.balance}",
+                  "portfolio": "${buy_stock_ref.output.portfolio}",
+                  "last_trade": "${buy_stock_ref.output.message}"
+                }
+              }
+            ],
+            "sell_stock": [
+              {
+                "name": "get_stock_price",
+                "taskReferenceName": "sell_price_ref",
+                "type": "SIMPLE",
+                "inputParameters": {
+                  "ticker": "${choose_trade_ref.output.result.ticker}"
+                }
+              },
+              {
+                "name": "sell_stock",
+                "taskReferenceName": "sell_stock_ref",
+                "type": "SIMPLE",
+                "inputParameters": {
+                  "ticker": "${choose_trade_ref.output.result.ticker}",
+                  "quantity": "${choose_trade_ref.output.result.quantity}",
+                  "price": "${sell_price_ref.output.result}",
+                  "balance": "${workflow.variables.balance}",
+                  "portfolio": "${workflow.variables.portfolio}"
+                }
+              },
+              {
+                "name": "record_sell",
+                "taskReferenceName": "record_sell_ref",
+                "type": "SET_VARIABLE",
+                "inputParameters": {
+                  "balance": "${sell_stock_ref.output.balance}",
+                  "portfolio": "${sell_stock_ref.output.portfolio}",
+                  "last_trade": "${sell_stock_ref.output.message}"
+                }
               }
             ]
           },
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "evaluatorType": "value-param",
-          "expression": "switchCaseValue",
-          "onStateChange": {},
-          "permissive": false
+          "defaultCase": [
+            {
+              "name": "record_no_trade",
+              "taskReferenceName": "record_no_trade_ref",
+              "type": "SET_VARIABLE",
+              "inputParameters": {
+                "last_trade": "No trade made: unknown command ${choose_trade_ref.output.result.command}"
+              }
+            }
+          ]
         },
         {
-          "name": "check_account_balance",
-          "taskReferenceName": "check_account_balance_ref2",
-          "inputParameters": {},
-          "type": "SIMPLE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
-        },
-        {
-          "name": "llm_chat_complete_1",
-          "taskReferenceName": "next_action_ref",
+          "name": "decide_next_step",
+          "taskReferenceName": "decide_next_step_ref",
+          "type": "LLM_CHAT_COMPLETE",
           "inputParameters": {
-            "llmProvider": "openai_saas",
-            "model": "gpt-4o",
+            "llmProvider": "${workflow.input.llmProvider}",
+            "model": "${workflow.input.model}",
             "messages": [
               {
-                "role": "user",
-                "message": "The current blaance is ${check_account_balance_ref2.output.result} and we started with $300"
-              },
-              {
                 "role": "system",
-                "message": "ok"
+                "message": "You are an autonomous stock trader managing a simulated account. Based on the account state, either give one short instruction for the next trade (buy one of the NASDAQ-100 stocks, or sell a stock from the portfolio), or respond with the single word STOP. Stop when the cash balance drops close to zero or grows to more than twice the starting balance. Reply with only the instruction or STOP, without explaining your reasoning."
               },
               {
                 "role": "user",
-                "message": "the current portfolio is ${workflow.variables.portfolio}"
+                "message": "Starting balance: ${workflow.input.initial_balance}\nCash balance: ${workflow.variables.balance}\nPortfolio (shares by ticker): ${workflow.variables.portfolio}\nLast trade: ${workflow.variables.last_trade}"
               }
-            ],
-            "instructions": "stock_agent_decider",
-            "promptVariables": {},
-            "temperature": 0
-          },
-          "type": "LLM_CHAT_COMPLETE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
+            ]
+          }
         },
         {
-          "name": "set_variable_3",
-          "taskReferenceName": "set_variable_ref_3",
-          "inputParameters": {
-            "instructions": "${next_action_ref.output.result}"
-          },
+          "name": "set_next_instructions",
+          "taskReferenceName": "set_next_instructions_ref",
           "type": "SET_VARIABLE",
-          "decisionCases": {},
-          "defaultCase": [],
-          "forkTasks": [],
-          "startDelay": 0,
-          "joinOn": [],
-          "optional": false,
-          "defaultExclusiveJoinTask": [],
-          "asyncComplete": false,
-          "loopOver": [],
-          "onStateChange": {},
-          "permissive": false
+          "inputParameters": {
+            "instructions": "${decide_next_step_ref.output.result}"
+          }
         }
-      ],
-      "evaluatorType": "graaljs",
-      "onStateChange": {},
-      "permissive": false
+      ]
     }
   ],
-  "inputParameters": [
-    "instructions"
-  ],
-  "outputParameters": {},
-  "failureWorkflow": "",
-  "schemaVersion": 2,
-  "restartable": true,
-  "workflowStatusListenerEnabled": false,
-  "timeoutPolicy": "ALERT_ONLY",
-  "timeoutSeconds": 0,
-  "variables": {},
-  "inputTemplate": {},
-  "enforceSchema": true
+  "outputParameters": {
+    "iterations": "${trading_loop_ref.output.iteration}",
+    "balance": "${workflow.variables.balance}",
+    "portfolio": "${workflow.variables.portfolio}",
+    "last_trade": "${workflow.variables.last_trade}",
+    "last_instructions": "${workflow.variables.instructions}"
+  }
 }

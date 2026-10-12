@@ -1,60 +1,38 @@
 import random
-from multiprocessing import Value
 
 from conductor.client.worker.worker_task import worker_task
 
-# change the initial value to increase the trading loops
-balance = Value('d', 3000.0)
+# The workers are stateless: the account balance and portfolio live in the
+# workflow's variables, and each trade returns their updated values.
 
 
-def update_balance(balance, amount):
-    with balance.get_lock():  # Synchronize access
-        balance.value = amount
-
-
-# Define a function to read the balance
-def read_balance(balance):
-    with balance.get_lock():  # Synchronize access
-        return balance.value
-
-
-@worker_task("get_stock_price")
+@worker_task(task_definition_name='get_stock_price')
 def get_stock_price(ticker: str) -> float:
-    return random.randrange(100, 105, 1)
+    # Simulated market price
+    return round(random.uniform(100, 105), 2)
 
 
-@worker_task("buy_stock")
-def buy_stock(ticker: str, quantity: int, price: float) -> str:
-    amount = price * quantity
-    global balance
-    current_balance = read_balance(balance)
-    if amount > current_balance:
-        return "Insufficient funds to buy the stock"
-    current_balance = current_balance - amount
-    update_balance(balance=balance, amount=current_balance)
-    print(f'bought {ticker} and we now have {current_balance}')
-    return "OK"
+@worker_task(task_definition_name='buy_stock')
+def buy_stock(ticker: str, quantity: int, price: float, balance: float, portfolio: dict) -> dict:
+    ticker, quantity = ticker.upper(), int(quantity)
+    cost = round(price * quantity, 2)
+    if quantity < 1 or cost > balance:
+        return {'balance': balance, 'portfolio': portfolio,
+                'message': f'Could not buy {quantity} {ticker} for {cost} with a balance of {balance}'}
+    portfolio = {**portfolio, ticker: portfolio.get(ticker, 0) + quantity}
+    return {'balance': round(balance - cost, 2), 'portfolio': portfolio,
+            'message': f'Bought {quantity} {ticker} at {price}'}
 
 
-@worker_task("sell_stock")
-def sell_stock(ticker: str, quantity: int, price: float) -> str:
-    amount = price * quantity
-    global balance
-    current_balance = read_balance(balance)
-    current_balance = current_balance + amount
-    update_balance(balance=balance, amount=current_balance)
-    print(f'sold {ticker} and we now have {current_balance}')
-    return "OK"
-
-
-@worker_task("check_account_balance")
-def check_account_balance() -> float:
-    global balance
-    return read_balance(balance=balance)
-
-
-@worker_task("transfer_money")
-def transfer_money(amount: float) -> float:
-    global balance
-    balance = balance + amount
-    return balance
+@worker_task(task_definition_name='sell_stock')
+def sell_stock(ticker: str, quantity: int, price: float, balance: float, portfolio: dict) -> dict:
+    ticker, quantity = ticker.upper(), int(quantity)
+    held = portfolio.get(ticker, 0)
+    if quantity < 1 or quantity > held:
+        return {'balance': balance, 'portfolio': portfolio,
+                'message': f'Could not sell {quantity} {ticker}, holding {held}'}
+    portfolio = {**portfolio, ticker: held - quantity}
+    if not portfolio[ticker]:
+        del portfolio[ticker]
+    return {'balance': round(balance + price * quantity, 2), 'portfolio': portfolio,
+            'message': f'Sold {quantity} {ticker} at {price}'}
