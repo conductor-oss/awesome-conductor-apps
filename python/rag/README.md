@@ -18,18 +18,20 @@ Workers (started by `main.py`):
 
 ## Run it locally
 
-Requires Python 3.10+, Docker, the [Conductor CLI](https://github.com/conductor-oss/conductor-cli) and an OpenAI API key.
+Requires Python 3.10+, Docker, the [Conductor CLI](https://github.com/conductor-oss/conductor-cli) (which needs Java 21+) and an OpenAI API key. Run every step in the same terminal, from this directory.
 
-1. Start a pgvector database:
+1. With Docker running, start a pgvector database:
 
    ```shell
    docker run -d --name rag-pgvector -p 5433:5432 \
      -e POSTGRES_USER=conductor -e POSTGRES_PASSWORD=conductor -e POSTGRES_DB=vectors \
      pgvector/pgvector:pg17
-   docker exec rag-pgvector psql -U conductor -d vectors -c "CREATE EXTENSION IF NOT EXISTS vector;"
+   sleep 5 && docker exec rag-pgvector psql -U conductor -d vectors -c "CREATE EXTENSION IF NOT EXISTS vector;"
    ```
 
-2. Start a local Conductor server with OpenAI and the vector database configured. Run it from a directory outside this repository, because the server creates its database files in the current directory:
+   The last command prints `CREATE EXTENSION`. If the database is still starting up, wait a few seconds and run it again. On later runs, restart the existing container with `docker start rag-pgvector`.
+
+2. Start a local Conductor server with OpenAI and the vector database configured. The server runs in the background. It is started from your home directory because it creates its database files in the current directory:
 
    ```shell
    export OPENAI_API_KEY=<<YOUR_OPENAI_API_KEY>>
@@ -41,25 +43,27 @@ Requires Python 3.10+, Docker, the [Conductor CLI](https://github.com/conductor-
    export CONDUCTOR_VECTORDB_INSTANCES_0_POSTGRES_DIMENSIONS=1536
    export CONDUCTOR_VECTORDB_INSTANCES_0_POSTGRES_DISTANCEMETRIC=cosine
    export CONDUCTOR_VECTORDB_INSTANCES_0_POSTGRES_TABLEPREFIX=rag
-   conductor server start
+   (cd ~ && conductor server start)
+   conductor server status
    ```
 
-3. In this directory, install the requirements and start the workers:
+3. Install the requirements and start the workers in the background, logging to `workers.log`:
 
    ```shell
-   pip3 install -r requirements.txt
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
    export CONDUCTOR_SERVER_URL=http://localhost:8080/api
-   python3 main.py
+   python3 main.py > workers.log 2>&1 &
    ```
 
-4. In a second terminal, register the workflows and index the default sources (the [conductor-oss.org](https://conductor-oss.org) sitemap, up to 150 pages, and this repository):
+4. Register the workflows and index the default sources (the [conductor-oss.org](https://conductor-oss.org) sitemap, up to 150 pages, and this repository):
 
    ```shell
-   export CONDUCTOR_SERVER_URL=http://localhost:8080/api
    python3 index.py
    ```
 
-   Use `--sitemap`, `--max-pages`, `--repo` and `--branch` to index other sources. Run `python3 index.py --help` for details.
+   Each indexer prints a link to its execution in the Conductor UI and finishes with `COMPLETED`. For a quicker first run, add `--max-pages 10`. Use `--sitemap`, `--max-pages`, `--repo` and `--branch` to index other sources. Run `python3 index.py --help` for details.
 
 5. Ask a question:
 
@@ -67,7 +71,17 @@ Requires Python 3.10+, Docker, the [Conductor CLI](https://github.com/conductor-
    python3 workflow.py "How does Netflix use Conductor for media processing?"
    ```
 
-   The answer model defaults to `gpt-5-nano`. Set `OPENAI_DEFAULT_MODEL` to use another one.
+   The answer ends with a list of its sources. The answer model defaults to `gpt-5-nano`. Set `OPENAI_DEFAULT_MODEL` to use another one.
+
+6. When you're done, stop the workers, the server and the database:
+
+   ```shell
+   kill %1
+   conductor server stop
+   docker rm -f rag-pgvector
+   ```
+
+   If something fails, check `workers.log`, `conductor server logs`, or the execution link printed by `index.py`.
 
 ## Notes
 
