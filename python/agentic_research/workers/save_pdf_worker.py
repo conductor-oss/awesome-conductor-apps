@@ -113,7 +113,10 @@ def save_pdf_task(input_data: str, filename: str):
     except Exception as e:
         return {"error": str(e)}
         
-# Start polling for tasks
-api_config = Configuration()
-task_handler = TaskHandler(configuration=api_config)
-task_handler.start_processes()
+# Start polling for tasks. The __main__ guard is required: conductor-python 2.x
+# starts worker processes with 'spawn', which re-imports this module in each child.
+if __name__ == '__main__':
+    api_config = Configuration()
+    task_handler = TaskHandler(configuration=api_config)
+    task_handler.start_processes()
+    task_handler.join_processes()

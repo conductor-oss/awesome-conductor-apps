@@ -3,6 +3,7 @@ from conductor.client.configuration.configuration import Configuration
 
 from worker import sitemap_loader
 from worker import github_loader
+from worker import web_page_loader
 
 def start_workers(api_config):
     print("- Starting task handler...")
