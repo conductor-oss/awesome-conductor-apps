@@ -1,15 +1,18 @@
 # Dependency Adoption Review
 
-Orkes Conductor workflows that Determines if a particular NPM package is "safe" to use
+Orkes Conductor workflows that determine if a particular NPM package is "safe" to use
 at a specified version number.
 
-They gather evidence from deps.dev (gRPC), OSV.dev, npm and Hacker News (HTTP), and DeepWiki (MCP), and ask an LLM for a verdict. Fixed rules then approve, reject, or hand the decision to a person, and each decision is filed as a GitHub issue. There are no workers to deploy or SKDs to install since everything runs as Conductor system tasks.
+Evidence is gathered from deps.dev (via gRPC), OSV.dev (HTTP), npm (HTTP), Hacker News (HTTP), and DeepWiki (MCP).
+Then an LLM is used to deliver a final verdict based on this evidence.
+Fixed rules then approve, reject, or hand the decision to a person - any outcome is filed as a GitHub issue for historical tracking.
+There are no workers to deploy or SDKs to install since everything runs as Conductor system tasks.
 
 ## Technical Overview
 
 ### Workflow Structure
 
-```
+```shell
 dependency_adoption_review
 ├─ assess_npm_package
 │   └─ scan_npm_package
