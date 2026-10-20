@@ -1,8 +1,8 @@
-# Dependency Adoption Review
+# Conductor NPM Dependency Auditor
 
 Orkes Conductor workflows that decide whether a specific version of an npm package is safe to adopt.
 
-They gather evidence from deps.dev (gRPC), OSV.dev, npm and Hacker News (HTTP), and DeepWiki (MCP), and an LLM gives its verdict. Fixed rules then approve the package, reject it, or hand the decision to a person, and every outcome is filed as a GitHub issue. There are no workers to deploy or SDKs to install: everything runs as Conductor system tasks.
+They gather evidence from deps.dev (gRPC), OSV.dev, npm and Hacker News (HTTP), and DeepWiki (MCP), and an LLM gives its verdict (`aiVerdict` in the output). Fixed rules then approve the package, reject it, or hand the decision to a person, and every outcome is filed as a GitHub issue. There are no workers to deploy or SDKs to install: everything runs as Conductor system tasks.
 
 ## Technical Overview
 
@@ -24,8 +24,8 @@ You can also run `assess_npm_package` or `scan_npm_package` on their own, with j
 
 ### Outcomes
 
-- **Auto-approved** only if the AI says ADOPT, there are no known advisories, every license is allowed, every dependency was checked, and the package isn't deprecated.
-- **Auto-rejected** if the whole package is deprecated, it's flagged as malicious, or it has a critical advisory with no fix. It's also rejected if the AI says AVOID and a weaker fact backs it up.
+- **Auto-approved** only if the LLM says ADOPT, there are no known advisories, every license is allowed, every dependency was checked, and the package isn't deprecated.
+- **Auto-rejected** if the whole package is deprecated, it's flagged as malicious, or it has a critical advisory with no fix. It's also rejected if the LLM says AVOID and a weaker fact backs it up.
 - **Everything else** goes to a person to approve or reject (human in the loop).
 
 ## Setup
@@ -57,7 +57,7 @@ Each file in `sample-inputs/` tests a different case:
 | Sample input                                                 | Expected route                                                                |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
 | `human-review-licenses-and-advisories.json` (express@4.17.1) | Human review: known advisories, and 3 licenses outside the MIT-only allowlist |
-| `auto-approve-no-advisories.json` (axios@1.20.0)             | Auto-approve if the AI says ADOPT; otherwise human review                     |
+| `auto-approve-no-advisories.json` (axios@1.20.0)             | Auto-approve if the LLM says ADOPT; otherwise human review                    |
 | `auto-reject-deprecated-package.json` (request@2.88.2)       | Auto-reject: the package is deprecated                                        |
 | `stress-test-many-dependencies.json` (@strapi/strapi@5.58.0) | Human review, after checking 1,300+ dependencies                              |
 
