@@ -1,0 +1,73 @@
+{
+  "name": "dependency_review_form",
+  "jsonSchema": {
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "properties": {
+      "packageRef": {
+        "type": "string"
+      },
+      "aiVerdict": {
+        "type": "string"
+      },
+      "aiBrief": {
+        "type": "string"
+      },
+      "decision": {
+        "type": "string",
+        "enum": [
+          "APPROVE",
+          "REJECT"
+        ]
+      },
+      "reviewerNotes": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "decision"
+    ]
+  },
+  "templateUI": {
+    "type": "VerticalLayout",
+    "elements": [
+      {
+        "type": "Control",
+        "scope": "#/properties/packageRef",
+        "label": "Package",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/aiVerdict",
+        "label": "AI verdict",
+        "options": {
+          "readonly": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/aiBrief",
+        "label": "AI dependency brief",
+        "options": {
+          "readonly": true,
+          "multi": true
+        }
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/decision",
+        "label": "Your decision"
+      },
+      {
+        "type": "Control",
+        "scope": "#/properties/reviewerNotes",
+        "label": "Notes for the decision record (optional)",
+        "options": {
+          "multi": true
+        }
+      }
+    ]
+  }
+}

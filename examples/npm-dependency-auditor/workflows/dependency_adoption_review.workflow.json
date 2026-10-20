@@ -1,0 +1,63 @@
+{
+  "name": "dependency_adoption_review",
+  "description": "Should we adopt this npm package version? Runs two child workflows: assess_npm_package (evidence from deps.dev over gRPC, OSV.dev, npm and Hacker News over HTTP, and DeepWiki over MCP; then an LLM verdict and fixed routing rules) and record_dependency_decision (automatic approval or rejection, or a human review, then a GitHub issue). Save the three child workflows (scan_npm_package, assess_npm_package, record_dependency_decision) before this one.",
+  "version": 1,
+  "schemaVersion": 2,
+  "restartable": true,
+  "inputParameters": [
+    "packageName",
+    "packageVersion",
+    "githubOwner",
+    "githubRepo",
+    "allowedLicenses"
+  ],
+  "tasks": [
+    {
+      "name": "assess_npm_package",
+      "taskReferenceName": "assessment_ref",
+      "type": "SUB_WORKFLOW",
+      "inputParameters": {
+        "packageName": "${workflow.input.packageName}",
+        "packageVersion": "${workflow.input.packageVersion}",
+        "allowedLicenses": "${workflow.input.allowedLicenses}"
+      },
+      "subWorkflowParam": {
+        "name": "assess_npm_package"
+      }
+    },
+    {
+      "name": "record_dependency_decision",
+      "taskReferenceName": "decision_ref",
+      "type": "SUB_WORKFLOW",
+      "inputParameters": {
+        "packageName": "${workflow.input.packageName}",
+        "packageVersion": "${workflow.input.packageVersion}",
+        "githubOwner": "${workflow.input.githubOwner}",
+        "githubRepo": "${workflow.input.githubRepo}",
+        "route": "${assessment_ref.output.route}",
+        "aiVerdict": "${assessment_ref.output.aiVerdict}",
+        "briefMarkdown": "${assessment_ref.output.briefMarkdown}",
+        "reviewWorkflowId": "${workflow.workflowId}"
+      },
+      "subWorkflowParam": {
+        "name": "record_dependency_decision"
+      }
+    }
+  ],
+  "outputParameters": {
+    "aiVerdict": "${assessment_ref.output.aiVerdict}",
+    "route": "${assessment_ref.output.route}",
+    "routeReasons": "${assessment_ref.output.routeReasons}",
+    "rejectReasons": "${assessment_ref.output.rejectReasons}",
+    "licensePolicyViolations": "${assessment_ref.output.licensePolicyViolations}",
+    "dependencyAdvisories": "${assessment_ref.output.dependencyAdvisories}",
+    "highOrCriticalAdvisories": "${assessment_ref.output.highOrCriticalAdvisories}",
+    "vulnerableDependencies": "${assessment_ref.output.vulnerableDependencies}",
+    "communityReports": "${assessment_ref.output.communityReports}",
+    "recommendedVersion": "${assessment_ref.output.recommendedVersion}",
+    "upgradeStatus": "${assessment_ref.output.upgradeStatus}",
+    "decision": "${decision_ref.output.decision}",
+    "missingSources": "${assessment_ref.output.missingSources}",
+    "issueUrl": "${decision_ref.output.issueUrl}"
+  }
+}

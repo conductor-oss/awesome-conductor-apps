@@ -1,0 +1,181 @@
+{
+  "name": "scan_npm_package",
+  "description": "Checks one npm package version and its whole dependency tree for known security problems. Asks OSV.dev (HTTP) about the package itself, reads the dependency graph from deps.dev (gRPC), checks every dependency's licenses and advisories in pages of 100, and asks OSV.dev for the severity and fixes of each vulnerable dependency. Returns facts only: no LLM and no side effects, so other workflows and AI agents can reuse it.",
+  "version": 1,
+  "schemaVersion": 2,
+  "restartable": true,
+  "inputParameters": [
+    "packageName",
+    "packageVersion"
+  ],
+  "tasks": [
+    {
+      "name": "query_osv",
+      "taskReferenceName": "osv_ref",
+      "type": "HTTP",
+      "optional": true,
+      "inputParameters": {
+        "uri": "https://api.osv.dev/v1/query",
+        "method": "POST",
+        "connectionTimeOut": 3000,
+        "readTimeOut": 10000,
+        "body": {
+          "package": {
+            "name": "${workflow.input.packageName}",
+            "ecosystem": "npm"
+          },
+          "version": "${workflow.input.packageVersion}"
+        }
+      }
+    },
+    {
+      "name": "deps_dev_get_dependencies",
+      "taskReferenceName": "get_dependencies_ref",
+      "type": "GRPC",
+      "optional": true,
+      "inputParameters": {
+        "service": "deps_dev",
+        "host": "api.deps.dev",
+        "port": 443,
+        "useSSL": true,
+        "methodType": "UNARY",
+        "headers": {},
+        "method": "deps_dev.v3.Insights/GetDependencies",
+        "inputType": "deps_dev.v3.GetDependenciesRequest",
+        "outputType": "deps_dev.v3.Dependencies",
+        "request": {
+          "versionKey": {
+            "system": "NPM",
+            "name": "${workflow.input.packageName}",
+            "version": "${workflow.input.packageVersion}"
+          }
+        },
+        "cacheKey": "npm-${workflow.input.packageName}-${workflow.input.packageVersion}"
+      },
+      "cacheConfig": {
+        "key": "depsdev-deps-${cacheKey}",
+        "ttlInSecond": 3600
+      }
+    },
+    {
+      "name": "build_dependency_batch",
+      "taskReferenceName": "build_batch_ref",
+      "type": "JSON_JQ_TRANSFORM",
+      "inputParameters": {
+        "deps": "${get_dependencies_ref.output}",
+        "maxPackages": 5000,
+        "queryExpression": "# Builds one deps.dev GetVersionBatch request covering the package and all its dependencies.\n# GetDependencies returns the dependency graph as nodes: the package itself (SELF), its\n# DIRECT dependencies, and their dependencies (INDIRECT). npm can install the same version\n# in several places, so a version can appear many times; each one is counted and requested once.\ndef versionId: .versionKey.name + \"@\" + .versionKey.version;\n\n(.deps.nodes // []) as $nodes\n| [ $nodes[] | select(.relation == \"SELF\") ] as $self\n| ($self | map(versionId) | .[0]) as $rootId\n# One node per name@version. DIRECT nodes go first, so a version that's both counts as direct.\n| (reduce (($nodes[] | select(.relation == \"DIRECT\")), ($nodes[] | select(.relation == \"INDIRECT\"))) as $node\n     ({}; ($node | versionId) as $id | if $id == $rootId or .[$id] != null then . else .[$id] = $node end)\n   | [ .[] ]) as $dependencies\n| (.maxPackages // 5000) as $max\n| {\n    graphAvailable: (.deps.nodes != null),\n    totalDependencies: ($dependencies | length),\n    directCount: ([ $dependencies[] | select(.relation == \"DIRECT\") ] | length),\n    indirectCount: ([ $dependencies[] | select(.relation == \"INDIRECT\") ] | length),\n    # deps.dev accepts up to 5,000 requests per batch and returns the results 100 per page.\n    requests: ([ ($self + $dependencies)[] | {versionKey} ] | .[0:$max])\n  }"
+      }
+    },
+    {
+      "name": "fetch_dependency_pages",
+      "taskReferenceName": "dependency_pages_ref",
+      "type": "DO_WHILE",
+      "optional": true,
+      "inputParameters": {
+        "keepLastN": 2,
+        "captureOutput": false
+      },
+      "evaluatorType": "graaljs",
+      "loopCondition": "// fetch_dependency_pages loop condition: returns true to fetch another page.\n// Keep going while deps.dev returns a page token. The cap of 50 pages (100 versions each)\n// matches the 5,000-request limit and stops a runaway loop.\nfunction shouldFetchAnotherPage() {\n  const lastPage = $.version_batch_ref || {};\n  if (!lastPage.nextPageToken) {\n    return false;\n  }\n  return $.dependency_pages_ref.iteration < 50;\n}\n\nshouldFetchAnotherPage();",
+      "loopOver": [
+        {
+          "name": "deps_dev_get_version_batch",
+          "taskReferenceName": "version_batch_ref",
+          "type": "GRPC",
+          "optional": true,
+          "inputParameters": {
+            "service": "deps_dev",
+            "host": "api.deps.dev",
+            "port": 443,
+            "useSSL": true,
+            "methodType": "UNARY",
+            "headers": {},
+            "method": "deps_dev.v3alpha.Insights/GetVersionBatch",
+            "inputType": "deps_dev.v3alpha.GetVersionBatchRequest",
+            "outputType": "deps_dev.v3alpha.VersionBatch",
+            "request": {
+              "requests": "${build_batch_ref.output.result.requests}",
+              "pageToken": "${version_batch_ref.output.nextPageToken}"
+            }
+          }
+        },
+        {
+          "name": "compact_dependency_page",
+          "taskReferenceName": "compact_page_ref",
+          "type": "JSON_JQ_TRANSFORM",
+          "inputParameters": {
+            "page": "${version_batch_ref.output}",
+            "previous": "${compact_page_ref.output.result.versions}",
+            "queryExpression": "# Runs once per page, inside the page loop. deps.dev returns about 1.4 KB per version (links,\n# attestations, registries...), but the workflow needs only four fields. This keeps those and\n# adds them to the list from the earlier pages (.previous is the last iteration's output),\n# so the full list stays small enough to pass to later tasks.\nreduce (\n    # The list so far...\n    (.previous // [])[],\n    # ...plus this page's versions, cut down to what the workflow uses.\n    ((.page.responses // [])[] | .version | select(. != null)\n      | {name: .versionKey.name, version: .versionKey.version,\n         licenses: (.licenses // []), advisories: [ (.advisoryKeys // [])[] | .id ]})\n  ) as $v\n  # Keyed by name@version, so a page that's processed twice (on a retry) adds no duplicates.\n  ({}; .[$v.name + \"@\" + $v.version] = $v)\n| {versions: [ .[] ]}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "find_vulnerable_dependencies",
+      "taskReferenceName": "vulnerable_deps_ref",
+      "type": "JSON_JQ_TRANSFORM",
+      "inputParameters": {
+        "versions": "${compact_page_ref.output.result.versions}",
+        "rootRef": "${workflow.input.packageName}@${workflow.input.packageVersion}",
+        "maxLookups": 40,
+        "queryExpression": "# Lists the dependencies that have known advisories, so the next loop can look each one up\n# on OSV.dev for severity and fixes. Most advisories first, at most maxLookups of them.\n.rootRef as $root\n| (.maxLookups // 40) as $max\n| [ (.versions // [])[]\n    | select((.name + \"@\" + .version) != $root)   # the package's own advisories come from OSV directly\n    | select((.advisories // []) != [])\n    | {name, version, advisoryCount: (.advisories | length), ids: .advisories} ]\n| sort_by(-.advisoryCount)\n| {\n    vulnerableCount: length,\n    # Numbered from 1 to match the loop's iteration numbers, so build_evidence_pack can\n    # pair each dependency with its lookup result.\n    lookups: (.[0:$max] | reduce .[] as $dep ([]; . + [$dep + {iteration: (length + 1)}]))\n  }"
+      }
+    },
+    {
+      "name": "lookup_dependency_advisories",
+      "taskReferenceName": "dependency_advisories_ref",
+      "type": "DO_WHILE",
+      "optional": true,
+      "inputParameters": {
+        "items": "${vulnerable_deps_ref.output.result.lookups}"
+      },
+      "evaluatorType": "graaljs",
+      "loopCondition": "// lookup_dependency_advisories loop condition: returns true to look up another dependency.\n// One OSV lookup per vulnerable dependency. Counting iterations also stops the loop correctly\n// if the server treats this as a plain loop instead of a list loop.\nfunction shouldLookUpAnother() {\n  return $.dependency_advisories_ref.iteration < $.items.length;\n}\n\nshouldLookUpAnother();",
+      "loopOver": [
+        {
+          "name": "query_osv_for_dependency",
+          "taskReferenceName": "osv_dependency_ref",
+          "type": "HTTP",
+          "optional": true,
+          "inputParameters": {
+            "uri": "https://api.osv.dev/v1/query",
+            "method": "POST",
+            "connectionTimeOut": 3000,
+            "readTimeOut": 10000,
+            "body": {
+              "package": {
+                "name": "${dependency_advisories_ref.output.item.name}",
+                "ecosystem": "npm"
+              },
+              "version": "${dependency_advisories_ref.output.item.version}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "summarize_scan",
+      "taskReferenceName": "summarize_scan_ref",
+      "type": "JSON_JQ_TRANSFORM",
+      "inputParameters": {
+        "packageName": "${workflow.input.packageName}",
+        "packageVersion": "${workflow.input.packageVersion}",
+        "osv": "${osv_ref.output.response.body}",
+        "dependencyScan": "${build_batch_ref.output.result}",
+        "dependencyVersions": "${compact_page_ref.output.result.versions}",
+        "vulnerableDeps": "${vulnerable_deps_ref.output.result}",
+        "dependencyLookups": "${dependency_advisories_ref.output}",
+        "queryExpression": "# summarize_scan: the last step of scan_npm_package. Turns the raw OSV.dev and deps.dev answers\n# into security facts about a package version and its whole dependency tree. No LLM is involved,\n# so other workflows (or AI agents) can reuse these facts directly.\n#\n# Inputs:  .packageName, .packageVersion\n#          .osv                OSV.dev's answer for the package itself (null if that call failed)\n#          .dependencyScan     counts from build_dependency_batch\n#          .dependencyVersions one record per dependency version ({name, version, licenses, advisories}),\n#                              from the page loop\n#          .vulnerableDeps     the list from find_vulnerable_dependencies\n#          .dependencyLookups  the OSV lookup loop's output (item N is iteration N)\n# Output:  {sources, advisories, upgrade, transitiveDependencies, dependencyLicenses}\n\n# ---- Helpers: versions ----\n\n# \"4.17.1\" -> [4, 17, 1], so versions compare correctly as arrays.\n# Pre-release and build tags are dropped (\"5.0.0-beta.3\" -> [5, 0, 0]), so a pre-release\n# fix counts as its final release. A part that isn't a number counts as 0.\ndef semver:\n  split(\"+\")[0] | split(\"-\")[0] | split(\".\")\n  | map(if test(\"^[0-9]+$\") then tonumber else 0 end);\n\n# ---- Helpers: advisories and fixes (OSV.dev data) ----\n\n# An OSV advisory describes the affected versions as ranges of events: a range starts at an\n# \"introduced\" version and ends at a \"fixed\" version (or just after \"last_affected\").\n# These are the ranges for package $name. Ranges of git commits are skipped.\ndef rangesFor($name):\n  [ (.affected // [])[] | select(.package.name == $name) | (.ranges // [])[] | select(.type != \"GIT\") ];\n\n# Is version $v (a semver array) inside this range? Yes if the range was introduced at or\n# before $v and wasn't fixed between that point and $v.\ndef rangeIncludes($v):\n  (.events // []) as $events\n  | any($events[] | .introduced // empty | semver | select(. <= $v);\n      . as $start\n      | (any($events[] | .fixed // empty | semver; . > $start and . <= $v) | not)\n        and (any($events[] | .last_affected // empty | semver; . >= $start and . < $v) | not));\n\n# Does this advisory affect version $v of package $name?\ndef affects($name; $v): any(rangesFor($name)[]; rangeIncludes($v));\n\n# Input: the advisories that affect version $current of package $name.\n# Output: {status, version}. The version is the lowest one above $current that none of the\n# advisories affect, preferring the current major version, or null if there isn't one.\n# The answer is always one of the advisories' \"fixed\" versions, because that's where a range ends.\ndef fixTarget($name; $current):\n  . as $advisories\n  | ($current | semver) as $cur\n  # For each advisory, every fixed version above the current one.\n  | [ $advisories[] | [ rangesFor($name)[] | (.events // [])[] | .fixed // empty | semver | select(. > $cur) ] ] as $fixesPerAdvisory\n  | ([ $fixesPerAdvisory[][] ] | unique) as $candidates\n  # The candidates that no advisory affects, lowest first.\n  | [ $candidates[] | select(. as $c | any($advisories[]; affects($name; $c)) | not) ] as $safe\n  | (($safe | map(select(.[0] == $cur[0])) | .[0]) // $safe[0]) as $target\n  | (if $target == null then null else $target | map(tostring) | join(\".\") end) as $version\n  | if ($advisories | length) == 0 then {status: \"none_needed\", version: null}\n    elif any($fixesPerAdvisory[]; length == 0) then {status: \"no_fix\", version: null}\n    elif $target == null then {status: \"no_single_fix\", version: null}\n    elif $target[0] == $cur[0] then {status: \"same_major\", version: $version}\n    else {status: \"major_upgrade\", version: $version} end;\n\n# How a fix reads in the evidence and in the brief.\ndef fixText:\n  if .status == \"same_major\" then \"fixed in \" + .version + \" (same major version)\"\n  elif .status == \"major_upgrade\" then \"fixed in \" + .version + \" (new major version)\"\n  elif .status == \"no_fix\" then \"no fixed version yet\"\n  elif .status == \"no_single_fix\" then \"no single version fixes every advisory\"\n  else \"fix details unavailable\" end;\n\n# ---- Helpers: severity and text ----\n\n# GitHub's severity labels, most severe first. Anything else, or no label, ranks 0.\ndef severityRank:\n  if . == \"CRITICAL\" then 4 elif . == \"HIGH\" then 3 elif . == \"MODERATE\" then 2 elif . == \"LOW\" then 1 else 0 end;\n\n# [\"HIGH\", \"MODERATE\", \"HIGH\"] -> \"2 HIGH, 1 MODERATE\"\ndef severitySummary:\n  . as $all\n  | [ (\"CRITICAL\", \"HIGH\", \"MODERATE\", \"LOW\") as $level\n      | ($all | map(select(. == $level)) | length) as $n | select($n > 0)\n      | ($n | tostring) + \" \" + $level ]\n    + [ ($all | map(select(severityRank == 0)) | length) as $n | select($n > 0)\n      | ($n | tostring) + \" of unknown severity\" ]\n  | join(\", \");\n\n# Cut long text to $max characters, marking the cut with \"…\".\ndef shorten($max): if length > $max then .[0:$max] + \"…\" else . end;\n\n# ---- Inputs ----\n\n.packageName as $name\n| .packageVersion as $version\n| ($name + \"@\" + $version) as $rootRef\n| (.dependencyScan // {}) as $scan               # dependency counts from build_dependency_batch\n# One record per dependency version ({name, version, licenses, advisories}), from the page loop.\n| [ (.dependencyVersions // [])[] | select((.name + \"@\" + .version) != $rootRef) ] as $dependencies\n\n# ---- The package's own advisories and its upgrade target ----\n\n| (.osv.vulns // []) as $ownAdvisories\n| ($ownAdvisories | fixTarget($name; $version)) as $ownFix\n| ($ownAdvisories | length) as $ownCount\n| (if $ownCount == 1 then \"the advisory\" elif $ownCount == 2 then \"both advisories\"\n   else \"all \" + ($ownCount | tostring) + \" advisories\" end) as $fixesWhat\n\n\n# ---- Dependency advisories, with severity and fixes from OSV.dev ----\n\n# find_vulnerable_dependencies listed the dependencies that have advisories, and the\n# lookup_dependency_advisories loop asked OSV.dev about each one: item N is iteration N.\n| (.vulnerableDeps.lookups // []) as $lookups\n| (.dependencyLookups // {}) as $lookupResults\n| [ $lookups[] as $dep\n    | ($lookupResults[($dep.iteration | tostring)].osv_dependency_ref.response.body) as $osv\n    # Match each advisory ID from deps.dev to its OSV record (by ID or alias).\n    | [ $dep.ids[] as $id\n        | ([ ($osv.vulns // [])[] | select(.id == $id or any((.aliases // [])[]; . == $id)) ] | .[0]) as $record\n        | {id: $id,\n           severity: ($record.database_specific.severity // \"UNKNOWN\"),\n           summary: ($record.summary // \"\" | shorten(120)),\n           record: $record} ] as $advisories\n    # The lowest version of the dependency that fixes all its advisories. Unknown if the\n    # lookup failed or any advisory has no OSV record.\n    | (if $osv == null or any($advisories[]; .record == null) then {status: \"unknown\", version: null}\n       else [ $advisories[].record ] | fixTarget($dep.name; $dep.version) end) as $fix\n    | {\n        package: ($dep.name + \"@\" + $dep.version),\n        advisoryCount: $dep.advisoryCount,\n        severity: ([ $advisories[].severity ] | severitySummary),\n        highOrCritical: ([ $advisories[] | select(.severity | severityRank >= 3) ] | length),\n        fixedIn: $fix.version,\n        fixAvailable: (if $fix.status == \"unknown\" then null else $fix.version != null end),\n        fix: ($fix | fixText),\n        # Up to 10 advisories, most severe first.\n        advisories: ([ $advisories[] | {id, severity, summary} ] | sort_by(-(.severity | severityRank)) | .[0:10]),\n        # Used only for the totals and the sort order below.\n        allAdvisories: [ $advisories[] | {id, severity} ],\n        rank: ([ $advisories[].severity | severityRank ] | max)\n      } ] as $enriched\n# Totals across all dependencies. An advisory shared by several dependencies counts once.\n| ([ $dependencies[] | select(.advisories != []) ] | length) as $vulnerableCount\n| ([ $enriched[].allAdvisories[] ] | reduce .[] as $a ({}; .[$a.id] = $a.severity) | [ .[] ]) as $depSeverities\n# Complete only if every vulnerable dependency was looked up, and every lookup worked.\n| (($lookups | length) == $vulnerableCount and all($enriched[]; .fixAvailable != null)) as $severityComplete\n\n# ---- The scan's facts ----\n\n| {\n    # Which sources answered. assess_npm_package lists the ones that didn't as missing.\n    sources: {\n        osv: (.osv != null),\n        dependencyGraph: ($scan.graphAvailable // false),\n        versionBatch: ((.dependencyVersions // []) != []),\n        dependencyAdvisoryDetails: (all($enriched[]; .fixAvailable != null))\n    },\n    # Computed here, so the LLM never does version arithmetic.\n    upgrade: (\n      if .osv == null then\n        {status: \"unknown\", recommendedVersion: null, explanation: \"advisory data from OSV.dev is unavailable, so no upgrade target could be computed\"}\n      elif $ownFix.status == \"none_needed\" then\n        {status: \"none_needed\", recommendedVersion: null, explanation: \"no advisories affect this version, so no upgrade is needed\"}\n      elif $ownFix.status == \"no_fix\" then\n        {status: \"no_fix\", recommendedVersion: null, explanation: (\"at least one advisory on \" + $name + \" has no fixed version yet\")}\n      elif $ownFix.status == \"no_single_fix\" then\n        {status: \"no_single_fix\", recommendedVersion: null, explanation: (\"no single version fixes every advisory on \" + $name)}\n      else\n        {status: $ownFix.status,\n         recommendedVersion: $ownFix.version,\n         explanation: ((if $ownFix.status == \"same_major\" then \"the lowest \" + (($version | semver)[0] | tostring) + \".x release\"\n                        else \"the lowest release, in major version \" + ($ownFix.version | split(\".\")[0]) + \",\" end)\n                       + \" that fixes \" + $fixesWhat + \" on \" + $name + \"; re-run this review on that version to check its dependencies\")}\n      end),\n    advisories: [ $ownAdvisories[] | {\n        id,\n        summary,\n        severity: (.database_specific.severity // \"UNKNOWN\"),\n        fixedIn: ([ rangesFor($name)[] | (.events // [])[] | .fixed // empty ] | unique),\n        # True if one of those fixes is newer than the version under review.\n        hasFix: any(rangesFor($name)[] | (.events // [])[] | .fixed // empty | semver; . > ($version | semver))\n    } ],\n    transitiveDependencies: {\n        total: ($scan.totalDependencies // 0),\n        direct: ($scan.directCount // 0),\n        indirect: ($scan.indirectCount // 0),\n        checked: ($dependencies | length),\n        uniqueAdvisoryCount: ([ $dependencies[].advisories[] ] | unique | length),\n        packagesWithAdvisoriesCount: $vulnerableCount,\n        advisorySeverity: ($depSeverities | severitySummary),\n        highOrCriticalAdvisories: ($depSeverities | map(select(severityRank >= 3)) | length),\n        severityComplete: $severityComplete,\n        unfixedHighOrCritical: [ $enriched[] | select(.highOrCritical > 0 and .fixAvailable == false) | .package ],\n        # The 15 most severe, for the LLM and the brief.\n        packagesWithAdvisories: ($enriched | sort_by([-.rank, -.advisoryCount]) | .[0:15]\n            | map({package, advisoryCount, severity, highOrCritical, fixedIn, fixAvailable, fix, advisories})),\n        # How many dependencies use each license (multiple expressions joined with \" + \").\n        licenseCounts: (reduce ($dependencies[] | .licenses | if . == [] then \"<none>\" else join(\" + \") end) as $l\n                          ({}; .[$l] = ((.[$l] // 0) + 1)))\n    },\n    # Every dependency's licenses, for the license policy in assess_npm_package.\n    dependencyLicenses: [ $dependencies[] | {package: (.name + \"@\" + .version), licenses} ]\n  }"
+      }
+    }
+  ],
+  "outputParameters": {
+    "sources": "${summarize_scan_ref.output.result.sources}",
+    "advisories": "${summarize_scan_ref.output.result.advisories}",
+    "upgrade": "${summarize_scan_ref.output.result.upgrade}",
+    "transitiveDependencies": "${summarize_scan_ref.output.result.transitiveDependencies}",
+    "dependencyLicenses": "${summarize_scan_ref.output.result.dependencyLicenses}"
+  }
+}
