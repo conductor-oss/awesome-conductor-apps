@@ -1,18 +1,14 @@
 # Dependency Adoption Review
 
-Orkes Conductor workflows that determine if a particular NPM package is "safe" to use
-at a specified version number.
+Orkes Conductor workflows that decide whether a specific version of an npm package is safe to adopt.
 
-Evidence is gathered from deps.dev (via gRPC), OSV.dev (HTTP), npm (HTTP), Hacker News (HTTP), and DeepWiki (MCP).
-Then an LLM is used to deliver a final verdict based on this evidence.
-Fixed rules then approve, reject, or hand the decision to a person - any outcome is filed as a GitHub issue for historical tracking.
-There are no workers to deploy or SDKs to install since everything runs as Conductor system tasks.
+They gather evidence from deps.dev (gRPC), OSV.dev, npm and Hacker News (HTTP), and DeepWiki (MCP), and an LLM gives its verdict. Fixed rules then approve the package, reject it, or hand the decision to a person, and every outcome is filed as a GitHub issue. There are no workers to deploy or SDKs to install: everything runs as Conductor system tasks.
 
 ## Technical Overview
 
 ### Workflow Structure
 
-```shell
+```text
 dependency_adoption_review
 ├─ assess_npm_package
 │   └─ scan_npm_package
@@ -30,21 +26,21 @@ You can also run `assess_npm_package` or `scan_npm_package` on their own, with j
 
 - **Auto-approved** only if the AI says ADOPT, there are no known advisories, every license is allowed, every dependency was checked, and the package isn't deprecated.
 - **Auto-rejected** if the whole package is deprecated, it's flagged as malicious, or it has a critical advisory with no fix. It's also rejected if the AI says AVOID and a weaker fact backs it up.
-- **Everything else** goes to a person for human-in-the-loop (HITL) approval.
+- **Everything else** goes to a person to approve or reject (human in the loop).
 
 ## Setup
 
 ### Prerequisites
 
-- An Orkes Conductor cluster - the free [Developer Edition](https://developer.orkescloud.com/) works!
+- An Orkes Conductor cluster. The free [Developer Edition](https://developer.orkescloud.com/) works as-is.
 - An OpenAI API key.
 - A GitHub account.
 
-### Conductor UI
+### Configuration Steps
 
-1. **LLM:** under **Integrations**, add an OpenAI integration named `OpenAi_Key` and enable the model `gpt-5-nano`.
+1. **LLM:** under **Integrations**, add an OpenAI integration named `OpenAi_Key` with your API key, and enable the model `gpt-5-nano`.
 2. **gRPC service:** under **Definitions → Remote Services**, add a gRPC service named `deps_dev` with host `api.deps.dev:443` (include the port), port `443` and SSL on. Then select **Discover methods**.
-3. **GitHub:** create a private repo for the decision records, with Issues enabled. Then create a fine-grained token for that repo only, with **Issues: Read and write**.
+3. **GitHub:** create a private repo for the decision records, with Issues enabled. Then create a [fine-grained token](https://github.com/settings/personal-access-tokens/new) for that repo only, with **Issues: Read and write**.
 4. **Secret:** under **Definitions → Secrets**, add `github_orkes-dependency-review_token` with the token as its value.
 5. **Environment variables:** under **Definitions → Environment Variables**, add two Plain Text variables:
    - `dependency_review_github_owner`: the repo's owner;
@@ -56,18 +52,18 @@ You can also run `assess_npm_package` or `scan_npm_package` on their own, with j
 
 ## Running
 
-Each file in `sample-inputs/` shows a different route:
+Each file in `sample-inputs/` tests a different case:
 
 | Sample input                                                 | Expected route                                                                |
 | ------------------------------------------------------------ | ----------------------------------------------------------------------------- |
 | `human-review-licenses-and-advisories.json` (express@4.17.1) | Human review: known advisories, and 3 licenses outside the MIT-only allowlist |
-| `auto-approve-no-advisories.json` (axios@1.20.0)             | Auto-approve, if the AI says ADOPT                                            |
+| `auto-approve-no-advisories.json` (axios@1.20.0)             | Auto-approve if the AI says ADOPT; otherwise human review                     |
 | `auto-reject-deprecated-package.json` (request@2.88.2)       | Auto-reject: the package is deprecated                                        |
 | `stress-test-many-dependencies.json` (@strapi/strapi@5.58.0) | Human review, after checking 1,300+ dependencies                              |
 
 `allowedLicenses` is optional. Leave it out to accept any recognized license, or pass a list such as `["MIT", "ISC"]`.
 
-1. Open `dependency_adoption_review`, go to the **Run** tab, and paste an input from `sample-inputs/`.
+1. Open `dependency_adoption_review`, go to the **Run** tab, and paste the contents of a file from `sample-inputs/`.
 2. If the route is `HUMAN_REVIEW`, go to **Executions → Human Tasks**, claim **Dependency review**, and choose APPROVE or REJECT.
 3. The output's `issueUrl` links to the new GitHub issue. `routeReasons` and `rejectReasons` explain the route.
 
