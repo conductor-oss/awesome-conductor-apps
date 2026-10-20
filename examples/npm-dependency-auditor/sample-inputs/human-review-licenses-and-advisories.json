@@ -1,7 +1,5 @@
 {
   "packageName": "express",
   "packageVersion": "4.17.1",
-  "githubOwner": "acdevlin",
-  "githubRepo": "dependency-decisions",
   "allowedLicenses": ["MIT"]
 }

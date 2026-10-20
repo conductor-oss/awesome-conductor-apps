@@ -1,6 +1,4 @@
 {
   "packageName": "@strapi/strapi",
-  "packageVersion": "5.58.0",
-  "githubOwner": "acdevlin",
-  "githubRepo": "dependency-decisions"
+  "packageVersion": "5.58.0"
 }

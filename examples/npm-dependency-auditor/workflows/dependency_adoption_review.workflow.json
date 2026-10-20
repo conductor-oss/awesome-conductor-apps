@@ -1,14 +1,12 @@
 {
   "name": "dependency_adoption_review",
-  "description": "Should we adopt this npm package version? Runs two child workflows: assess_npm_package (evidence from deps.dev over gRPC, OSV.dev, npm and Hacker News over HTTP, and DeepWiki over MCP; then an LLM verdict and fixed routing rules) and record_dependency_decision (automatic approval or rejection, or a human review, then a GitHub issue). Save the three child workflows (scan_npm_package, assess_npm_package, record_dependency_decision) before this one.",
+  "description": "Should we adopt this npm package version? Runs two child workflows: assess_npm_package (evidence from deps.dev over gRPC, OSV.dev, npm and Hacker News over HTTP, and DeepWiki over MCP; then an LLM verdict and fixed routing rules) and record_dependency_decision (automatic approval or rejection, or a human review, then a GitHub issue). Save the three child workflows (scan_npm_package, assess_npm_package, record_dependency_decision) before this one. The GitHub repo for the decision records comes from the environment variables dependency_review_github_owner and dependency_review_github_repo.",
   "version": 1,
   "schemaVersion": 2,
   "restartable": true,
   "inputParameters": [
     "packageName",
     "packageVersion",
-    "githubOwner",
-    "githubRepo",
     "allowedLicenses"
   ],
   "tasks": [
@@ -32,8 +30,8 @@
       "inputParameters": {
         "packageName": "${workflow.input.packageName}",
         "packageVersion": "${workflow.input.packageVersion}",
-        "githubOwner": "${workflow.input.githubOwner}",
-        "githubRepo": "${workflow.input.githubRepo}",
+        "githubOwner": "${workflow.env.dependency_review_github_owner}",
+        "githubRepo": "${workflow.env.dependency_review_github_repo}",
         "route": "${assessment_ref.output.route}",
         "aiVerdict": "${assessment_ref.output.aiVerdict}",
         "briefMarkdown": "${assessment_ref.output.briefMarkdown}",

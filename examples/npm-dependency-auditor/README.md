@@ -30,13 +30,18 @@ This guide covers the minimum needed to run `dependency_adoption_review` on Orke
    - Create a new private repo for the decision records, for example `dependency-decisions`. Make sure that Issues are enabled.
    - Create a **fine-grained token** scoped to **only that repo**, with **Repository permissions → Issues: Read and write**. Set it to a 30-day expiry.
 4. **Secret.** Under **Definitions → Secrets → + Add secret**, create **`github_orkes-dependency-review_token`** with the token as its value.
-5. **User Form.** Create it before the workflows, because the review step refers to it. Under **Definitions → User Forms → + New form**, switch to the JSON view and paste `dependency_review_user_form.json`. Keep the name **`dependency_review_form`** and save it as version 1.
-6. **Workflows.** The review is a parent workflow that runs three child workflows. Save the children first, in this order. For each file in `workflows/`, go to **Definitions → Workflow → + Define workflow → Code**, replace the contents with the file, and save:
+5. **Environment variables.** These tell the workflow which repo to file the decision records in. Under **Definitions → Environment Variables → + New environment variable**, add these two, each with **Value Type: Plain Text**, and select **Add** after each one:
+   - **`dependency_review_github_owner`**: the user or organization that owns the repo from step 3, for example `octocat`.
+   - **`dependency_review_github_repo`**: the repo's name, for example `dependency-decisions`.
+
+   Create them before saving the workflows, because the parent workflow refers to them. Unlike secrets, environment variables aren't masked, so use them only for values that aren't sensitive.
+6. **User Form.** Create it before the workflows, because the review step refers to it. Under **Definitions → User Forms → + New form**, switch to the JSON view and paste `dependency_review_user_form.json`. Keep the name **`dependency_review_form`** and save it as version 1.
+7. **Workflows.** The review is a parent workflow that runs three child workflows. Save the children first, in this order. For each file in `workflows/`, go to **Definitions → Workflow → + Define workflow → Code**, replace the contents with the file, and save:
    1. `scan_npm_package.workflow.json`: checks the package and every dependency for advisories.
    2. `assess_npm_package.workflow.json`: gathers the evidence and asks the LLM. It runs `scan_npm_package`.
    3. `record_dependency_decision.workflow.json`: approves or rejects, asks a person when needed, and files the GitHub issue.
    4. `dependency_adoption_review.workflow.json`: the parent, which runs the assessment and then records the decision.
-7. **Optional: retries for DeepWiki.** DeepWiki occasionally drops a connection. To retry it automatically, go to **Definitions → Task → + Define task** and create a task named **`ask_deepwiki`** with, for example, a retry count of 2, fixed retry logic and a 5-second retry delay. System tasks don't need a task definition, but one with the same name changes their retry behavior.
+8. **Optional: retries for DeepWiki.** DeepWiki occasionally drops a connection. To retry it automatically, go to **Definitions → Task → + Define task** and create a task named **`ask_deepwiki`** with, for example, a retry count of 2, fixed retry logic and a 5-second retry delay. System tasks don't need a task definition, but one with the same name changes their retry behavior.
 
 The Hacker News search uses a free public API, so it needs no setup.
 
@@ -48,6 +53,7 @@ The Hacker News search uses a free public API, so it needs no setup.
 | Secret | `record_dependency_decision`: `record_decision_on_github` → `headers.Authorization` |
 | gRPC service | `"service": "deps_dev"` in the 4 GRPC tasks: two in `assess_npm_package` (GetVersion, GetProject), two in `scan_npm_package` (GetDependencies, GetVersionBatch) |
 | Form | `record_dependency_decision`: `human_review` → `userFormTemplate.name` |
+| Environment variables | The parent: `record_dependency_decision` (`decision_ref`) → `githubOwner` / `githubRepo` |
 | Child workflow names | `subWorkflowParam.name` in the parent (two) and in `assess_npm_package` (one) |
 
 ## Run
@@ -58,13 +64,11 @@ The Hacker News search uses a free public API, so it needs no setup.
    {
      "packageName": "express",
      "packageVersion": "4.17.1",
-     "githubOwner": "<your-github-user>",
-     "githubRepo": "<your-repo>",
      "allowedLicenses": ["MIT"]
    }
    ```
 
-   - **Replace `githubOwner` and `githubRepo`** with your own user and repo. The sample files use `acdevlin/dependency-decisions`, which you won't have access to.
+   - The GitHub repo comes from the environment variables in setup step 5, so the sample inputs work as they are.
    - Only npm packages are supported. The version must exist exactly, or the run fails at the first task with `NOT_FOUND`.
    - **`allowedLicenses`** is optional. The sample allows only MIT, to show the license policy at work.
      - Missing, `""`, `null`, `[]`, `"ALL"` or `"*"`: any recognized license is accepted.
@@ -128,12 +132,12 @@ Everything else goes to a human.
 | A task fails with `Task size … exceeds … limits configured for this cluster` | A task's input or output is over about 2 MB. The provided file shrinks each dependency page inside the page loop. If you changed the loop, keep `compact_dependency_page` and `keepLastN` |
 | `human_review` fails immediately | The form name or version doesn't match `dependency_review_form` v1 |
 | `assess_package` fails | Wrong integration or model name. GPT-5 models reject some sampling parameters, so don't add `temperature` or `maxTokens` |
-| `record_decision_on_github` 401 / 403 / 404 | 401: secret name or value. 403: the token lacks Issues write. 404: wrong owner or repo (check `githubOwner` and `githubRepo`). Fix it, then **retry the parent run with "resume sub-workflow tasks"**, so `record_dependency_decision` continues from the failed call. Earlier results are kept |
+| `record_decision_on_github` 401 / 403 / 404 | 401: secret name or value. 403: the token lacks Issues write. 404: wrong owner or repo (check the `dependency_review_github_owner` and `dependency_review_github_repo` environment variables). Fix it, then **retry the parent run with "resume sub-workflow tasks"**, so `record_dependency_decision` continues from the failed call. Earlier results are kept |
 | The parent fails at `assess_npm_package` or `record_dependency_decision` | Open that child's run (the sub-workflow task links to it) to see which task failed |
 | A sub-workflow task fails straight away | The child workflow isn't saved, or its name doesn't match. Save the three children before the parent, with their names unchanged |
 | `scan_npm_package` fails, but the run continues | Expected: the scan is optional. The assessment carries on without OSV and dependency data, lists them in `missingSources`, and goes to human review |
 | A source branch shows `COMPLETED_WITH_ERRORS` | Expected behavior: sources are optional, and failures are listed in `missingSources`. If OSV or the dependency scan fails, the run goes to human review |
-| `ask_deepwiki`: `stream was reset: INTERNAL_ERROR` | A temporary DeepWiki error. The run continues without its notes. See setup step 7 for automatic retries |
+| `ask_deepwiki`: `stream was reset: INTERNAL_ERROR` | A temporary DeepWiki error. The run continues without its notes. See setup step 8 for automatic retries |
 | Dependency lines say "fix details unavailable" | The OSV lookups for dependencies failed (check `lookup_dependency_advisories` in the `scan_npm_package` run), so severity and fixes are missing. `missingSources` lists "OSV.dev dependency advisory details (HTTP)" |
 | `routeReasons` says "only N of M dependencies were checked" | A page of the dependency batch failed. Re-run the workflow |
 | `missingSources` lists "npm latest version (HTTP)" | The npm registry call failed, so the workflow can't tell whether the whole package is deprecated. A deprecated version still goes to human review |
