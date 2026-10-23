@@ -1,0 +1,189 @@
+{
+  "name": "npm_upgrade_planner_agent",
+  "description": "An agent that audits a project's npm dependencies with the POST_scan tool exposed through the Orkes MCP Gateway (the scan_npm_package workflow), then writes an upgrade plan. The LLM chooses each scan; the workflow allowlists the tool, checks every call before it runs (no repeats, no finishing before every dependency is scanned), caps the loop at 10 steps, and keeps a ledger of every result. POST_assess is not used: an assessment can take over a minute, and the gateway cuts calls off at about 60 seconds. Its only write is optional: version 2 posts the finished plan as a GitHub issue, in the repo named by the environment variables dependency_review_github_owner and dependency_review_github_repo. Before saving: create the secret dependency_tools_key holding the MCP Gateway API key; the GitHub step uses the main workflow's secret and environment variables.",
+  "version": 2,
+  "schemaVersion": 2,
+  "restartable": true,
+  "inputParameters": [
+    "goal",
+    "dependencies",
+    "mcpServerUrl"
+  ],
+  "tasks": [
+    {
+      "name": "discover_npm_tools",
+      "taskReferenceName": "discover_ref",
+      "type": "LIST_MCP_TOOLS",
+      "inputParameters": {
+        "mcpServer": "${workflow.input.mcpServerUrl}",
+        "headers": {
+          "Authorization": "Bearer ${workflow.secrets.dependency_tools_key}"
+        }
+      }
+    },
+    {
+      "name": "prepare_agent_context",
+      "taskReferenceName": "prepare_ref",
+      "type": "JSON_JQ_TRANSFORM",
+      "inputParameters": {
+        "tools": "${discover_ref.output.tools}",
+        "dependencies": "${workflow.input.dependencies}",
+        "allowedToolNames": [
+          "POST_scan"
+        ],
+        "queryExpression": "# prepare_agent_context: keeps only the allowed tools, and turns the inputs into text for the prompt.\n# allowedToolNames are the names the MCP Gateway gives the routes the agent may use (POST_scan).\n# POST_assess is left out: an assessment can take over a minute, and the gateway cuts calls off at\n# about 60 seconds.\n.allowedToolNames as $allowed\n| [ (.tools // [])[] | select(.name as $n | any($allowed[]; . == $n)) | {name, description, inputSchema} ] as $tools\n| {\n    allowedTools: [ $tools[].name ],\n    toolsText: ($tools | tojson),\n    dependenciesText: (.dependencies | tojson),\n    # Allowed tools the server didn't list, e.g. a renamed route. The planner can't call them.\n    missingTools: [ $allowed[] | . as $n | select(any($tools[]; .name == $n) == false) ]\n  }"
+      }
+    },
+    {
+      "name": "agent_loop",
+      "taskReferenceName": "agent_loop_ref",
+      "type": "DO_WHILE",
+      "evaluatorType": "graaljs",
+      "inputParameters": {
+        "maxSteps": 10,
+        "keepLastN": 2
+      },
+      "loopCondition": "// agent_loop condition: returns true to take another step.\n// Stop when the agent finishes, or after 10 steps so a confused planner can't run forever.\nfunction shouldTakeAnotherStep() {\n  const lastStep = $.record_step_ref || {};\n  const result = lastStep.result || {};\n  if (result.done) {\n    return false;\n  }\n  return $.agent_loop_ref.iteration < $.maxSteps;\n}\n\nshouldTakeAnotherStep();",
+      "loopOver": [
+        {
+          "name": "plan_next_step",
+          "taskReferenceName": "plan_ref",
+          "type": "LLM_CHAT_COMPLETE",
+          "inputParameters": {
+            "llmProvider": "OpenAi_Key",
+            "model": "gpt-5-nano",
+            "reasoningEffort": "medium",
+            "jsonOutput": true,
+            "messages": [
+              {
+                "role": "system",
+                "message": "You plan dependency upgrades for an npm project. You can call a scan tool that checks one exact npm package version at a time. It returns security facts: the package's own advisories with their severity and fixed versions, an upgrade target (recommendedVersion), and the advisories across its dependency tree, each with the version that fixes it.\n\nWork toward the goal one step at a time. Each turn, choose exactly one action:\n- call_tool: check one package version. Use only the tools listed. Use exact versions such as 4.17.1, never ranges such as ^4.17.1, and never 'latest'.\n- finish: when the results are enough to write the plan, or nothing useful is left to check.\n\nRules:\n- You have at most 10 steps in total, and each call uses one. Plan for them.\n- Scan every current dependency first. The workflow won't let you finish until each one has been scanned.\n- For a package already in the project, use only its current version or a version that appears in a result (a recommendedVersion or a fixedIn). Never guess a version number.\n- A result with a \"warning\" means the tool had no data for that version: it may not exist. Treat it like a failed call, never as clean.\n- Before recommending a version, scan it. If it still has HIGH or CRITICAL advisories in its dependencies, you may scan one newer version from a result.\n- If a package is deprecated or rejected, or its own advisory has no fixed version, you may check one replacement package. Start that call's reason with \"Replacement for <package>:\", e.g. \"Replacement for request: scan node-fetch 3.2.10\". Only use a version you saw in an earlier result or are sure exists; if its scan comes back with a warning, the version may not exist.\n- If a call fails (its result has an \"error\"), don't retry it or look for another way to get the same result. Carry on with the results you have; the plan will list the failure.\n- Never repeat a call that is already in the results: the workflow skips repeats, and they still use up a step.\n\nRespond with JSON only, in exactly this shape:\n{\"action\": \"call_tool or finish\", \"tool\": \"the tool name, or empty when finishing\", \"arguments\": {\"packageName\": \"\", \"packageVersion\": \"\"}, \"reason\": \"one sentence\"}"
+              },
+              {
+                "role": "user",
+                "message": "Goal: ${workflow.input.goal}\n\nCurrent dependencies (JSON, name: version): ${prepare_ref.output.result.dependenciesText}\n\nTools (JSON): ${prepare_ref.output.result.toolsText}\n\nResults so far (JSON; null means no calls yet): ${workflow.variables.ledgerText}\n\nReply with your next action as one JSON object, in the shape described in your instructions."
+              }
+            ]
+          }
+        },
+        {
+          "name": "check_step",
+          "taskReferenceName": "check_ref",
+          "type": "INLINE",
+          "inputParameters": {
+            "evaluatorType": "graaljs",
+            "plan": "${plan_ref.output.result}",
+            "allowedTools": "${prepare_ref.output.result.allowedTools}",
+            "dependenciesText": "${prepare_ref.output.result.dependenciesText}",
+            "ledgerText": "${workflow.variables.ledgerText}",
+            "expression": "// check_step: checks the planner's choice before anything runs. The tool must be on the\n// allowlist, the arguments must name one package version, and the same call must not already be\n// in the ledger; otherwise the step is skipped.\n//\n// Inputs:  $.plan          the planner's answer: action, tool, arguments, reason\n//          $.allowedTools  the tool names that prepare_agent_context kept\n//          $.ledgerText    the ledger so far, as JSON text (null at first)\n//          $.dependenciesText  the current dependencies, as JSON text, e.g. {\"express\": \"4.17.1\"}\n// Output:  decision (\"call\", \"skip\" or \"finish\"), plus tool, arguments, reason and problem\n//\n// Text is joined with + because Conductor treats a dollar sign followed by a brace in a task\n// input as a workflow reference.\n\nfunction isAllowed(tool) {\n  for (let i = 0; i < $.allowedTools.length; i++) {\n    if (String($.allowedTools[i]) === tool) {\n      return true;\n    }\n  }\n  return false;\n}\n\n// The ledger entry for an earlier call with the same tool, package and version, or null.\nfunction findEarlierCall(tool, packageName, packageVersion) {\n  if (!$.ledgerText) {\n    return null;\n  }\n  let ledger = [];\n  try {\n    ledger = JSON.parse($.ledgerText);\n  } catch (e) {\n    return null;\n  }\n  for (const entry of ledger) {\n    if (entry.tool === tool && entry.packageName === packageName && entry.packageVersion === packageVersion) {\n      return entry;\n    }\n  }\n  return null;\n}\n\n// The current dependencies that have no POST_scan call in the ledger yet, e.g. [\"lodash@4.17.20\"].\nfunction unscannedDependencies() {\n  let dependencies = {};\n  try {\n    dependencies = JSON.parse($.dependenciesText || \"{}\");\n  } catch (e) {\n    return [];\n  }\n  let ledger = [];\n  if ($.ledgerText) {\n    try {\n      ledger = JSON.parse($.ledgerText);\n    } catch (e) {\n      ledger = [];\n    }\n  }\n  const missing = [];\n  for (const name of Object.keys(dependencies)) {\n    const version = String(dependencies[name]);\n    let scanned = false;\n    for (const entry of ledger) {\n      if (entry.tool === \"POST_scan\" && entry.packageName === name && entry.packageVersion === version) {\n        scanned = true;\n      }\n    }\n    if (!scanned) {\n      missing.push(name + \"@\" + version);\n    }\n  }\n  return missing;\n}\n\nfunction checkStep() {\n  // If the model returned text instead of JSON, try to parse it.\n  let plan = $.plan || {};\n  if (typeof plan === \"string\") {\n    try {\n      plan = JSON.parse(plan);\n    } catch (e) {\n      plan = {};\n    }\n  }\n\n  const action = String(plan.action || \"\").trim();\n  if (action === \"finish\") {\n    // e.g. \"can't finish yet: scan these current dependencies first: lodash@4.17.20, express@4.17.1\"\n    const missing = unscannedDependencies();\n    if (missing.length > 0) {\n      return { decision: \"skip\", problem: \"can't finish yet: scan these current dependencies first: \" + missing.join(\", \") };\n    }\n    return { decision: \"finish\", reason: String(plan.reason || \"\") };\n  }\n  if (action !== \"call_tool\") {\n    return { decision: \"finish\", problem: \"the planner returned no valid action, so the agent stopped\" };\n  }\n\n  // e.g. \"POST_scan\"\n  const tool = String(plan.tool || \"\").trim();\n  if (!isAllowed(tool)) {\n    return { decision: \"skip\", problem: \"'\" + tool + \"' is not an allowed tool\" };\n  }\n\n  const args = plan.arguments || {};\n  const packageName = String(args.packageName || \"\").trim();\n  const packageVersion = String(args.packageVersion || \"\").trim();\n  if (packageName === \"\" || packageVersion === \"\") {\n    return { decision: \"skip\", problem: \"a tool call needs both packageName and packageVersion\" };\n  }\n\n  // e.g. \"POST_scan was already called for express@4.20.0 in step 6; use that result\"\n  const earlier = findEarlierCall(tool, packageName, packageVersion);\n  if (earlier) {\n    return {\n      decision: \"skip\",\n      problem: tool + \" was already called for \" + packageName + \"@\" + packageVersion +\n        \" in step \" + earlier.step + \"; use that result\"\n    };\n  }\n\n  return {\n    decision: \"call\",\n    tool: tool,\n    arguments: { packageName: packageName, packageVersion: packageVersion },\n    reason: String(plan.reason || \"\")\n  };\n}\n\ncheckStep();"
+          }
+        },
+        {
+          "name": "route_step",
+          "taskReferenceName": "route_step_ref",
+          "type": "SWITCH",
+          "evaluatorType": "value-param",
+          "expression": "decision",
+          "inputParameters": {
+            "decision": "${check_ref.output.result.decision}"
+          },
+          "decisionCases": {
+            "call": [
+              {
+                "name": "call_npm_tool",
+                "taskReferenceName": "tool_ref",
+                "type": "CALL_MCP_TOOL",
+                "optional": true,
+                "inputParameters": {
+                  "mcpServer": "${workflow.input.mcpServerUrl}",
+                  "headers": {
+                    "Authorization": "Bearer ${workflow.secrets.dependency_tools_key}"
+                  },
+                  "method": "${check_ref.output.result.tool}",
+                  "arguments": "${check_ref.output.result.arguments}"
+                },
+                "taskDefinition": {
+                  "name": "call_npm_tool",
+                  "retryCount": 2,
+                  "retryLogic": "FIXED",
+                  "retryDelaySeconds": 5
+                }
+              }
+            ]
+          },
+          "defaultCase": []
+        },
+        {
+          "name": "record_step",
+          "taskReferenceName": "record_step_ref",
+          "type": "INLINE",
+          "inputParameters": {
+            "evaluatorType": "graaljs",
+            "check": "${check_ref.output.result}",
+            "toolOutput": "${tool_ref.output}",
+            "previousLedgerText": "${workflow.variables.ledgerText}",
+            "expression": "// record_step: adds this step to the ledger, the running list of everything the agent did.\n// The planner reads the ledger at the start of the next step, and the final plan is written from it.\n//\n// Inputs:  $.check               the output of check_step\n//          $.toolOutput          the output of call_npm_tool (only used when check_step said \"call\")\n//          $.previousLedgerText  the ledger so far, from the workflow variable ledgerText (null at first)\n// Output:  ledgerText, steps, done (true when the agent decided to finish)\n\n// The first piece of text in an MCP tool result.\nfunction firstText(output) {\n  const content = output.content;\n  if (!content || content.length === 0) {\n    return \"\";\n  }\n  return String(content[0].text || \"\");\n}\n\n// Keeps only the fields an upgrade plan needs. The full tool output also holds the brief and\n// every dependency's licenses, which would fill the planner's prompt.\nfunction summarizeToolOutput(output) {\n  if (!output) {\n    return { error: \"the tool call failed or returned nothing\" };\n  }\n  const text = firstText(output);\n  if (output.isError === true) {\n    return { error: text.substring(0, 500) || \"the tool reported an error\" };\n  }\n  if (text === \"\") {\n    // No content at all: the call most likely failed or timed out before the workflow finished.\n    // An optional task that fails still gives an output, just without content.\n    let detail = \"\";\n    if (output.error) {\n      detail = \": \" + String(output.error).substring(0, 300);\n    }\n    return { error: \"the tool returned no result; the call may have timed out before the workflow finished\" + detail };\n  }\n\n  let data = null;\n  try {\n    data = JSON.parse(text);\n  } catch (e) {\n    return { text: text.substring(0, 1500) };\n  }\n\n  const keep = [\"warning\", \"aiVerdict\", \"route\", \"routeReasons\", \"rejectReasons\", \"recommendedVersion\", \"upgradeStatus\",\n    \"highOrCriticalAdvisories\", \"dependencyAdvisories\", \"licensePolicyViolations\", \"missingSources\",\n    \"advisories\", \"upgrade\"];\n  const summary = {};\n  for (const key of keep) {\n    if (data[key] !== undefined) {\n      summary[key] = data[key];\n    }\n  }\n\n  // A scan of a version deps.dev doesn't know looks clean: OSV returns no advisories and the\n  // dependency lookup is optional. Flag it, even if the route's script didn't.\n  if (!summary.warning && data.sources && data.sources.dependencyGraph === false) {\n    summary.warning = \"deps.dev has no data for this version; it may not exist, so this result proves nothing\";\n  }\n\n  // scan_npm_package returns its dependency facts in one object. Keep the counts, and one line per\n  // vulnerable dependency, e.g. {\"package\": \"qs@6.7.0\", \"severity\": \"1 HIGH, 2 MODERATE\", \"fixedIn\": \"6.16.0\"}\n  const deps = data.transitiveDependencies;\n  if (deps) {\n    const vulnerable = [];\n    for (const dep of deps.packagesWithAdvisories || []) {\n      vulnerable.push({ package: dep.package, severity: dep.severity, fixedIn: dep.fixedIn || null });\n    }\n    summary.dependencies = {\n      total: deps.total,\n      checked: deps.checked,\n      advisories: deps.uniqueAdvisoryCount,\n      highOrCritical: deps.highOrCriticalAdvisories,\n      unfixedHighOrCritical: deps.unfixedHighOrCritical,\n      vulnerable: vulnerable\n    };\n  }\n  return summary;\n}\n\nfunction recordStep() {\n  let ledger = [];\n  if ($.previousLedgerText) {\n    try {\n      ledger = JSON.parse($.previousLedgerText);\n    } catch (e) {\n      ledger = [];\n    }\n  }\n\n  const check = $.check || {};\n  const entry = { step: ledger.length + 1 };\n  let done = false;\n\n  if (check.decision === \"call\") {\n    // e.g. {\"step\": 2, \"tool\": \"POST_scan\", \"packageName\": \"express\", \"packageVersion\": \"4.17.1\", ...}\n    entry.tool = String(check.tool);\n    entry.packageName = String(check.arguments.packageName);\n    entry.packageVersion = String(check.arguments.packageVersion);\n    entry.reason = String(check.reason || \"\");\n    entry.result = summarizeToolOutput($.toolOutput);\n  } else if (check.decision === \"skip\") {\n    entry.skipped = String(check.problem);\n  } else {\n    entry.finished = String(check.reason || check.problem || \"the agent finished\");\n    done = true;\n  }\n\n  ledger.push(entry);\n  return { ledgerText: JSON.stringify(ledger), steps: ledger.length, done: done };\n}\n\nrecordStep();"
+          }
+        },
+        {
+          "name": "save_ledger",
+          "taskReferenceName": "save_ledger_ref",
+          "type": "SET_VARIABLE",
+          "inputParameters": {
+            "ledgerText": "${record_step_ref.output.result.ledgerText}",
+            "steps": "${record_step_ref.output.result.steps}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "write_upgrade_plan",
+      "taskReferenceName": "report_ref",
+      "type": "LLM_CHAT_COMPLETE",
+      "inputParameters": {
+        "llmProvider": "OpenAi_Key",
+        "model": "gpt-5-nano",
+        "reasoningEffort": "low",
+        "messages": [
+          {
+            "role": "system",
+            "message": "You write a dependency upgrade plan for an engineering team, from the ledger of an agent's tool calls. Use only facts from the ledger: never invent versions, advisories or verdicts. Write markdown with:\n1. A one-paragraph summary.\n2. A table with one row per current dependency: package, current version, what was found, the recommended action (keep, upgrade to a checked version, or replace with a checked package), and the evidence: the step numbers and their key facts.\n   - In \"what was found\", count the package's own advisories and its dependencies' advisories separately, e.g. \"2 own advisories (1 HIGH); 12 in dependencies (5 HIGH)\".\n   - For every package, whether you recommend keeping, upgrading or replacing it: if the version you recommend still has HIGH or CRITICAL advisories in its dependencies, put the npm overrides in the recommended action itself, naming each dependency's fixed version from the ledger, e.g. \"upgrade to 4.20.0 and override path-to-regexp to 0.1.13\" or \"keep 5.58.0 and override dompurify to 3.4.17\". A HIGH or CRITICAL dependency advisory with no fixed version is an unresolved risk: name it.\n   - A package checked as a replacement (its reason starts \"Replacement for <package>:\") goes in the row of the package it replaces, not in a row of its own. Recommend it there if its checked version has no HIGH or CRITICAL advisories, and note that switching to a different package needs code changes.\n   - Never recommend keeping a package whose own advisory has no fixed version without naming that as a risk. If the ledger has a checked replacement for it, recommend the replacement.\n   - Never recommend a version if any call for it has an \"error\" or a \"warning\": list it under open questions as unverified. A warning means the version may not exist.\n   - A current dependency with no scan in the ledger is \"not checked\": say so, and never recommend keeping it.\n3. Open questions: anything the agent couldn't check, failed or skipped calls, and recommendations that weren't verified with a tool.\nIn the summary, say plainly whether the recommendations reach the goal, including any overrides they need. The goal is reached only if no HIGH or CRITICAL advisory remains in any package after the recommended actions; an unchecked package or an unresolved risk means it isn't. If a recommended version still has HIGH or CRITICAL advisories, of its own or in its dependencies, say so; never describe such a version as having \"no advisories\".\nNever recommend a version or replacement that the ledger doesn't show as checked. Keep the plan under 500 words, and finish every section."
+          },
+          {
+            "role": "user",
+            "message": "Goal: ${workflow.input.goal}\n\nCurrent dependencies (name: version): ${prepare_ref.output.result.dependenciesText}\n\nLedger (JSON): ${workflow.variables.ledgerText}"
+          }
+        ]
+      }
+    },
+    {
+      "name": "post_plan_to_github",
+      "taskReferenceName": "github_issue_ref",
+      "type": "HTTP",
+      "optional": true,
+      "inputParameters": {
+        "uri": "https://api.github.com/repos/${workflow.env.dependency_review_github_owner}/${workflow.env.dependency_review_github_repo}/issues",
+        "method": "POST",
+        "connectionTimeOut": 3000,
+        "readTimeOut": 10000,
+        "headers": {
+          "Authorization": "Bearer ${workflow.secrets.github_orkes-dependency-review_token}",
+          "X-GitHub-Api-Version": "2026-03-10",
+          "User-Agent": "orkes-conductor-dependency-review"
+        },
+        "body": {
+          "title": "npm upgrade plan (agent run ${workflow.workflowId})",
+          "body": "**Goal:** ${workflow.input.goal}\n\n${report_ref.output.result}\n\n---\n_Written by the `npm_upgrade_planner_agent` workflow from `POST_scan` results ([open the run](https://developer.orkescloud.com/execution/${workflow.workflowId})). The plan is LLM-written; check each recommendation against the step log in the run's output._"
+        }
+      }
+    }
+  ],
+  "outputParameters": {
+    "plan": "${report_ref.output.result}",
+    "steps": "${workflow.variables.steps}",
+    "ledgerText": "${workflow.variables.ledgerText}",
+    "missingTools": "${prepare_ref.output.result.missingTools}",
+    "issueUrl": "${github_issue_ref.output.response.body.html_url}"
+  }
+}

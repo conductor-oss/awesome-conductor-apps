@@ -1,0 +1,23 @@
+{
+  "name": "ScanNpmPackageInput",
+  "version": 1,
+  "type": "JSON",
+  "data": {
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "required": [
+      "packageName",
+      "packageVersion"
+    ],
+    "properties": {
+      "packageName": {
+        "type": "string",
+        "description": "npm package name, e.g. express or @strapi/strapi"
+      },
+      "packageVersion": {
+        "type": "string",
+        "description": "Exact version, e.g. 4.17.1"
+      }
+    }
+  }
+}
