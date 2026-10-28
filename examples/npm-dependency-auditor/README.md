@@ -17,7 +17,7 @@ dependency_adoption_review
 
 - **`dependency_adoption_review`** is the parent, and the one you run. It runs `assess_npm_package`, then passes the result to `record_dependency_decision`.
 - **`assess_npm_package`** decides the route. It gathers the evidence in parallel, asks the LLM for a verdict, applies the routing rules, and writes the brief that the reviewer and the GitHub issue show. It's read-only.
-- **`scan_npm_package`** is the security scan that `assess_npm_package` runs. It finds the package's own advisories, then checks every dependency in its tree, with the severity and fixed version of each advisory. It reports facts only, with no LLM.
+- **`scan_npm_package`** is the security scan that `assess_npm_package` runs. It finds the package's own advisories, then checks every dependency in its tree, with the severity and fixed version of each advisory. It also reports whether the version, or the whole package, is deprecated. It reports facts only, with no LLM.
 - **`record_dependency_decision`** acts on the route. It approves or rejects automatically, or waits for a person to decide in a form, then files the GitHub issue.
 
 You can also run `assess_npm_package` or `scan_npm_package` on their own, with just `packageName` and `packageVersion`, to get a verdict or the security facts without filing an issue.
@@ -75,6 +75,7 @@ Each file in `sample-inputs/` tests a different case:
 | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Remote Services can't connect, or shows `Index 1 out of bounds` | Use the host `api.deps.dev:443`, with SSL on                                                                                                                 |
 | `NOT_FOUND: version not found`                                  | The package version doesn't exist on npm                                                                                                                     |
+| `NOT_FOUND: dependencies not found`                             | The version doesn't exist, or was published too recently for deps.dev to have resolved its dependencies: try again later                                     |
 | A sub-workflow task fails immediately                           | Save the three child workflows before the parent, with their names unchanged                                                                                 |
 | `human_review` fails                                            | The form must be named `dependency_review_form`, version 1                                                                                                   |
 | GitHub returns 401, 403 or 404                                  | 401: check the secret. 403: the token needs Issues write. 404: check the two environment variables. Then retry the parent with **resume sub-workflow tasks** |
@@ -83,4 +84,4 @@ Each file in `sample-inputs/` tests a different case:
 ## MCP Tools and an Example Agent (Optional)
 
 - **[`mcp/`](mcp/README.md)** exposes `scan_npm_package` and `assess_npm_package` as MCP tools through the Orkes MCP Gateway, so AI agents can call them.
-- **[`examples/`](examples/README.md)** has an example agent, `npm_upgrade_planner_agent`, that uses the scan tool to audit a project's dependencies and write an upgrade plan.
+- **[`examples/`](examples/README.md)** has an example agent, `npm_upgrade_planner_agent`, that scans a project's dependencies with the scan tool, asks an LLM to choose versions while code checks every choice, runs `assess_npm_package` on each accepted version, and writes an upgrade plan.

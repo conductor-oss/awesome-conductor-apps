@@ -1,10 +1,10 @@
 {
   "httpMethod": "POST",
   "path": "/assess",
-  "description": "Reviews one exact npm package version and decides whether to adopt it. Checks the package and its whole dependency tree for known advisories, licenses, deprecation and build provenance, then asks an LLM for a verdict and applies fixed rules. Returns aiVerdict (ADOPT, ADOPT_WITH_CONDITIONS or AVOID), route (AUTO_APPROVE, AUTO_REJECT or HUMAN_REVIEW) with routeReasons and rejectReasons, recommendedVersion, vulnerableDependencies, and a markdown brief (briefMarkdown). Read-only. Takes 30–90 seconds and costs one LLM call. For packages with large dependency trees it can exceed the gateway's 60-second limit and fail with HTTP 504, although the review still completes in Conductor; POST_scan is the fast alternative. Inputs: packageName, packageVersion (an exact version such as 4.17.1, not a range), and optionally allowedLicenses.",
+  "description": "Reviews one exact npm package version and decides whether to adopt it, combining deps.dev, OSV.dev, npm, DeepWiki and Hacker News: known advisories in the package and its whole dependency tree (with severity and fixes), licenses, deprecation, build provenance and project health. An LLM gives a verdict, then fixed rules decide the route. Returns aiVerdict (ADOPT, ADOPT_WITH_CONDITIONS or AVOID), route (AUTO_APPROVE, AUTO_REJECT or HUMAN_REVIEW) with routeReasons and rejectReasons, recommendedVersion, vulnerableDependencies, missingSources, and a markdown brief (briefMarkdown). Read-only. Takes 30–90 seconds, mostly the LLM's reasoning, and costs one LLM call. A call over about 60 seconds fails at the gateway with HTTP 504, although the review still completes in Conductor; each retry starts a new review. POST_scan is the fast alternative, with security facts only. Inputs: packageName, packageVersion (an exact version such as 4.17.1, not a range), and optionally allowedLicenses.",
   "mappedWorkflow": {
     "name": "assess_npm_package",
-    "version": 1
+    "version": 2
   },
   "workflowExecutionMode": "SYNCHRONOUS",
   "timeoutInSeconds": 600,

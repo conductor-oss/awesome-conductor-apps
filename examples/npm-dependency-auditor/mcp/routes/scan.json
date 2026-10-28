@@ -1,10 +1,10 @@
 {
   "httpMethod": "POST",
   "path": "/scan",
-  "description": "Checks one exact npm package version and its whole dependency tree for known advisories. Returns severity and fixed versions. Facts only, no AI verdict. Faster and cheaper than POST_assess. If the result has a \"warning\", the tool had no data for that version (it may not exist): don't treat it as clean. Inputs: packageName, packageVersion (exact, e.g. 4.17.1).",
+  "description": "Checks one exact npm package version and its whole dependency tree for known advisories. Returns severity and fixed versions, whether this version or the whole package is deprecated, and npm's latest version. Facts only, no AI verdict. Faster and cheaper than POST_assess. If the result has a \"warning\", the tool had no data for that version (it may be too new for deps.dev, or may not exist): don't treat it as clean. Inputs: packageName, packageVersion (exact, e.g. 4.17.1).",
   "mappedWorkflow": {
     "name": "scan_npm_package",
-    "version": 1
+    "version": 2
   },
   "workflowExecutionMode": "SYNCHRONOUS",
   "timeoutInSeconds": 300,
@@ -12,7 +12,7 @@
     "name": "ScanNpmPackageInput",
     "version": 1
   },
-  "outputScript": "(function () {\n  var result = { sources: $.sources, advisories: $.advisories, upgrade: $.upgrade,\n                 transitiveDependencies: $.transitiveDependencies };\n  // A version deps.dev doesn't know would otherwise look clean.\n  if (!$.sources || !$.sources.dependencyGraph) {\n    result.warning = \"deps.dev has no data for this version; it may not exist, so this result proves nothing\";\n  } else if (!$.sources.osv) {\n    result.warning = \"OSV.dev was unavailable, so the package's own advisories are unknown\";\n  }\n  return result;\n})();",
+  "outputScript": "(function () {\n  var result = { sources: $.sources, advisories: $.advisories, upgrade: $.upgrade,\n                 deprecation: $.deprecation, transitiveDependencies: $.transitiveDependencies };\n  // A version deps.dev has no dependency graph for would otherwise look clean. A brand-new release\n  // can have none yet: @strapi/strapi@5.60.0 had none a few hours after it was published.\n  if (!$.sources || !$.sources.dependencyGraph) {\n    result.warning = \"deps.dev has no dependency data for this version: it may be too new for deps.dev to have \" +\n      \"resolved its dependencies yet, or may not exist, or deps.dev may be failing, so this result proves nothing\";\n  } else if (!$.sources.osv) {\n    result.warning = \"OSV.dev was unavailable, so the package's own advisories are unknown\";\n  }\n  return result;\n})();",
   "rateLimitConfig": {
     "concurrentExecLimit": 10
   }
