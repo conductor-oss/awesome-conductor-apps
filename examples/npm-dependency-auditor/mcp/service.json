@@ -1,0 +1,25 @@
+{
+  "id": "npm-dependency-tools",
+  "name": "npm dependency tools",
+  "path": "/api/v1/npm-dependency-tools",
+  "description": "MCP tools that check npm packages before adoption: POST_assess (a full review with an AI verdict) and POST_scan (security facts only).",
+  "authConfigId": "npm-dependency-mcp-auth",
+  "enabled": true,
+  "mcpEnabled": true,
+  "corsConfig": {
+    "accessControlAllowOrigin": [
+      "*"
+    ],
+    "accessControlAllowMethods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE",
+      "PATCH",
+      "OPTIONS"
+    ],
+    "accessControlAllowHeaders": [
+      "*"
+    ]
+  }
+}

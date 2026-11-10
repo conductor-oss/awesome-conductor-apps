@@ -1,0 +1,9 @@
+{
+  "goal": "Audit these dependencies and propose the smallest set of upgrades or replacements that removes known high and critical advisories.",
+  "dependencies": {
+    "express": "4.17.1",
+    "request": "2.88.2",
+    "lodash": "4.17.20"
+  },
+  "mcpServerUrl": "PASTE_THE_MCP_TOOL_REMOTE_ENDPOINT_HERE"
+}

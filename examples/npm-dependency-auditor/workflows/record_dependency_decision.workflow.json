@@ -1,0 +1,127 @@
+{
+  "name": "record_dependency_decision",
+  "description": "Records the decision for a reviewed npm package version. Approves or rejects automatically when the route says so, otherwise asks a person through a Human task (User Form dependency_review_form). Then files a GitHub issue with the decision and the brief.",
+  "version": 1,
+  "schemaVersion": 2,
+  "restartable": true,
+  "inputParameters": [
+    "packageName",
+    "packageVersion",
+    "githubOwner",
+    "githubRepo",
+    "route",
+    "aiVerdict",
+    "briefMarkdown",
+    "reviewWorkflowId"
+  ],
+  "tasks": [
+    {
+      "name": "route_decision",
+      "taskReferenceName": "route_ref",
+      "type": "SWITCH",
+      "evaluatorType": "value-param",
+      "expression": "route",
+      "inputParameters": {
+        "route": "${workflow.input.route}"
+      },
+      "decisionCases": {
+        "AUTO_APPROVE": [
+          {
+            "name": "record_auto_approval",
+            "taskReferenceName": "auto_approval_ref",
+            "type": "SET_VARIABLE",
+            "inputParameters": {
+              "decision": "APPROVE",
+              "reviewerNotes": "",
+              "decidedBy": "Policy: auto-approved (AI verdict ADOPT, no known advisories, every license allowed, every dependency checked, not deprecated)"
+            }
+          }
+        ],
+        "AUTO_REJECT": [
+          {
+            "name": "record_auto_rejection",
+            "taskReferenceName": "auto_rejection_ref",
+            "type": "SET_VARIABLE",
+            "inputParameters": {
+              "decision": "REJECT",
+              "reviewerNotes": "",
+              "decidedBy": "Policy: auto-rejected by the workflow's rules (the brief's routing line gives the facts)"
+            }
+          }
+        ]
+      },
+      "defaultCase": [
+        {
+          "name": "human_review",
+          "taskReferenceName": "human_review_ref",
+          "type": "HUMAN",
+          "inputParameters": {
+            "__humanTaskDefinition": {
+              "displayName": "Dependency review",
+              "userFormTemplate": {
+                "name": "dependency_review_form",
+                "version": 1
+              },
+              "assignmentCompletionStrategy": "LEAVE_OPEN",
+              "assignments": [],
+              "taskTriggers": []
+            },
+            "packageRef": "npm/${workflow.input.packageName}@${workflow.input.packageVersion}",
+            "aiVerdict": "${workflow.input.aiVerdict}",
+            "aiBrief": "${workflow.input.briefMarkdown}"
+          }
+        },
+        {
+          "name": "record_human_decision",
+          "taskReferenceName": "human_decision_ref",
+          "type": "SET_VARIABLE",
+          "inputParameters": {
+            "decision": "${human_review_ref.output.decision}",
+            "reviewerNotes": "${human_review_ref.output.reviewerNotes}",
+            "decidedBy": "Human reviewer (Conductor HUMAN task)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "compose_issue",
+      "taskReferenceName": "compose_issue_ref",
+      "type": "INLINE",
+      "inputParameters": {
+        "evaluatorType": "graaljs",
+        "decision": "${workflow.variables.decision}",
+        "reviewerNotes": "${workflow.variables.reviewerNotes}",
+        "decidedBy": "${workflow.variables.decidedBy}",
+        "packageRef": "npm/${workflow.input.packageName}@${workflow.input.packageVersion}",
+        "aiVerdict": "${workflow.input.aiVerdict}",
+        "briefMarkdown": "${workflow.input.briefMarkdown}",
+        "workflowId": "${workflow.input.reviewWorkflowId}",
+        "expression": "// compose_issue: writes the GitHub issue that records the decision.\n//\n// Inputs:  $.decision, $.reviewerNotes, $.decidedBy   workflow variables set by whichever branch\n//                                                     decided (policy or a human)\n//          $.packageRef, $.aiVerdict, $.briefMarkdown, $.workflowId\n// Output:  decision (\"APPROVED\" or \"REJECTED\"), title, body\n//\n// Notes on Conductor:\n// - The last line calls composeIssue(); what it returns becomes the task output.\n//   Everything else is inside the function, because a top-level const or let can fail when\n//   Conductor reuses a script context.\n// - Text is joined with + because Conductor treats a dollar sign followed by a brace in a\n//   task input as a workflow reference, which rules out JavaScript template literals.\n\nfunction composeIssue() {\n  // Link back to the run in the Conductor UI. Change this if you use a different cluster.\n  const conductorUi = \"https://developer.orkescloud.com\";\n\n  // Anything other than an explicit APPROVE is recorded as rejected.\n  let decision = \"REJECTED\";\n  if (String($.decision || \"\").toUpperCase() === \"APPROVE\") {\n    decision = \"APPROVED\";\n  }\n\n  // e.g. \"Dependency decision: npm/express@4.17.1 → APPROVED (AI: ADOPT_WITH_CONDITIONS)\"\n  const title = \"Dependency decision: \" + $.packageRef + \" → \" + decision + \" (AI: \" + $.aiVerdict + \")\";\n\n  let notes = \"none\";\n  if ($.reviewerNotes) {\n    notes = $.reviewerNotes;\n  }\n\n  const body = [\n    \"## Decision: \" + decision,\n    \"\",\n    \"- **Package:** `\" + $.packageRef + \"`\",\n    \"- **Decided by:** \" + $.decidedBy,\n    \"- **Reviewer notes:** \" + notes,\n    \"\",\n    \"## AI dependency brief\",\n    \"\",\n    $.briefMarkdown,\n    \"\",\n    \"---\",\n    \"Recorded by Orkes Conductor workflow [`\" + $.workflowId + \"`](\" + conductorUi + \"/execution/\" + $.workflowId + \").\"\n  ].join(\"\\n\");\n\n  return {\n    decision: decision,\n    title: title,\n    body: body\n  };\n}\n\ncomposeIssue();"
+      }
+    },
+    {
+      "name": "record_decision_on_github",
+      "taskReferenceName": "record_decision_ref",
+      "type": "HTTP",
+      "inputParameters": {
+        "uri": "https://api.github.com/repos/${workflow.input.githubOwner}/${workflow.input.githubRepo}/issues",
+        "method": "POST",
+        "connectionTimeOut": 3000,
+        "readTimeOut": 10000,
+        "headers": {
+          "Authorization": "Bearer ${workflow.secrets.github_orkes-dependency-review_token}",
+          "X-GitHub-Api-Version": "2026-03-10",
+          "User-Agent": "orkes-conductor-dependency-review"
+        },
+        "body": {
+          "title": "${compose_issue_ref.output.result.title}",
+          "body": "${compose_issue_ref.output.result.body}"
+        }
+      }
+    }
+  ],
+  "outputParameters": {
+    "decision": "${compose_issue_ref.output.result.decision}",
+    "issueUrl": "${record_decision_ref.output.response.body.html_url}"
+  }
+}
